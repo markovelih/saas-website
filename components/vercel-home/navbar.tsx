@@ -45,7 +45,8 @@ import {
 } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 
-const menus = {
+type MenuItem = { icon: typeof Store; label: string; desc: string; href?: string; iconColor?: string }
+const menus: Record<string, { columns: { title: string; items: MenuItem[] }[] }> = {
   Services: {
     columns: [
       {
@@ -139,7 +140,7 @@ const navItems = [
   { label: 'Process', dropdown: true },
   { label: 'Workflows', dropdown: true },
   { label: 'Pricing', dropdown: false },
-  { label: 'Reviews', dropdown: false },
+  { label: 'FAQ', dropdown: false },
 ]
 
 export function Navbar() {
