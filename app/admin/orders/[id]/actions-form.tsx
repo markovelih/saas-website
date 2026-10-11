@@ -107,7 +107,7 @@ export function AdminOrderActions({ order }: { order: Order }) {
         {/* Status */}
         <div className="space-y-2">
           <Label>Order Status</Label>
-          <Select value={status} onValueChange={setStatus}>
+          <Select value={status} onValueChange={(value) => setStatus(value as Order["status"])}>
             <SelectTrigger className="bg-input border-border">
               <SelectValue />
             </SelectTrigger>
