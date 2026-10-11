@@ -61,8 +61,8 @@ export function Hero() {
             transition={{ duration: 0.55, delay: 0.16 }}
             className="mx-auto mt-8 max-w-[620px] text-[15px] leading-7 text-white/48 md:text-[17px]"
           >
-            Apex Studio creates premium websites, dashboards, and digital platforms that
-            look expensive, load fast, and convert visitors into clients.
+            Koryx designs and builds premium websites, SaaS applications, and custom software
+            for your business — from the first idea to a complete launch.
           </motion.p>
 
           <motion.div
