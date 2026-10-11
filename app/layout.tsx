@@ -15,12 +15,12 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Apex Studio | Premium Web Development Agency',
+  title: 'Koryx | Premium Web Development Agency',
   description: 'We build exceptional websites for ambitious brands. Custom web development, e-commerce solutions, and digital experiences that convert.',
   keywords: ['web development', 'web design', 'custom websites', 'e-commerce', 'digital agency'],
-  authors: [{ name: 'Apex Studio' }],
+  authors: [{ name: 'Koryx' }],
   openGraph: {
-    title: 'Apex Studio | Premium Web Development Agency',
+    title: 'Koryx | Premium Web Development Agency',
     description: 'We build exceptional websites for ambitious brands.',
     type: 'website',
   },
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
+  
   themeColor: '#0a0a0a',
 }
 
