@@ -94,7 +94,7 @@ function DeploymentCard() {
     >
       <div className="flex items-center justify-between">
         <div>
-          <p className="font-mono text-[13px] text-white/80">site-m55uez56h.vercel.sh</p>
+          <p className="font-mono text-[13px] text-white/80">your-business.com</p>
           <p className="text-[12px] text-white/40">Production</p>
         </div>
         <div className="flex items-center gap-4 text-[12px]">
@@ -162,9 +162,9 @@ function CodeBlock() {
 
 function SecurityFeatures() {
   const features = [
-    { icon: Shield, label: 'L3/L4 DDoS', sublabel: 'Protection' },
-    { icon: Flame, label: 'Global L7', sublabel: 'Firewall' },
-    { icon: Bot, label: 'Bot', sublabel: 'Management' },
+    { icon: Shield, label: 'Accounts', sublabel: 'Authentication' },
+    { icon: Flame, label: 'Private data', sublabel: 'Permissions' },
+    { icon: Bot, label: 'Forms', sublabel: 'Validation' },
   ]
 
   return (
@@ -229,7 +229,7 @@ export function Deploy() {
               transition={{ duration: 0.6 }}
               className="text-[36px] font-bold tracking-tight text-white sm:text-[48px]"
             >
-              Deploy once, scale everywhere.
+              From your idea to a working product.
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 15 }}
@@ -238,7 +238,7 @@ export function Deploy() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="mx-auto mt-4 max-w-md text-[16px] text-white/50"
             >
-              Deliver dynamic content without infrastructure overhead.
+              Koryx handles design, development, and launch for your business.
             </motion.p>
 
             {/* Deployed button */}
@@ -272,7 +272,7 @@ export function Deploy() {
 
           {/* Two column features */}
           <div className="grid md:grid-cols-2">
-            {/* Git-driven */}
+            {/* Review before launch */}
             <div className="border-b border-r border-white/[0.06] p-8 md:border-b-0">
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
@@ -282,12 +282,12 @@ export function Deploy() {
               >
                 <div className="mb-4 flex items-center gap-2 text-[13px] text-white/40">
                   <GitBranch className="h-4 w-4" strokeWidth={1.5} />
-                  <span>Git-driven</span>
+                  <span>Review before launch</span>
                 </div>
                 <p className="text-[18px] leading-relaxed text-white/80">
-                  Scope to a branch and{' '}
-                  <span className="font-semibold text-white">preview CDN changes</span>{' '}
-                  before production.
+                  Follow your project and{' '}
+                  <span className="font-semibold text-white">review working previews</span>{' '}
+                  before your website goes live.
                 </p>
               </motion.div>
               <div className="mt-6">
@@ -295,7 +295,7 @@ export function Deploy() {
               </div>
             </div>
 
-            {/* Global network */}
+            {/* Launch and hosting */}
             <div className="border-b border-white/[0.06] p-8 md:border-b-0">
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
@@ -305,11 +305,11 @@ export function Deploy() {
               >
                 <div className="mb-4 flex items-center gap-2 text-[13px] text-white/40">
                   <Globe className="h-4 w-4" strokeWidth={1.5} />
-                  <span>Global network</span>
+                  <span>Launch and hosting</span>
                 </div>
                 <p className="text-[18px] leading-relaxed text-white/80">
-                  <span className="font-semibold text-white">125+ PoPs and 20 Vercel regions</span>
-                  , with built-in request acceleration and high-availability architecture.
+                  <span className="font-semibold text-white">Your domain, connected and ready</span>
+                  , with deployment and hosting configured for your finished project.
                 </p>
               </motion.div>
             </div>
@@ -327,11 +327,11 @@ export function Deploy() {
               >
                 <div className="mb-4 flex items-center gap-2 text-[13px] text-white/40">
                   <Slash className="h-4 w-4" strokeWidth={1.5} />
-                  <span>Framework-aware, zero-config</span>
+                  <span>Custom development</span>
                 </div>
                 <p className="text-[18px] leading-relaxed text-white/80">
-                  <span className="font-semibold text-white">CDN configuration and caching is an output</span>{' '}
-                  of the deployment, with no need to define manual cache-control headers.
+                  <span className="font-semibold text-white">We build clean, maintainable code</span>{' '}
+                  for your website, dashboard, integrations, or SaaS application.
                 </p>
               </motion.div>
               <div className="mt-6">
@@ -352,8 +352,8 @@ export function Deploy() {
                   <span>Built-in security</span>
                 </div>
                 <p className="text-[18px] leading-relaxed text-white/80">
-                  <span className="font-semibold text-white">Unmetered, always-on network</span>{' '}
-                  and DDoS mitigations for all.
+                  <span className="font-semibold text-white">Secure accounts and private data</span>{' '}
+                  with access controls designed for your business.
                 </p>
               </motion.div>
               <SecurityAnimation />
@@ -371,7 +371,7 @@ export function Deploy() {
               transition={{ duration: 0.6 }}
               className="text-[32px] font-bold tracking-tight text-white sm:text-[40px]"
             >
-              Build with zero-config overhead.
+              Built for your business. Ready to launch.
             </motion.h3>
           </div>
         </div>
