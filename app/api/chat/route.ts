@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     model: 'openai/gpt-5.5',
     system:
       'You are Koryx AI, a helpful assistant for a premium web development studio. Be concise, clear, professional, and helpful.',
-    messages: convertToModelMessages(messages),
+    messages: await convertToModelMessages(messages),
   })
 
   return result.toUIMessageStreamResponse()
