@@ -24,7 +24,7 @@ export function Footer() {
         <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="text-4xl sm:text-5xl font-bold tracking-tight vercel-gradient-text mb-5">Start building today</h2>
           <p className="text-white/45 text-[16px] mb-8">
-            Get a premium website that feels like a real product. Built with clean code, strong visuals, and a conversion-focused structure.
+            Tell Koryx what your business needs. We design and build your website, application, or custom software, with a clear scope before work begins.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/register" className="vercel-btn-white text-[15px] px-7 py-3 rounded-lg justify-center">
@@ -82,7 +82,7 @@ export function Footer() {
           <p className="text-[12px] text-white/25">© {new Date().getFullYear()} Koryx. All rights reserved.</p>
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
-            <span className="text-[12px] text-white/25">All systems operational</span>
+            <span className="text-[12px] text-white/25">Custom development · Canada / Remote</span>
           </div>
         </div>
       </div>
