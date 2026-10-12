@@ -18,7 +18,7 @@ export default async function SettingsPage() {
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
-    .eq('email', user.email)
+    .eq('email', user.email ?? '')
     .maybeSingle()
 
   return (

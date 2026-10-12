@@ -117,12 +117,12 @@ function GitLabIcon() {
 }
 
 const cards = [
-  { title: 'Next.js Templates', Logo: NextLogo, color: 'rgba(255,255,255,0.1)', lineColor: 'rgba(255,255,255,0.15)' },
-  { title: 'Svelte Templates', Logo: SvelteLogo, color: 'rgba(255,62,0,0.15)', lineColor: 'rgba(255,62,0,0.2)' },
-  { title: 'React Templates', Logo: ReactLogo, color: 'rgba(97,218,251,0.12)', lineColor: 'rgba(97,218,251,0.18)' },
-  { title: 'Nuxt Templates', Logo: NuxtLogo, color: 'rgba(0,220,130,0.12)', lineColor: 'rgba(0,220,130,0.18)' },
-  { title: 'Astro Templates', Logo: AstroLogo, color: 'rgba(255,255,255,0.1)', lineColor: 'rgba(255,255,255,0.15)' },
-  { title: 'Python Templates', Logo: PythonLogo, color: 'rgba(255,224,82,0.12)', lineColor: 'rgba(255,224,82,0.18)' },
+  { title: 'Business Websites', Logo: NextLogo, color: 'rgba(255,255,255,0.1)', lineColor: 'rgba(255,255,255,0.15)' },
+  { title: 'Booking Systems', Logo: SvelteLogo, color: 'rgba(255,62,0,0.15)', lineColor: 'rgba(255,62,0,0.2)' },
+  { title: 'Client Dashboards', Logo: ReactLogo, color: 'rgba(97,218,251,0.12)', lineColor: 'rgba(97,218,251,0.18)' },
+  { title: 'SaaS Applications', Logo: NuxtLogo, color: 'rgba(0,220,130,0.12)', lineColor: 'rgba(0,220,130,0.18)' },
+  { title: 'Landing Pages', Logo: AstroLogo, color: 'rgba(255,255,255,0.1)', lineColor: 'rgba(255,255,255,0.15)' },
+  { title: 'Custom Software', Logo: PythonLogo, color: 'rgba(255,224,82,0.12)', lineColor: 'rgba(255,224,82,0.18)' },
 ]
 
 function DashedGridCard({ card, index }: { card: typeof cards[0]; index: number }) {
@@ -130,7 +130,7 @@ function DashedGridCard({ card, index }: { card: typeof cards[0]; index: number 
 
   return (
     <motion.a
-      href="#"
+      href="/register"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-50px' }}
@@ -190,7 +190,7 @@ export function Workflow() {
   const [flipped, setFlipped] = useState(false)
 const [direction, setDirection] = useState<'forward' | 'backward'>('forward')
 
-const text = 'Start Deploying'
+const text = 'Start Your Project'
 
 const flipText = () => {
   setDirection((prev) => (prev === 'forward' ? 'backward' : 'forward'))
@@ -241,11 +241,11 @@ useEffect(() => {
               transition={{ duration: 0.5 }}
               className="text-[38px] font-bold leading-[1.1] tracking-[-0.04em] text-white md:text-[44px]"
             >
-              Deploy your
+              Bring your
               <br />
-              first app in
+              business idea
               <br />
-              seconds.
+              to life.
             </motion.h2>
 
             <div className="mt-10 space-y-6">
@@ -269,15 +269,15 @@ useEffect(() => {
                   </div>
                 </div>
                 <p className="text-[15px] leading-relaxed text-white/60">
-                  Deploy automatically from git or with{' '}
-                  <span className="text-white">our CLI</span>
+                  We handle design, development, and{' '}
+                  <span className="text-white">your launch</span>
                 </p>
               </motion.div>
 
               {/* Features */}
               {[
-                { Icon: Monitor, highlight: 'Wide range', text: ' support for the most popular frameworks' },
-                { Icon: Eye, highlight: 'Previews', text: ' for every push' },
+                { Icon: Monitor, highlight: 'Custom builds', text: ' for websites, SaaS, and business software' },
+                { Icon: Eye, highlight: 'Working previews', text: ' to review progress and give feedback' },
                 { Icon: Lock, highlight: 'Automatic HTTPS', text: ' for all your domains' },
               ].map((item, i) => (
                 <motion.div
@@ -309,7 +309,7 @@ useEffect(() => {
             {/* CTA buttons */}
             <div className="mt-20 grid gap-5 md:grid-cols-[1fr_280px]">
               <motion.a
-  href="#"
+  href="/register"
   initial={{ opacity: 0, y: 20 }}
   whileInView={{ opacity: 1, y: 0 }}
   viewport={{ once: true }}
@@ -363,16 +363,16 @@ useEffect(() => {
                 className="flex flex-col justify-center gap-3"
               >
                 <a
-                  href="#"
+                  href="/register"
                   className="flex h-11 items-center justify-center rounded-full border border-white/20 bg-white text-[14px] font-medium text-black transition-opacity hover:opacity-90"
                 >
                   Talk to an Expert
                 </a>
                                 <a
-                  href="#"
+                  href="/register"
                   className="flex h-11 items-center justify-center rounded-full border border-white/10 text-[14px] font-medium text-white/70 transition-colors hover:border-white/20 hover:text-white"
                 >
-                  Get an Enterprise Trial
+                  Discuss Your Project
                 </a>
               </motion.div>
             </div>

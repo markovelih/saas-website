@@ -8,7 +8,7 @@ export type OrderStatus =
 
 export type UserRole = 'user' | 'admin'
 
-export interface Profile {
+export type Profile = {
   id: string
   email: string
   full_name: string | null
@@ -16,7 +16,7 @@ export interface Profile {
   created_at: string
 }
 
-export interface Order {
+export type Order = {
   id: string
   user_id: string
   business_name: string
@@ -42,11 +42,19 @@ export interface Database {
   public: {
     Tables: {
       profiles: {
+        Relationships: []
         Row: Profile
         Insert: Omit<Profile, 'created_at'>
         Update: Partial<Omit<Profile, 'id' | 'created_at'>>
       }
       orders: {
+        Relationships: [{
+          foreignKeyName: 'orders_user_id_fkey'
+          columns: ['user_id']
+          isOneToOne: false
+          referencedRelation: 'profiles'
+          referencedColumns: ['id']
+        }]
         Row: Order
         Insert: Omit<Order, 'id' | 'created_at' | 'status' | 'quote_price' | 'invoice_sent' | 'paid' | 'admin_notes'> & {
           status?: OrderStatus

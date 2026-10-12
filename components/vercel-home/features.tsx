@@ -398,7 +398,7 @@ export function Features() {
     <section id="services" className="relative bg-black">
       <GridBackground />
 
-      {/* Section 1: Understand production */}
+      {/* Section 1: Software for your business */}
       <FeatureSection className="py-20 md:py-32">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-8">
           {/* Left content */}
@@ -410,30 +410,30 @@ export function Features() {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-[42px] md:leading-[1.15]">
-              Understand production
+              Software for your business
               <br />
-              from the inside out.
+              built from the ground up.
             </h2>
             <p className="mt-6 text-base text-white/50 md:text-lg">
-              With real-time infrastructure and
+              From premium websites to SaaS and
               <br className="hidden md:block" />
-              traffic insights, we build the mission
+              business dashboards, Koryx turns
               <br className="hidden md:block" />
-              control for your frontend applications.
+              your idea into software built for you.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a
-                href="#"
+                href="/register"
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-white px-5 text-sm font-medium text-black transition-transform hover:scale-[1.02]"
               >
                 <span className="text-xs">▲</span>
-                Deploy Now
+                Start Project
               </a>
               <a
-                href="#"
+                href="/register"
                 className="inline-flex h-11 items-center justify-center rounded-full border border-white/20 px-5 text-sm font-medium text-white transition-colors hover:bg-white/5"
               >
-                Get a Demo
+                Explore Services
               </a>
             </div>
           </motion.div>
@@ -467,9 +467,9 @@ export function Features() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: 0.8 }}
               >
-                <p className="text-xs text-white/50">Visitors</p>
+                <p className="text-xs text-white/50">Example dashboard</p>
                 <p className="text-lg font-bold text-white">631,609</p>
-                <p className="text-xs text-white/30">Fri May 10 5pm - 6pm</p>
+                <p className="text-xs text-white/30">Illustrative data</p>
               </motion.div>
             </div>
 
@@ -499,11 +499,11 @@ export function Features() {
             <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-8">
               <p className="text-lg text-white/70 leading-relaxed">
                 <span className="text-white/30">&ldquo;</span>
-                This has completely changed our workflow, we&apos;re able to ship more confidently with real-time previews.
+                Your project starts with a clear brief. You review the design and working previews before we launch your finished website or application.
                 <span className="text-white/30">&rdquo;</span>
               </p>
               <div className="mt-6 flex items-center justify-between">
-                <span className="text-2xl font-bold tracking-[0.2em] text-white">SONOS</span>
+                <span className="text-2xl font-bold tracking-[0.2em] text-white">KORYX</span>
                 <svg className="h-5 w-5 text-white/30" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
                 </svg>
@@ -520,14 +520,14 @@ export function Features() {
               transition={{ duration: 0.5 }}
             >
               <h3 className="text-xl font-bold text-white">
-                <span className="text-white">Keep pushing forward.</span>{' '}
-                <span className="text-white/50">When builds are fast and rollbacks are instant, every developer can ship small, iterative changes.</span>
+                <span className="text-white">Stay involved at every stage.</span>{' '}
+                <span className="text-white/50">We share working previews, collect your feedback, and build around the way your business works.</span>
               </h3>
             </motion.div>
 
             <div className="mt-8 space-y-3">
               <PRItem
-                title="Migrate core pages to App Router"
+                title="Design your business website"
                 branch="rf/app-router"
                 time="2m ago"
                 user="rauno"
@@ -535,7 +535,7 @@ export function Features() {
                 delay={0.2}
               />
               <PRItem
-                title="Add banner to conf website"
+                title="Build your client dashboard"
                 branch="21342-banner"
                 time="2h ago"
                 user="timo"
@@ -543,7 +543,7 @@ export function Features() {
                 delay={0.3}
               />
               <PRItem
-                title="Remove release takeover"
+                title="Test and launch your application"
                 branch="ff/new-flag"
                 time="1d ago"
                 user="mrncst"
@@ -564,10 +564,10 @@ export function Features() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.5 }}
             >
-              <span className="font-semibold text-white">The Vercel Toolbar.</span>{' '}
-              A toolbox for iteration.
+              <span className="font-semibold text-white">Your project workspace.</span>{' '}
+              Clear progress and feedback.
               <br />
-              Your command center, wherever you work.
+              Review your website before it goes live.
             </motion.p>
           </div>
         </div>
@@ -598,7 +598,7 @@ export function Features() {
             >
               Track{' '}
               <span className="text-white">custom events</span>{' '}
-              <span className="text-white/50">without third-party scripts, for Pro and Enterprise.</span>
+              <span className="text-white/50">so you can understand inquiries, signups, and bookings.</span>
             </motion.h3>
 
             <CodeBlock
@@ -628,7 +628,7 @@ function SignupButton() {
               transition={{ duration: 0.4 }}
             >
               <Globe className="h-4 w-4 text-white/40" />
-              <span className="text-sm text-white/40">Web Analytics Plus</span>
+              <span className="text-sm text-white/40">Business analytics</span>
             </motion.div>
 
             <motion.h3
@@ -638,8 +638,8 @@ function SignupButton() {
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
-              <span className="text-white">UTM parameters, more events</span>
-              <span className="text-white/50">, and longer report windows.</span>
+              <span className="text-white">Traffic sources, leads, bookings</span>
+              <span className="text-white/50">, and the numbers that matter to your business.</span>
             </motion.h3>
 
             {/* Analytics dashboard mockup */}
@@ -656,7 +656,7 @@ function SignupButton() {
                   <div className="flex h-5 w-5 items-center justify-center rounded bg-white text-[10px] font-bold text-black">G</div>
                   <span className="text-sm text-white/70">google.com</span>
                 </div>
-                <span className="text-sm text-white/50">1,142,712 visitors</span>
+                <span className="text-sm text-white/50">Example visitor report</span>
               </div>
 
               {/* Colored tabs */}
@@ -709,7 +709,7 @@ function SignupButton() {
               transition={{ duration: 0.4 }}
             >
               <Zap className="h-4 w-4 text-white/40" />
-              <span className="text-sm text-white/40">Framework-aware, zero-config</span>
+              <span className="text-sm text-white/40">Fast, maintainable software</span>
             </motion.div>
 
             <motion.h3
@@ -719,8 +719,8 @@ function SignupButton() {
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
-              <span className="text-white">CDN configuration and caching is an output</span>{' '}
-              <span className="text-white/50">of the deployment, with no need to define manual cache-control headers.</span>
+              <span className="text-white">Performance is part</span>{' '}
+              <span className="text-white/50">of the build: responsive pages, optimized assets, and a backend designed for your workflow.</span>
             </motion.h3>
 
             <CodeBlock
@@ -756,8 +756,8 @@ export default async function submit() {
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
-              <span className="text-white">Unmetered, always-on network</span>{' '}
-              <span className="text-white/50">and DDoS mitigations for all.</span>
+              <span className="text-white">Authentication and permissions</span>{' '}
+              <span className="text-white/50">designed around your customers, team, and data.</span>
             </motion.h3>
 
             {/* Security animation */}
@@ -786,9 +786,9 @@ export default async function submit() {
             {/* Security features */}
             <div className="grid grid-cols-3 gap-3">
               {[
-                { icon: Shield, title: 'L3/L4 DDoS', subtitle: 'Protection' },
-                { icon: Globe, title: 'Global L7', subtitle: 'Firewall' },
-                { icon: Settings, title: 'Bot', subtitle: 'Management' },
+                { icon: Shield, title: 'Accounts', subtitle: 'Authentication' },
+                { icon: Globe, title: 'Private data', subtitle: 'Permissions' },
+                { icon: Settings, title: 'Forms', subtitle: 'Validation' },
               ].map((feature, i) => (
                 <motion.div
                   key={feature.title}
@@ -818,7 +818,7 @@ export default async function submit() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            Build with zero-config overhead.
+            Your business. Your software. Built by Koryx.
           </motion.h2>
         </div>
       </div>

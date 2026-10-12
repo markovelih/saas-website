@@ -51,7 +51,7 @@ export async function updateUserProfile(formData: FormData) {
 
   const id = String(formData.get('id'))
   const fullName = String(formData.get('full_name') || '')
-  const role = String(formData.get('role') || 'user')
+  const role = formData.get('role') === 'admin' ? 'admin' : 'user'
 
   await supabase
     .from('profiles')

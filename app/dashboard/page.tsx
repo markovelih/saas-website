@@ -53,7 +53,7 @@ export default async function DashboardPage() {
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
-    .eq('email', user.email)
+    .eq('email', user.email ?? '')
     .maybeSingle()
 
   const { data: orders } = await supabase
