@@ -76,6 +76,19 @@ function CornerPlus({ className }: { className: string }) {
   )
 }
 
+function GridSquares() {
+  return (
+    <div className="grid grid-cols-8 lg:grid-cols-12">
+      {Array.from({ length: 12 }, (_, index) => (
+        <div
+          key={index}
+          className={`aspect-square min-w-0 border-white/[0.07] ${index > 0 ? 'border-l' : ''} ${index >= 8 ? 'hidden lg:block' : ''}`}
+        />
+      ))}
+    </div>
+  )
+}
+
 function formatPhoneNumber(value: string, code: string) {
   const digits = value.replace(/\D/g, '').slice(0, 15)
 
@@ -219,9 +232,9 @@ export default function RegisterPage() {
         <div className="relative grid w-full min-w-0 border border-white/[0.12] bg-black/80 md:grid-cols-2">
           <div
             aria-hidden="true"
-            className="pointer-events-none relative hidden h-12 border-b border-white/[0.1] md:col-span-2 md:block"
-            style={{ backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.07) 1px, transparent 1px)', backgroundSize: '96px 100%' }}
+            className="pointer-events-none relative hidden border-b border-white/[0.1] md:col-span-2 md:block"
           >
+            <GridSquares />
             <CornerPlus className="absolute -bottom-2 -left-2 h-4 w-4 text-white/65" />
           </div>
 
@@ -372,9 +385,9 @@ export default function RegisterPage() {
           </motion.div>
           <div
             aria-hidden="true"
-            className="pointer-events-none relative hidden h-8 border-t border-white/[0.1] md:col-span-2 md:block"
-            style={{ backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.07) 1px, transparent 1px)', backgroundSize: '96px 100%' }}
+            className="pointer-events-none relative hidden border-t border-white/[0.1] md:col-span-2 md:block"
           >
+            <GridSquares />
             <CornerPlus className="absolute -bottom-2 -right-2 h-4 w-4 text-white/65" />
           </div>
         </div>
