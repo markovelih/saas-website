@@ -1,8 +1,11 @@
 import type { Metadata, Viewport } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Geist, Geist_Mono, Montserrat } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from 'sonner'
 import './globals.css'
+import {SiteTypography} from '@/components/site-typography'
+
+const roundedFont=Montserrat({subsets:['latin','cyrillic'],variable:'--font-koryx-rounded',display:'swap'})
 
 const geistSans = Geist({
   subsets: ['latin'],
@@ -41,9 +44,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} bg-background`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${roundedFont.variable} bg-background`}>
       <body className="font-sans antialiased min-h-screen">
-        {children}
+        <SiteTypography>{children}</SiteTypography>
         <Toaster 
           position="top-right" 
           theme="dark"
