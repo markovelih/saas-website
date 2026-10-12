@@ -215,70 +215,53 @@ export default function RegisterPage() {
     <section className="relative min-h-screen overflow-x-hidden bg-black text-white">
       <AuthBackdrop />
 
-      <div className="relative z-10 mx-auto flex min-h-screen max-w-[1160px] items-center px-4 py-24">
-        <div className="relative grid w-full overflow-visible border border-white/[0.12] bg-black/80 md:grid-cols-[1.05fr_0.95fr]">
+      <div className="relative z-10 mx-auto flex min-h-screen max-w-[1160px] items-center px-4 py-8 sm:px-6 sm:py-12">
+        <div className="relative grid w-full min-w-0 border border-white/[0.12] bg-black/80 md:grid-cols-2">
           <div
-  className="pointer-events-none absolute left-0 top-0 z-0 hidden h-[96px] w-full border-b border-white/[0.1] md:block"
-  style={{
-    backgroundImage: `
-      linear-gradient(to right, rgba(255,255,255,0.07) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255,255,255,0.07) 1px, transparent 1px)
-    `,
-    backgroundSize: '96px 96px',
-  }}
-/>
+            aria-hidden="true"
+            className="pointer-events-none relative hidden h-12 border-b border-white/[0.1] md:col-span-2 md:block"
+            style={{ backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.07) 1px, transparent 1px)', backgroundSize: '96px 100%' }}
+          >
+            <CornerPlus className="absolute -bottom-2 -left-2 h-4 w-4 text-white/65" />
+          </div>
 
-          <div
-  className="pointer-events-none absolute bottom-0 left-0 z-0 hidden h-[96px] w-full border-t border-white/[0.1] md:block"
-  style={{
-    backgroundImage: `
-      linear-gradient(to right, rgba(255,255,255,0.07) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255,255,255,0.07) 1px, transparent 1px)
-    `,
-    backgroundSize: '96px 96px',
-  }}
-/>
-
-          <CornerPlus className="pointer-events-none absolute -left-[8px] top-[96px] z-20 hidden h-4 w-4 text-white/65 md:block" />
-          <CornerPlus className="pointer-events-none absolute -bottom-[8px] -right-[8px] z-20 hidden h-4 w-4 text-white/65 md:block" />
-
-          <div className="relative z-10 p-8 pt-28 md:min-h-[760px] md:border-r md:border-white/[0.1] md:p-12 md:pt-36">
-            <Link href="/" className="mb-10 inline-flex items-center gap-2 text-sm text-white/45 transition hover:text-white">
+          <div className="relative z-10 flex min-w-0 flex-col p-6 sm:p-8 md:border-r md:border-white/[0.1] md:p-10">
+            <Link href="/" className="inline-flex h-9 w-fit items-center gap-2 text-sm text-white/45 transition hover:text-white">
               <ArrowLeft className="h-4 w-4" />
               Back to home
             </Link>
 
-            <h1 className="max-w-[460px] text-[42px] font-bold leading-[0.98] tracking-[-0.055em] md:text-[56px]">
-              Create your
-              <br />
-              Koryx
-              <br />
-              account.
+            <h1 className="mt-8 text-[36px] font-bold leading-[1.08] tracking-[-0.045em] sm:text-[44px] md:text-[40px] lg:text-[48px]">
+              <span className="block">Create your</span>
+              <span className="block">Koryx account.</span>
             </h1>
 
-            <div className="mt-10 space-y-8 text-[15px] leading-7 text-white/55">
+            <div className="mt-8 grid gap-6 text-[15px] leading-6 text-white/55">
               {[
                 ['Track your project.', 'See updates, progress, and next steps inside your dashboard.'],
                 ['Work faster.', 'Share files, requirements, and feedback in one clean place.'],
                 ['Premium client access.', 'Built for serious brands and custom web projects.'],
               ].map(([title, text]) => (
-                <div key={title} className="flex gap-3">
-                  <Check className="mt-1 h-5 w-5 shrink-0 text-white" />
-                  <p>
-                    <span className="text-white">{title}</span> {text}
-                  </p>
+                <div key={title} className="grid min-w-0 grid-cols-[20px_minmax(0,1fr)] gap-3">
+                  <Check className="mt-0.5 h-5 w-5 text-white" />
+                  <div>
+                    <p className="font-medium text-white">{title}</p>
+                    <p className="mt-1">{text}</p>
+                  </div>
                 </div>
               ))}
             </div>
 
-            <div className="relative z-10 mt-14 grid grid-cols-2 pt-8 before:absolute before:left-0 before:right-0 before:top-0 before:h-px before:bg-white/[0.1]">
-              <div>
-                <p className="text-3xl font-semibold tracking-[-0.04em]">24/7</p>
-                <p className="mt-2 text-sm text-white/40">Dashboard access</p>
-              </div>
-              <div>
-                <p className="text-3xl font-semibold tracking-[-0.04em]">Fast</p>
-                <p className="mt-2 text-sm text-white/40">Project updates</p>
+            <div className="mt-auto pt-10">
+              <div className="grid grid-cols-2 gap-6 border-t border-white/[0.1] pt-6">
+                <div>
+                  <p className="text-3xl font-semibold leading-none tracking-[-0.04em]">24/7</p>
+                  <p className="mt-3 text-sm leading-5 text-white/40">Dashboard access</p>
+                </div>
+                <div>
+                  <p className="text-3xl font-semibold leading-none tracking-[-0.04em]">Fast</p>
+                  <p className="mt-3 text-sm leading-5 text-white/40">Project updates</p>
+                </div>
               </div>
             </div>
           </div>
@@ -287,26 +270,14 @@ export default function RegisterPage() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45 }}
-            className="relative z-10 bg-[#050505]/95 p-8 md:min-h-[760px] md:p-12 md:pt-36"
+            className="relative z-10 min-w-0 border-t border-white/[0.1] bg-[#050505]/95 p-6 sm:p-8 md:border-t-0 md:p-10"
           >
             <div className="mb-8">
-              <Link href="/" className="mb-8 inline-flex items-center">
-  <Image
-    src="/koryx-logo.png"
-    alt="Koryx logo"
-    width={160}
-    height={40}
-    className="h-auto w-[140px] object-contain"
-    priority
-  />
-</Link>
-
-              <h2 className="text-2xl font-semibold tracking-[-0.03em]">
-                Register your account
-              </h2>
-              <p className="mt-2 text-sm text-white/45">
-                Enter your details and we’ll set up your client dashboard.
-              </p>
+              <Link href="/" aria-label="Koryx home" className="flex h-9 w-fit items-center">
+                <Image src="/koryx-logo.png" alt="Koryx logo" width={160} height={40} className="h-auto w-[140px] object-contain" priority />
+              </Link>
+              <h2 className="mt-8 text-2xl font-semibold tracking-[-0.03em]">Register your account</h2>
+              <p className="mt-2 text-sm leading-6 text-white/45">Enter your details and we’ll set up your client dashboard.</p>
             </div>
 
             {pendingEmail?<form action={async data=>{setIsLoading(true);setVerifyError('');data.set('email',pendingEmail);data.set('redirect',new URLSearchParams(window.location.search).get('redirect')||'/dashboard/new-order');try{const result=await verifyRegistration(data);if(result?.error)setVerifyError(result.error)}catch(error){if(error instanceof Error&&error.message==='NEXT_REDIRECT')throw error;setVerifyError('Connection interrupted. Please try again.')}finally{setIsLoading(false)}}} className="space-y-5"><h3 className="text-xl">Check your email.</h3><p className="text-sm text-white/50 break-words">We sent a confirmation code to {pendingEmail}. Enter it to finish registration.</p><label className="block text-sm text-white/70">Confirmation code<Input name="token" autoComplete="one-time-code" inputMode="numeric" pattern="[0-9]{6,8}" minLength={6} maxLength={8} required autoFocus className="h-14 text-xl tracking-[.25em] mt-3"/></label><Button disabled={isLoading} className="w-full h-12 bg-white text-black">{isLoading?'Confirming…':'Confirm email & continue'}</Button>{verifyError&&<p role="alert" className="text-sm text-red-300">{verifyError}</p>}<button type="button" className="text-sm text-white/50 hover:text-white" disabled={isLoading} onClick={()=>{if(lastForm.current)void handleSubmit(lastForm.current)}}>Resend confirmation code</button></form>:<form action={handleSubmit} className="space-y-5">
@@ -325,7 +296,7 @@ export default function RegisterPage() {
                   Phone <span className="text-white/35">(optional)</span>
                 </Label>
 
-                <div className="grid gap-3 sm:grid-cols-[210px_minmax(0,1fr)]">
+                <div className="grid gap-3 sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
                   <CountryDropdown
   value={phoneCountry}
   onChange={setPhoneCountry}
@@ -399,6 +370,13 @@ export default function RegisterPage() {
               </p>
             </div>
           </motion.div>
+          <div
+            aria-hidden="true"
+            className="pointer-events-none relative hidden h-8 border-t border-white/[0.1] md:col-span-2 md:block"
+            style={{ backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.07) 1px, transparent 1px)', backgroundSize: '96px 100%' }}
+          >
+            <CornerPlus className="absolute -bottom-2 -right-2 h-4 w-4 text-white/65" />
+          </div>
         </div>
       </div>
     </section>
