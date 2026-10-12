@@ -28,5 +28,22 @@ const snap=load('lib/project-planner/snapshot.ts'),snapshot=snap.serializePlan({
 assert.equal(snap.readPlan(snapshot).estimate.total,3200)
 assert.equal(snap.readPlan('Legacy project description'),null)
 assert.equal(snap.readPlan('KORYX_PLAN_V1\ninvalid json'),null)
-if(old===undefined)delete process.env.SUPABASE_SERVICE_ROLE_KEY;else process.env.SUPABASE_SERVICE_ROLE_KEY=old
-console.log('Planner checks passed: price breakdown, dependencies, budget fit, input validation, signed estimate integrity and legacy briefs.')
+let inserted=null
+const actions=load('app/dashboard/new-order/actions.ts',{
+ '@/lib/supabase/server':{createClient:async()=>({auth:{getUser:async()=>({data:{user:{id:'owner'}}})},from:()=>({insert:value=>{inserted=value;return {select:()=>({single:async()=>({data:{id:'saved-project'},error:null})})}}})})},
+ 'next/cache':{revalidatePath:()=>{}},'@/lib/project-planner/schema':schema,'@/lib/project-planner/catalog':c,'@/lib/project-planner/signature':sig,'@/lib/project-planner/snapshot':snap,
+})
+;(async()=>{
+ const details={businessName:'Test studio',contactEmail:'studio@example.test',phone:'',references:'',deadline:'',designStyle:'Dark & refined'}
+ const result=await actions.createOrder({...input,...details,user_id:'forged-owner',status:'paid',quote_price:1,paid:true,admin_notes:'forged'})
+ assert.equal(result.id,'saved-project')
+ assert.equal(inserted.user_id,'owner','Project ownership must come from the authenticated session')
+ for(const field of ['status','quote_price','paid','admin_notes'])assert.equal(field in inserted,false,'Client-supplied studio fields must not be persisted')
+ assert.equal(snap.readPlan(inserted.description).estimate.total,3200)
+ inserted=null
+ const rejected=await actions.createOrder({...input,...details,estimateToken:token.replace(/.$/,'x')})
+ assert.ok(rejected.error);assert.equal(inserted,null,'A modified AI estimate must not create a project')
+ const accepted=await actions.createOrder({...input,...details,estimateToken:sig.signEstimate('owner',{...input,features:c.normalizeFeatures(input.type,input.features)},estimate)})
+ assert.equal(accepted.id,'saved-project')
+ console.log('Planner checks passed: prices, dependencies, budget fit, validation, signed estimate integrity, legacy briefs and authenticated order submission.')
+})().catch(error=>{console.error(error);process.exitCode=1}).finally(()=>{if(old===undefined)delete process.env.SUPABASE_SERVICE_ROLE_KEY;else process.env.SUPABASE_SERVICE_ROLE_KEY=old})
