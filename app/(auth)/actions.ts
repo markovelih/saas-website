@@ -37,7 +37,7 @@ async function createSupabaseClient() {
 
 
 function safeDestination(raw:string){
- try { const url=new URL(raw,'https://koryx.ca');if(url.origin==='https://koryx.ca'&&(['/dashboard/new-order','/dashboard/orders','/dashboard/ai','/dashboard/renewals'].includes(url.pathname)||/^\/dashboard\/orders\/[a-f0-9-]{36}$/.test(url.pathname)))return url.pathname+url.search } catch {}
+ try { const url=new URL(raw,'https://koryx.ca');if(url.origin==='https://koryx.ca'&&(['/dashboard/new-order','/dashboard/orders','/dashboard/ai','/dashboard/renewals'].includes(url.pathname)||/^\/dashboard\/orders\/[a-f0-9-]{36}$/.test(url.pathname)||/^\/pay\/[a-f0-9-]{36}$/.test(url.pathname)))return url.pathname+url.search } catch {}
  return '/dashboard'
 }
 
