@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono, Montserrat } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/next'
+import {PrivacyControls} from '@/components/legal/cookie-preferences'
 import { Toaster } from 'sonner'
 import './globals.css'
 import {SiteTypography} from '@/components/site-typography'
@@ -58,7 +58,7 @@ export default function RootLayout({
             },
           }}
         />
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+        <PrivacyControls/>
       </body>
     </html>
   )
