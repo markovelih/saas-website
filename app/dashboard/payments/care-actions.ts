@@ -3,7 +3,7 @@ import {z} from 'zod'
 import {revalidatePath} from 'next/cache'
 import {workspaceSession} from '@/lib/workspace'
 import {founderClient} from '@/lib/supabase/admin'
-import {paymentDb,stripeClient} from '@/lib/payments/server'
+import {paymentDb,stripeClient,stripeReady} from '@/lib/payments/server'
 import {openCareCheckout,syncSubscription} from '@/lib/payments/care'
 const uuid=z.string().uuid()
 export async function configureCare(raw:unknown){
@@ -15,8 +15,9 @@ export async function configureCare(raw:unknown){
  const result=old?await db.from('care_services').update(value).eq('id',old.id).is('consented_at',null).is('subscription_id',null).select('id').single():await db.from('care_services').insert(value);if(result.error)return {error:'Renewal plan could not be saved.'};revalidatePath('/dashboard/admin');revalidatePath('/dashboard/renewals');return {success:true}
 }
 export async function enableCare(raw:unknown){
+ if(!stripeReady())return {error:'Card payments are not available yet. Contact support@koryx.ca.'}
  const p=z.object({id:uuid,consent:z.literal(true)}).safeParse(raw);if(!p.success)return {error:'Agree to the renewal price and schedule.'};const {user}=await workspaceSession(),db=paymentDb(),{data:c}=await db.from('care_services').select('*').eq('id',p.data.id).eq('user_id',user.id).single();if(!c)return {error:'Renewal not found.'}
- try{const {error}=await db.from('care_services').update({consented_at:new Date().toISOString()}).eq('id',c.id).eq('amount_cents',c.amount_cents).eq('next_date',c.next_date).eq('interval',c.interval).select('id').single();if(error)throw new Error('Consent could not be saved.');return {url:await openCareCheckout(c,user.id)}}catch(e){return {error:e instanceof Error?e.message:'Renewal checkout could not be opened.'}}
+ try{const {error}=await db.from('care_services').update({consented_at:new Date().toISOString()}).eq('id',c.id).eq('amount_cents',c.amount_cents).eq('next_date',c.next_date).eq('interval',c.interval).select('id').single();if(error)throw new Error('Consent could not be saved.');return {clientSecret:await openCareCheckout(c,user.id),publishableKey:process.env.STRIPE_PUBLISHABLE_KEY!}}catch(e){return {error:e instanceof Error?e.message:'Renewal checkout could not be opened.'}}
 }
 export async function stopCare(raw:unknown){
  const p=z.object({id:uuid,confirm:z.literal(true)}).safeParse(raw);if(!p.success)return {error:'Confirm you want to stop future automatic renewals.'};const {user}=await workspaceSession(),{data:c}=await paymentDb().from('care_services').select('*').eq('id',p.data.id).eq('user_id',user.id).single();if(!c?.subscription_id)return {error:'Active renewal not found.'}
