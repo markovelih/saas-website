@@ -77,7 +77,7 @@ export interface Database {
       }
     }
     Views: Record<string, never>
-    Functions: {koryx_save_domain:{Args:{p_order_id:string;p_domain:Record<string,unknown>};Returns:ManagedDomain};koryx_auth_email_limit:{Args:{p_key:string;p_limit:number;p_seconds:number};Returns:boolean};koryx_settle_renewal:{Args:{p_id:string;p_snapshot:BillingSnapshot;p_next_date:string|null};Returns:Renewal};koryx_record_payment: {Args: {p_order_id:string;p_snapshot:BillingSnapshot};Returns:Payment}}
+    Functions: {koryx_attach_preview:{Args:{p_order_id:string;p_path:string};Returns:undefined};koryx_save_domain:{Args:{p_order_id:string;p_domain:Record<string,unknown>};Returns:ManagedDomain};koryx_auth_email_limit:{Args:{p_key:string;p_limit:number;p_seconds:number};Returns:boolean};koryx_settle_renewal:{Args:{p_id:string;p_snapshot:BillingSnapshot;p_next_date:string|null};Returns:Renewal};koryx_record_payment: {Args: {p_order_id:string;p_snapshot:BillingSnapshot};Returns:Payment}}
     Enums: {
       order_status: OrderStatus
       user_role: UserRole

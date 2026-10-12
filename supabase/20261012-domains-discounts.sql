@@ -123,3 +123,14 @@ end $$;
 revoke all on function public.koryx_auth_email_limit(text,integer,integer) from public,anon,authenticated;
 grant execute on function public.koryx_auth_email_limit(text,integer,integer) to service_role;
 notify pgrst,'reload schema';commit;
+
+begin;
+create or replace function public.koryx_attach_preview(p_order_id uuid,p_path text) returns void language plpgsql security definer set search_path=public,pg_temp as $$
+begin
+ if p_path<>p_order_id::text||'/homepage.webp' then raise exception 'Invalid preview path';end if;
+ update public.orders set delivery=jsonb_set(jsonb_set(coalesce(delivery,'{}'::jsonb),'{preview_path}',to_jsonb(p_path)),'{updated_at}',to_jsonb(now()::text)) where id=p_order_id;
+ if not found then raise exception 'Project not found';end if;
+end $$;
+revoke all on function public.koryx_attach_preview(uuid,text) from public,anon,authenticated;
+grant execute on function public.koryx_attach_preview(uuid,text) to service_role;
+notify pgrst,'reload schema';commit;
