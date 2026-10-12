@@ -5,6 +5,8 @@ import { motion, useReducedMotion } from 'framer-motion'
 import { ArrowRight, Check, Globe, Layers, ShoppingBag, CalendarCheck, Workflow, ShieldCheck, Code2, Search } from 'lucide-react'
 import type { ReactNode } from 'react'
 import s from './studio.module.css'
+import { ExperienceLab } from './experience-lab'
+import { BudgetPricing } from '@/components/workspace/budget-pricing'
 
 export const services = [
   { slug: 'business-websites', icon: Globe, title: 'Websites & brand experiences', short: 'Business websites', description: 'A distinctive home for your business. Thoughtful design, expressive motion, and a clear path from first impression to enquiry.', includes: ['Custom UI/UX & responsive layouts', 'Landing pages & content management', 'Forms, technical SEO & analytics'], result: 'A finished website on your domain, ready for visitors.', audience: 'Local businesses, service brands, portfolios, and companies ready to improve their online presence.', visual: 'website' },
@@ -44,9 +46,7 @@ export function WebsitePreview({ type = 'website' }: { type?: string }) {
   </div>
 }
 
-export function WorkShowcase() {
-  return <section id="work" className={s.section}><div className={s.wrap}><Reveal className={s.intro}><div><p className={s.eyebrow}>Designed to feel different</p><h2 className={s.heading}>A better first impression.<br /><span className="text-white/40">A more capable product.</span></h2></div><p className={s.muted}>Your brand deserves more than a generic template. Explore visual directions for a website, a store, and a business application.</p></Reveal><div className={s.showcase}>{[['website', 'A distinctive business website', 'Design & interaction'], ['shop', 'An elevated online store', 'E-commerce'], ['app', 'A focused business application', 'Software & portals']].map(([type, title, category]) => <Reveal key={type}><WebsitePreview type={type} /><div className={s.caption}>{title}<span>{category}</span></div></Reveal>)}</div><p className={s.note}>Original design concepts illustrating possible directions for your project.</p></div></section>
-}
+export function WorkShowcase() { return <ExperienceLab/> }
 
 export function GlobeVisual() {
   return <svg className={s.diagram} viewBox="0 0 440 230" role="img" aria-label="Animated global network connecting your website to visitors"><defs><radialGradient id="globeGlow"><stop stopColor="#379fff" stopOpacity=".15" /><stop offset="1" stopColor="#379fff" stopOpacity="0" /></radialGradient></defs><circle cx="220" cy="145" r="125" fill="url(#globeGlow)" /><path d="M65 210a155 155 0 0 1 310 0M65 210h310M83 140h274M123 82h194M220 55v155" className={s.gridline}/><path d="M130 210C130 30 310 30 310 210M177 210C177 3 263 3 263 210" className={s.gridline}/><path d="M92 163L155 163L179 103L240 103L270 165L351 165" stroke="#449eff" strokeWidth="1.5" fill="none" className={s.signal}/>{[[92,163],[179,103],[240,103],[270,165],[351,165],[220,65]].map(([x,y],i)=><g key={i}><circle cx={x} cy={y} r="10" fill="#090909" stroke="#ffffff25"/><circle cx={x} cy={y} r="3" fill={i%2 ? '#fff' : '#449eff'} className={s.pulse} style={{animationDelay:`-${i*.5}s`}}/></g>)}<text x="170" y="228">YOUR BRAND. EVERYWHERE.</text></svg>
@@ -86,9 +86,7 @@ export function FAQSection() {
   return <section id="faq" className={s.section}><div className={s.wrap}><Reveal><p className={`${s.eyebrow} text-center`}>Before we start</p><h2 className={`${s.heading} text-center mb-12`}>Good questions.<br /><span className="text-white/40">Clear answers.</span></h2><div className={s.faq}>{faqs.map(([q,a])=><details key={q}><summary>{q}</summary><p>{a}</p></details>)}</div></Reveal></div></section>
 }
 
-export function PricingContent() {
-  return <div className={s.page}><p className={s.eyebrow}>Project pricing</p><h1>A clear scope.<br /><span className="text-white/40">A quote built for you.</span></h1><p className={s.lead}>You are commissioning a finished website or software product. We quote the work around your design, features, and integrations before development begins.</p><div className={`${s.grid} mt-14`}>{[['Website','A landing page or business website with a distinctive design and responsive experience.',['UI/UX design','Responsive development','Forms & technical SEO','Domain & launch setup']],['Application','A SaaS product, online store, portal, or internal tool with the workflows your business needs.',['Product planning & design','Accounts & data','Agreed integrations','Testing & handover']],['Feature or improvement','A focused upgrade to your existing website or software.',['Existing product review','Defined feature scope','Implementation & testing','Integration guidance']]].map(([title,desc,items])=><div className={s.card} key={String(title)}><h3 className="!mt-0">{title}</h3><p>{desc}</p><div className={s.price}>Quoted per project</div><ul>{(items as string[]).map(i=><li key={i}><Check size={13}/>{i}</li>)}</ul><Link href="/dashboard/new-order" className={s.link}>Request a quote <ArrowRight size={14}/></Link></div>)}</div><div className={`${s.card} mt-7`}><h3 className="!mt-0">What your proposal covers</h3><p>Deliverables, project milestones, revision scope, payment terms, and handover. Hosting, domains, paid APIs, subscriptions, and optional maintenance are listed separately. The final price and timeline are agreed before work starts.</p></div><ProjectButtons/></div>
-}
+export function PricingContent() { return <BudgetPricing/> }
 
 export function ServiceDetail({ slug }: { slug: string }) {
   const service = services.find(x=>x.slug===slug)!
