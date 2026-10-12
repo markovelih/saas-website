@@ -1,4 +1,4 @@
-export type BillingItem = {description:string;quantity:number;unit_price:number}
+export type BillingItem = {description:string;quantity:number;unit_price:number;discount?:Discount}
 export type Discount={type:'amount'|'percent';value:number}
 export type DocumentSelection='invoice'|'receipt'|'both'
 export type ManagedDomain={id:string;order_id:string;user_id:string;hostname:string;status:'connected'|'pending'|'expired';renewal_date:string|null;cost_price:number;retail_price:number;notes:string;created_at:string}
@@ -15,5 +15,5 @@ export type BillingSettings = {id: boolean; seller_name: string; seller_address:
 export const defaultBilling: BillingSettings = {id:true,seller_name:'Koryx',seller_address:'',support_email:'support@koryx.ca',tax_id:'',tax_label:'Tax',tax_rate:0,from_email:'support@koryx.ca'}
 export type PaymentMethod = 'usdt_trc20'|'btc'|'bank_transfer'|'cash'|'other'
 export const paymentMethods: Record<PaymentMethod,string> = {usdt_trc20:'USDT (TRC20)',btc:'Bitcoin (BTC)',bank_transfer:'Bank transfer',cash:'Cash',other:'Other / manual'}
-export type BillingSnapshot = {version:1; invoice_number:string; receipt_number:string; issued_at:string; paid_at:string; currency:'CAD'; seller:BillingSettings; customer:{name:string;email:string;address:string}; project:{id:string;name:string}; items:{description:string;quantity:number;unit_price:number;amount:number}[]; subtotal:number; tax:number; total:number; discount?:Discount;discount_amount?:number;settled?:boolean; method:PaymentMethod; reference:string; crypto_amount:string; test?:boolean}
+export type BillingSnapshot = {version:1; invoice_number:string; receipt_number:string; issued_at:string; paid_at:string; currency:'CAD'; seller:BillingSettings; customer:{name:string;email:string;address:string}; project:{id:string;name:string}; items:(BillingItem&{amount:number;gross_amount?:number;discount_amount?:number})[]; subtotal:number; tax:number; total:number; discount?:Discount;discount_amount?:number;service_discount_amount?:number;order_discount_amount?:number;settled?:boolean; method:PaymentMethod; reference:string; crypto_amount:string; test?:boolean}
 export type Payment = {id:string;order_id:string;user_id:string;snapshot:BillingSnapshot;created_at:string;email_status:'pending'|'sending'|'sent'|'failed'|'uncertain';email_id:string|null;email_error:string|null;attempted_at:string|null}
