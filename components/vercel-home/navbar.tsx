@@ -16,7 +16,7 @@ const serviceLinks = [
   { slug: 'seo-speed', label: 'Performance & SEO', desc: 'Faster pages and technical foundations', icon: Search },
   { slug: 'security', label: 'Security & launch', desc: 'HTTPS, hosting, and access controls', icon: ShieldCheck },
 ]
-const links = [['Work', '/work'], ['Process', '/process'], ['Pricing', '/pricing'], ['FAQ', '/faq']]
+const links = [['Work', '/work'], ['Process', '/process'], ['Pricing', '/pricing'], ['FAQ', '/faq'], ['Ask AI','/ai']]
 
 export function Navbar() {
   const [servicesOpen, setServicesOpen] = useState(false)
