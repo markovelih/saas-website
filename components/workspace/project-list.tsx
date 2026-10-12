@@ -1,0 +1,9 @@
+'use client'
+import {useState} from 'react'
+import Link from 'next/link'
+import {ArrowRight,Search} from 'lucide-react'
+import type {Order} from '@/lib/supabase/types'
+import {statusLabels} from '@/lib/project-planner/catalog'
+import {ProjectCard,EmptyProjects} from './project-ui'
+import s from './workspace.module.css'
+export function ProjectList({orders}:{orders:Order[]}){const [q,setQ]=useState(''),[status,setStatus]=useState('all');const filtered=orders.filter(o=>(o.business_name+' '+o.website_type).toLowerCase().includes(q.toLowerCase())&&(status==='all'||o.status===status));return <div className={s.shell}><header className={s.header}><div><p className={s.eyebrow}>Workspace / Projects</p><h1 className={s.title}>Every project. One place.</h1><p className={s.muted}>Open a project to see its scope, estimate, agreed quote and current stage.</p></div><Link href="/dashboard/new-order" className={s.primary}>Plan a project <ArrowRight size={15}/></Link></header>{orders.length?<><div className={s.toolbar}><label className={s.search}><Search size={14}/><input aria-label="Search your projects" placeholder="Search projects…" value={q} onChange={e=>setQ(e.target.value)}/></label><select className={s.select} aria-label="Filter project status" value={status} onChange={e=>setStatus(e.target.value)}><option value="all">All stages</option>{Object.entries(statusLabels).map(([id,label])=><option value={id} key={id}>{label}</option>)}</select></div><p className={`${s.notice} mb-4`}>{filtered.length} of {orders.length} project(s)</p><div className={s.grid}>{filtered.map(o=><ProjectCard key={o.id} order={o}/>)}</div>{!filtered.length&&<div className={s.empty}><p>No projects match your search.</p><button className={s.secondary} onClick={()=>{setQ('');setStatus('all')}}>Clear filters</button></div>}</>:<EmptyProjects/>}</div>}
