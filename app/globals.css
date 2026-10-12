@@ -347,7 +347,7 @@ input,textarea{min-width:0}
 [data-typography="rounded"]{--font-geist-sans:var(--font-koryx-rounded);--font-geist-mono:var(--font-koryx-rounded)}
 
 /* A 16px editing font prevents iOS focus zoom while keeping pinch zoom available. */
-@media (max-width: 767px) {
+@media (max-width: 767px), (hover: none) and (pointer: coarse) {
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, select, [contenteditable="true"] {
     font-size: 16px !important;
   }
