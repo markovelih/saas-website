@@ -1,9 +1,23 @@
 import type {BillingItem,Discount} from './types'
 export const cents=(n:number)=>Math.round((n+Number.EPSILON)*100)
+export function discountCents(subtotal:number,discount?:Discount){
+ const value=discount?.type==='percent'?Math.round(subtotal*discount.value/100):cents(discount?.value||0)
+ return Math.min(subtotal,Math.max(0,value))
+}
+export function itemTotals(item:BillingItem){
+ const gross=cents(item.unit_price)*item.quantity,off=discountCents(gross,item.discount)
+ return {gross_amount:gross/100,discount_amount:off/100,amount:(gross-off)/100}
+}
+export function discountBreakdown(items:BillingItem[],discount?:Discount){
+ const serviceCents=items.reduce((sum,i)=>sum+cents(itemTotals(i).discount_amount),0)
+ const gross=items.reduce((sum,i)=>sum+cents(i.unit_price)*i.quantity,0)
+ return {service_discount_amount:serviceCents/100,order_discount_amount:discountCents(gross-serviceCents,discount)/100}
+}
 export function totals(items:BillingItem[],discount:Discount={type:'amount',value:0}){
  const subtotalCents=items.reduce((sum,i)=>sum+cents(i.unit_price)*i.quantity,0)
- const discountCents=discount.type==='percent'?Math.round(subtotalCents*discount.value/100):cents(discount.value)
- return {subtotal:subtotalCents/100,discount_amount:Math.min(subtotalCents,discountCents)/100,total:Math.max(0,subtotalCents-discountCents)/100}
+ const breakdown=discountBreakdown(items,discount)
+ const off=cents(breakdown.service_discount_amount)+cents(breakdown.order_discount_amount)
+ return {subtotal:subtotalCents/100,discount_amount:off/100,total:(subtotalCents-off)/100}
 }
 export function domainRetail(cost:number){return Math.ceil(cents(cost)*1.5)/100}
 export const servicePresets:BillingItem[]=[
