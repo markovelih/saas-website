@@ -247,7 +247,7 @@ export default function RegisterPage() {
             <h1 className="max-w-[460px] text-[42px] font-bold leading-[0.98] tracking-[-0.055em] md:text-[56px]">
               Create your
               <br />
-              Apex Studio
+              Koryx
               <br />
               account.
             </h1>
