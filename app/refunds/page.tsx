@@ -1,0 +1,11 @@
+import Link from 'next/link'
+import {LegalPage} from '@/components/legal/legal-page'
+import {cancellationPolicy} from '@/lib/payments/policy'
+export const metadata={title:'Cancellation & refund policy | Koryx'}
+export default function Refunds(){return <LegalPage title="Cancellation & refunds">
+<section><h2>Custom projects</h2><p>{cancellationPolicy}</p><p>The 50% retention policy applies to voluntary cancellation of the agreed custom project, subject to applicable law and your written project agreement. It does not override rights arising from non-delivery, misleading representations, defective services or other legally protected circumstances.</p></section>
+<section><h2>How to request cancellation</h2><p>Email <a href="mailto:support@koryx.ca">support@koryx.ca</a> with your project or invoice number and the services you wish to cancel. Do not include card numbers or security codes. We review the work and payments already recorded, the written scope and applicable rights, then confirm the outcome in writing. You do not have to waive statutory rights to make a request.</p></section>
+<section><h2>Domain and hosting renewals</h2><p>You may stop future automatic charges in <Link href="/dashboard/renewals">your renewal dashboard</Link>, without a cancellation fee. To cancel a renewal already charged or the underlying service, contact support. Refunds depend on the service supplied and applicable law; statutory and qualifying proportionate-refund rights are preserved. A domain may be unavailable or expire if its actual renewal is not completed.</p></section>
+<section><h2>Approved refunds</h2><p>Approved card refunds normally go back through the original payment method. The payment provider and your bank determine when funds appear. Manual or cryptocurrency refunds require agreed return details and verification. We process legally required refunds within the applicable statutory period; provider settlement times may vary. Refunds are recorded in payment history once confirmed.</p></section>
+<section><h2>Your legal rights</h2><p>Nothing here limits rights that cannot lawfully be excluded. Where a mandatory cancellation or refund rule conflicts with our commercial policy, that rule takes priority. Read the <Link href="/terms">terms of service</Link> for the payment schedule and service conditions.</p></section>
+</LegalPage>}
