@@ -1,12 +1,26 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { Github, Twitter } from 'lucide-react'
+import { Github, Mail } from 'lucide-react'
 
 const footerLinks = {
-  Product: ['Landing Pages', 'Dashboards', 'E-commerce', 'Bookings', 'Client Portals', 'Automation'],
-  Services: ['Web Design', 'Next.js', 'Supabase', 'Vercel', 'Stripe', 'SEO'],
-  Resources: ['Process', 'Pricing', 'Guides', 'Templates', 'Status'],
-  Company: ['About', 'Careers', 'Legal', 'Privacy Policy'],
+  Products: [
+    ['Business Websites', '/services/business-websites'], ['Web Applications', '/#services'],
+    ['SaaS Platforms', '/#services'], ['E-commerce', '/#services'],
+    ['Client Portals', '/services/client-dashboards'], ['Automation', '/#workflow'],
+  ],
+  Services: [
+    ['Web Design', '/services/business-websites'], ['Custom Development', '/#services'],
+    ['Booking Systems', '/services/appointment-booking'], ['Dashboards', '/services/client-dashboards'],
+    ['Integrations', '/#workflow'], ['SEO & Speed', '/services/seo-speed'],
+  ],
+  Resources: [
+    ['Our Process', '/#workflow'], ['Pricing', '/pricing'], ['FAQ', '/#testimonials'],
+    ['Start a Project', '/register'], ['Client Login', '/login'],
+  ],
+  Koryx: [
+    ['Our Services', '/#services'], ['Discuss Your Idea', '/register'],
+    ['Client Dashboard', '/dashboard'], ['Project Questions', '/#testimonials'],
+  ],
 }
 
 export function Footer() {
@@ -53,11 +67,11 @@ export function Footer() {
               Premium web experiences for ambitious brands that want to look serious online.
             </p>
             <div className="flex gap-3">
-              <a href="#" className="w-8 h-8 rounded-lg bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.1] transition-all">
+              <a href="https://github.com/tyomka0123-design/saas-website" aria-label="Koryx website source on GitHub" className="w-8 h-8 rounded-lg bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.1] transition-all">
                 <Github className="w-4 h-4" />
               </a>
-              <a href="#" className="w-8 h-8 rounded-lg bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.1] transition-all">
-                <Twitter className="w-4 h-4" />
+              <a href="/register" aria-label="Start a project with Koryx" className="w-8 h-8 rounded-lg bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.1] transition-all">
+                <Mail className="w-4 h-4" />
               </a>
             </div>
           </div>
@@ -66,10 +80,10 @@ export function Footer() {
             <div key={category}>
               <h4 className="text-[12px] font-semibold text-white/50 uppercase tracking-wider mb-4">{category}</h4>
               <ul className="space-y-2.5">
-                {links.map((link) => (
-                  <li key={link}>
-                    <a href="#" className="text-[13px] text-white/40 hover:text-white/80 transition-colors">
-                      {link}
+                {links.map(([label, href]) => (
+                  <li key={label}>
+                    <a href={href} className="text-[13px] text-white/40 hover:text-white/80 transition-colors">
+                      {label}
                     </a>
                   </li>
                 ))}
