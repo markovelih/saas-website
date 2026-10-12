@@ -1,3 +1,5 @@
 import {workspaceSession,isFounder} from '@/lib/workspace'
+import {cookies} from 'next/headers'
+import {FounderLanguageProvider} from '@/components/manager/language'
 import {Sidebar} from '@/components/dashboard/sidebar'
-export default async function DashboardLayout({children}:{children:React.ReactNode}){const {user,profile}=await workspaceSession();const admin=isFounder(user.id);return <div className="min-h-screen bg-[#09090b]"><Sidebar isAdmin={admin} userName={profile?.full_name||user.user_metadata?.full_name||'Your account'} userEmail={user.email} role={admin?'Founder':'Client'}/><main className="pt-16 lg:pt-0 lg:pl-[236px]"><div className="px-5 py-7 sm:p-8 lg:p-10">{children}</div></main></div>}
+export default async function DashboardLayout({children}:{children:React.ReactNode}){const {user,profile}=await workspaceSession();const admin=isFounder(user.id);const language=(await cookies()).get('koryx-founder-language')?.value==='uk'?'uk':'en';return <FounderLanguageProvider enabled={admin} initial={language}><div className="min-h-screen bg-[#09090b]"><Sidebar isAdmin={admin} userName={profile?.full_name||user.user_metadata?.full_name||'Your account'} userEmail={user.email} role={admin?'Founder':'Client'}/><main className="pt-16 lg:pt-0 lg:pl-[236px]"><div className="px-5 py-7 sm:p-8 lg:p-10">{children}</div></main></div></FounderLanguageProvider>}

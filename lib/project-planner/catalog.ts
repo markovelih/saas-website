@@ -22,7 +22,7 @@ export const budgetPresets = [500,1500,3000,5000,10000]
 export type ProjectType = typeof projectTypes[number]['id']
 export interface PlannerInput {type:ProjectType;budget:number;pages:number;features:string[];brief:string}
 export interface Estimate {version:1;currency:'CAD';total:number;low:number;high:number;budget:number;withinBudget:boolean;weeks:[number,number];items:{label:string;amount:number}[];features:string[];complexity:'standard'|'complex';source:'calculator'|'ai';summary:string;questions:string[];deferred:string[]}
-export function money(value:number){return new Intl.NumberFormat('en-CA',{style:'currency',currency:'CAD',maximumFractionDigits:0}).format(value)}
+export function money(value:number){return new Intl.NumberFormat('en-CA',{style:'currency',currency:'CAD',minimumFractionDigits:0,maximumFractionDigits:2}).format(value)}
 export function normalizeFeatures(type:ProjectType, ids:string[]){
  const result=new Set(ids.filter(id=>featureCatalog.some(f=>f.id===id)))
  if(type==='store')result.delete('payments') // Checkout is included in the store base.

@@ -1,4 +1,5 @@
-import type {Delivery,BillingSettings,Payment,BillingSnapshot} from '@/lib/billing/types'
+import type {MailJob} from '@/lib/billing/mail'
+import type {Delivery,BillingSettings,Payment,BillingSnapshot,ManagedDomain,Renewal,ProjectInvoice} from '@/lib/billing/types'
 export type OrderStatus = 
   | 'pending'
   | 'in_review'
@@ -44,6 +45,10 @@ export type Order = {
 export interface Database {
   public: {
     Tables: {
+      order_domains: {Relationships: [];Row:ManagedDomain;Insert:Omit<ManagedDomain,'id'|'created_at'>;Update:Partial<ManagedDomain>}
+      domain_renewals: {Relationships: [];Row:Renewal;Insert:Omit<Renewal,'id'|'created_at'>;Update:Partial<Renewal>}
+      project_invoices: {Relationships: [];Row:ProjectInvoice;Insert:Omit<ProjectInvoice,'id'|'created_at'>;Update:Partial<ProjectInvoice>}
+      billing_mail: {Relationships: [];Row:MailJob;Insert:Omit<MailJob,'id'|'created_at'>;Update:Partial<MailJob>}
       billing_settings: {Relationships: []; Row: BillingSettings; Insert: BillingSettings; Update: Partial<BillingSettings>}
       project_payments: {Relationships: []; Row: Payment; Insert: Omit<Payment,'id'|'created_at'>; Update: Partial<Pick<Payment,'email_status'|'email_id'|'email_error'|'attempted_at'>>}
       profiles: {
@@ -72,7 +77,7 @@ export interface Database {
       }
     }
     Views: Record<string, never>
-    Functions: {koryx_record_payment: {Args: {p_order_id:string;p_snapshot:BillingSnapshot};Returns:Payment}}
+    Functions: {koryx_save_domain:{Args:{p_order_id:string;p_domain:Record<string,unknown>};Returns:ManagedDomain};koryx_auth_email_limit:{Args:{p_key:string;p_limit:number;p_seconds:number};Returns:boolean};koryx_settle_renewal:{Args:{p_id:string;p_snapshot:BillingSnapshot;p_next_date:string|null};Returns:Renewal};koryx_record_payment: {Args: {p_order_id:string;p_snapshot:BillingSnapshot};Returns:Payment}}
     Enums: {
       order_status: OrderStatus
       user_role: UserRole

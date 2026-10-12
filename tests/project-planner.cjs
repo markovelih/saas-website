@@ -31,7 +31,7 @@ assert.equal(snap.readPlan('KORYX_PLAN_V1\ninvalid json'),null)
 let inserted=null
 const actions=load('app/dashboard/new-order/actions.ts',{
  '@/lib/supabase/server':{createClient:async()=>({auth:{getUser:async()=>({data:{user:{id:'owner'}}})},from:()=>({insert:value=>{inserted=value;return {select:()=>({single:async()=>({data:{id:'saved-project'},error:null})})}}})})},
- 'next/cache':{revalidatePath:()=>{}},'@/lib/project-planner/schema':schema,'@/lib/project-planner/catalog':c,'@/lib/project-planner/signature':sig,'@/lib/project-planner/snapshot':snap,
+ '@/lib/domains/search':{verifyDomainQuote:()=>null},'next/cache':{revalidatePath:()=>{}},'@/lib/project-planner/schema':schema,'@/lib/project-planner/catalog':c,'@/lib/project-planner/signature':sig,'@/lib/project-planner/snapshot':snap,
 })
 ;(async()=>{
  const details={businessName:'Test studio',contactEmail:'studio@example.test',phone:'',references:'',deadline:'',designStyle:'Dark & refined'}

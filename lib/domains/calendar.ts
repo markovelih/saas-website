@@ -1,0 +1,1 @@
+export function nextAnnualDate(date:string){const d=new Date(date+'T00:00:00Z'),year=d.getUTCFullYear()+1,month=d.getUTCMonth(),last=new Date(Date.UTC(year,month+1,0)).getUTCDate();return new Date(Date.UTC(year,month,Math.min(d.getUTCDate(),last))).toISOString().slice(0,10)}

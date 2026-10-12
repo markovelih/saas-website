@@ -1,0 +1,6 @@
+import {redirect} from 'next/navigation'
+import {workspaceSession,isFounder} from '@/lib/workspace'
+import {RenewalPayments} from '@/components/workspace/renewal-payments'
+import {createClient} from '@supabase/supabase-js'
+import type {Database} from '@/lib/supabase/types'
+export default async function RenewalsPage(){const {supabase,user}=await workspaceSession();if(isFounder(user.id))redirect('/dashboard/admin?view=billing');const [renewals,domains]=await Promise.all([supabase.from('domain_renewals').select('*').eq('user_id',user.id).neq('status','cancelled').order('due_date'),supabase.from('order_domains').select('id,order_id,user_id,hostname,status,renewal_date,retail_price,created_at').eq('user_id',user.id)]);const admin=createClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.SUPABASE_SERVICE_ROLE_KEY!,{auth:{persistSession:false}});const {data:settings}=await admin.from('billing_settings').select('usdt_address,btc_address').eq('id',true).single();if(renewals.error||domains.error)return <p role="alert">Renewals could not be loaded. Please refresh.</p>;return <RenewalPayments renewals={renewals.data||[]} domains={domains.data||[]} wallets={{usdt:settings?.usdt_address||'',btc:settings?.btc_address||''}}/>}

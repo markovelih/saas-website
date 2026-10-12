@@ -338,3 +338,10 @@
     opacity: 1;
   }
 }
+
+[data-typography="rounded"]{font-family:var(--font-koryx-rounded),sans-serif;font-weight:400}
+[data-typography="rounded"] input,[data-typography="rounded"] button,[data-typography="rounded"] textarea,[data-typography="rounded"] select{font-family:inherit}
+html,body{max-width:100%;overflow-x:clip}
+input,textarea{min-width:0}
+
+[data-typography="rounded"]{--font-geist-sans:var(--font-koryx-rounded);--font-geist-mono:var(--font-koryx-rounded)}
