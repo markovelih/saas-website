@@ -1,0 +1,31 @@
+import {PDFDocument,rgb,type PDFFont} from 'pdf-lib'
+import fontkit from '@pdf-lib/fontkit'
+import {readFile} from 'node:fs/promises'
+import path from 'node:path'
+import type {BillingSnapshot} from './types'
+import {paymentMethods} from './types'
+export const formatAmount=(n:number)=>new Intl.NumberFormat('en-CA',{style:'currency',currency:'CAD'}).format(n)
+export const formatDate=(date:string)=>new Date(date).toLocaleDateString('en-CA',{year:'numeric',month:'long',day:'numeric',timeZone:'UTC'})
+function lines(value:string,font:PDFFont,size:number,width:number){const result:string[]=[];for(const paragraph of value.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,'').split('\n')){let line='';for(const word of paragraph.split(/\s+/)){if(font.widthOfTextAtSize((line?line+' ':'')+word,size)>width){if(line)result.push(line);line='';for(const char of word){if(font.widthOfTextAtSize(line+char,size)>width){result.push(line);line=''}line+=char}}else line+=(line?' ':'')+word}result.push(line)}return result}
+export async function billingPdf(snapshot:BillingSnapshot,kind:'invoice'|'receipt'){
+ const doc=await PDFDocument.create();doc.registerFontkit(fontkit);doc.setTitle(`${snapshot.test?'TEST - ':''}Koryx ${kind} ${snapshot.invoice_number}`);doc.setAuthor('Koryx');doc.setCreationDate(new Date(snapshot.issued_at));doc.setModificationDate(new Date(snapshot.issued_at));
+ const [regularBytes,boldBytes]=await Promise.all(['Regular','Bold'].map(weight=>readFile(path.join(process.cwd(),'lib/billing/fonts',`NotoSans-${weight}.ttf`))));
+ const regular=await doc.embedFont(regularBytes,{subset:true});const bold=await doc.embedFont(boldBytes,{subset:true});
+ let page=doc.addPage([595.28,841.89]);let y=0;const ink=rgb(.08,.08,.09),muted=rgb(.4,.4,.43),rule=rgb(.88,.88,.9);const W=499;
+ function text(value:string,x:number,top:number,size=10,strong=false,color=ink){page.drawText(value,{x,y:841.89-top-size,size,font:strong?bold:regular,color})}
+ function line(top:number){page.drawLine({start:{x:48,y:841.89-top},end:{x:547,y:841.89-top},thickness:.6,color:rule})}
+ function block(value:string,x:number,top:number,width:number,size=10,strong=false){const rows=lines(value,strong?bold:regular,size,width);rows.forEach((row,i)=>text(row,x,top+i*(size+5),size,strong));return rows.length*(size+5)}
+ function logo(){// Same geometric K mark as the site, drawn in black on a white invoice.
+ page.drawSvgPath('M 0 36 L 36 0 L 50 0 L 0 50 Z M 17 34 L 29 46 L 43 46 L 24 27 Z',{x:440,y:795,scale:.55,color:ink});text('koryx',475,47,17,true)}
+ function footer(){line(790);text('koryx.ca  •  '+snapshot.seller.support_email,48,804,8,false,muted);text(`Page ${doc.getPageCount()}`,505,804,8,false,muted)}
+ function room(height:number){if(y+height>752){footer();page=doc.addPage([595.28,841.89]);text(`Koryx ${kind} · ${snapshot.invoice_number}`,48,44,11,true);y=80;return true}return false}
+ logo();text(snapshot.test?'TEST '+(kind==='invoice'?'Invoice':'Receipt'):(kind==='invoice'?'Invoice':'Receipt'),48,46,25,true);
+ const metadata=[['Invoice number',snapshot.invoice_number],...(kind==='receipt'?[['Receipt number',snapshot.receipt_number]]:[]),['Date of issue',formatDate(snapshot.issued_at)],['Date paid',formatDate(snapshot.paid_at)]];y=94;metadata.forEach(([label,value])=>{text(label,48,y,9,true);text(value,152,y,9);y+=17});y+=20;
+ text(snapshot.seller.seller_name,48,y,11,true);text('Bill to',310,y,10,true);text(snapshot.seller.support_email,48,y+22,10);const customerHeight=block(snapshot.customer.name+'\n'+snapshot.customer.email,310,y+22,237);y+=Math.max(50,customerHeight+22)+24;
+ text(`${formatAmount(snapshot.total)} CAD paid on ${formatDate(snapshot.paid_at)}`,48,y,14,true);y+=27;text(kind==='invoice'?'Paid in full · Amount due CAD $0.00':`Payment method: ${paymentMethods[snapshot.method]}`,48,y,10,false,muted);y+=44;
+ const tableHead=()=>{text('Description',48,y,9,false,muted);text('Qty',370,y,9,false,muted);text('Unit price',400,y,9,false,muted);text('Amount',490,y,9,false,muted);y+=22;line(y);y+=15};tableHead();
+ for(const item of snapshot.items){const height=lines(item.description,regular,10,300).length*15+24;if(room(height+80))tableHead();const start=y;block(item.description,48,y,300);text(String(item.quantity),371,y,10);text(formatAmount(item.unit_price),400,y,10);const amount=formatAmount(item.amount);text(amount,547-regular.widthOfTextAtSize(amount,10),y,10);y=start+height;line(y-9)}
+ room(185);y+=8;for(const [label,value,strong] of [['Subtotal',formatAmount(snapshot.subtotal),false],['Total',formatAmount(snapshot.total)+' CAD',true],['Amount paid',formatAmount(snapshot.total)+' CAD',true],...(kind==='invoice'?[['Amount due','CAD $0.00',true]]:[])] as [string,string,boolean][]){text(label,335,y,10,strong);text(value,547-(strong?bold:regular).widthOfTextAtSize(value,10),y,10,strong);y+=25}
+ if(kind==='receipt'){room(140+(snapshot.crypto_amount?20:0)+(snapshot.reference?lines('Payment reference: '+snapshot.reference,regular,9,W).length*14+15:0));y+=25;text('Payment history',48,y,13,true);y+=30;text('Payment method',48,y,9,false,muted);text('Date paid',220,y,9,false,muted);text('Amount paid',410,y,9,false,muted);y+=20;line(y);y+=13;text(paymentMethods[snapshot.method],48,y,10);text(formatDate(snapshot.paid_at),220,y,9);text(formatAmount(snapshot.total)+' CAD',410,y,10);y+=28;if(snapshot.crypto_amount){text('Cryptocurrency received: '+snapshot.crypto_amount+' '+(snapshot.method==='btc'?'BTC':'USDT'),48,y,9);y+=20}if(snapshot.reference){block('Payment reference: '+snapshot.reference,48,y,W,9);y+=lines(snapshot.reference,regular,9,W).length*14+15}}
+ room(48);y+=20;block(snapshot.test?'TEST DOCUMENT · No real payment was made.':`Questions about your ${kind}? Contact ${snapshot.seller.support_email}.`,48,y,W,9);footer();return Buffer.from(await doc.save({useObjectStreams:false}));
+}

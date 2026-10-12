@@ -1,3 +1,4 @@
+import type {Delivery,BillingSettings,Payment,BillingSnapshot} from '@/lib/billing/types'
 export type OrderStatus = 
   | 'pending'
   | 'in_review'
@@ -6,7 +7,7 @@ export type OrderStatus =
   | 'in_progress'
   | 'completed'
 
-export type UserRole = 'user' | 'admin'
+export type UserRole = 'user' | 'admin' | 'founder'
 
 export type Profile = {
   id: string
@@ -36,11 +37,15 @@ export type Order = {
   paid: boolean
   admin_notes: string | null
   created_at: string
+  delivery?: Delivery
+  assignment_key?: string | null
 }
 
 export interface Database {
   public: {
     Tables: {
+      billing_settings: {Relationships: []; Row: BillingSettings; Insert: BillingSettings; Update: Partial<BillingSettings>}
+      project_payments: {Relationships: []; Row: Payment; Insert: Omit<Payment,'id'|'created_at'>; Update: Partial<Pick<Payment,'email_status'|'email_id'|'email_error'|'attempted_at'>>}
       profiles: {
         Relationships: []
         Row: Profile
@@ -67,7 +72,7 @@ export interface Database {
       }
     }
     Views: Record<string, never>
-    Functions: Record<string, never>
+    Functions: {koryx_record_payment: {Args: {p_order_id:string;p_snapshot:BillingSnapshot};Returns:Payment}}
     Enums: {
       order_status: OrderStatus
       user_role: UserRole

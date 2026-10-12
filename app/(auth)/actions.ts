@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import {isFounder} from '@/lib/workspace'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -33,7 +34,7 @@ async function createSupabaseClient() {
 
 
 function safeDestination(raw:string){
- try { const url=new URL(raw,'https://koryx.ca');if(url.origin==='https://koryx.ca'&&['/dashboard/new-order','/dashboard/orders'].includes(url.pathname))return url.pathname+url.search } catch {}
+ try { const url=new URL(raw,'https://koryx.ca');if(url.origin==='https://koryx.ca'&&(['/dashboard/new-order','/dashboard/orders'].includes(url.pathname)||/^\/dashboard\/orders\/[a-f0-9-]{36}$/.test(url.pathname)))return url.pathname+url.search } catch {}
  return '/dashboard'
 }
 
@@ -98,7 +99,7 @@ export async function login(formData: FormData) {
 
   const supabase = await createSupabaseClient()
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   })
@@ -107,6 +108,7 @@ export async function login(formData: FormData) {
     return { error: 'Invalid email or password' }
   }
 
+  if(data.user&&isFounder(data.user.id))redirect('/dashboard/admin')
   redirect(safeDestination(String(formData.get('redirect')||'')))
 }
 

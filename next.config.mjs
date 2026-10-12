@@ -1,5 +1,6 @@
 /** @type {import("next").NextConfig} */
 const nextConfig = {
+  outputFileTracingIncludes: { '/*': ['./lib/billing/fonts/*.ttf'] },
   images: { unoptimized: true },
   // Only public Supabase connection values belong here. The service role key
   // remains a server environment variable and must never be mapped into env.
