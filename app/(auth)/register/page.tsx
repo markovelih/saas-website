@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
@@ -8,8 +8,8 @@ import { ArrowLeft, Check, ChevronDown, Eye, EyeOff, Loader2, Search } from 'luc
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { AnimatedBackground } from '@/components/animated-background'
-import { register } from '../actions'
+import { AuthBackdrop } from '@/components/auth-backdrop'
+import { register,verifyRegistration } from '../actions'
 import { toast } from 'sonner'
 
 const countries = [
@@ -138,7 +138,7 @@ function CountryDropdown({
       </button>
 
       {open && (
-  <div className="absolute left-0 top-[56px] z-[999] w-full min-w-[300px] overflow-hidden rounded-2xl border border-white/[0.14] bg-black shadow-xl md:w-full">
+  <div className="absolute left-0 top-[56px] z-[999] w-full min-w-0 overflow-hidden rounded-2xl border border-white/[0.14] bg-black shadow-xl md:w-full">
           <div className="border-b border-white/[0.1] p-3">
             <div className="flex h-11 items-center gap-2 rounded-xl border border-white/[0.18] px-3">
               <Search className="h-4 w-4 text-white/35" />
@@ -151,7 +151,7 @@ function CountryDropdown({
             </div>
           </div>
 
-          <div className="max-h-[300px] overflow-y-auto overscroll-contain scroll-smooth will-change-scroll">
+          <div className="max-h-[300px] overflow-y-auto overscroll-contain ">
             {filtered.map((country) => (
               <button
                 key={`${country.name}-${country.code}`}
@@ -176,6 +176,7 @@ function CountryDropdown({
 }
 
 export default function RegisterPage() {
+  const [pendingEmail,setPendingEmail]=useState(''),[verifyError,setVerifyError]=useState('');const lastForm=useRef<FormData|null>(null);
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -201,17 +202,18 @@ export default function RegisterPage() {
 
     const destination=new URLSearchParams(window.location.search).get('redirect')
     if(destination)formData.set('redirect',destination)
-    const result = await register(formData)
-
-    if (result?.error) {
-      toast.error(result.error)
-      setIsLoading(false)
-    }
+    lastForm.current=formData;
+    try {
+      const result = await register(formData)
+      if(result.confirmation&&result.email)setPendingEmail(result.email)
+      if(result.error)toast.error(result.error)
+    } catch { toast.error('Connection interrupted. Please try again.') }
+    finally {setIsLoading(false)}
   }
 
   return (
     <section className="relative min-h-screen overflow-x-hidden bg-black text-white">
-      <AnimatedBackground />
+      <AuthBackdrop />
 
       <div className="relative z-10 mx-auto flex min-h-screen max-w-[1160px] items-center px-4 py-24">
         <div className="relative grid w-full overflow-visible border border-white/[0.12] bg-black/80 md:grid-cols-[1.05fr_0.95fr]">
@@ -307,7 +309,7 @@ export default function RegisterPage() {
               </p>
             </div>
 
-            <form action={handleSubmit} className="space-y-5">
+            {pendingEmail?<form action={async data=>{setIsLoading(true);setVerifyError('');data.set('email',pendingEmail);data.set('redirect',new URLSearchParams(window.location.search).get('redirect')||'/dashboard/new-order');try{const result=await verifyRegistration(data);if(result?.error)setVerifyError(result.error)}catch(error){if(error instanceof Error&&error.message==='NEXT_REDIRECT')throw error;setVerifyError('Connection interrupted. Please try again.')}finally{setIsLoading(false)}}} className="space-y-5"><h3 className="text-xl">Check your email.</h3><p className="text-sm text-white/50 break-words">We sent a confirmation code to {pendingEmail}. Enter it to finish registration.</p><label className="block text-sm text-white/70">Confirmation code<Input name="token" autoComplete="one-time-code" inputMode="numeric" pattern="[0-9]{6,8}" minLength={6} maxLength={8} required autoFocus className="h-14 text-xl tracking-[.25em] mt-3"/></label><Button disabled={isLoading} className="w-full h-12 bg-white text-black">{isLoading?'Confirming…':'Confirm email & continue'}</Button>{verifyError&&<p role="alert" className="text-sm text-red-300">{verifyError}</p>}<button type="button" className="text-sm text-white/50 hover:text-white" disabled={isLoading} onClick={()=>{if(lastForm.current)void handleSubmit(lastForm.current)}}>Resend confirmation code</button></form>:<form action={handleSubmit} className="space-y-5">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-white/85">Email address</Label>
                 <Input id="email" name="email" type="email" placeholder="you@example.com" required className="h-12 border-white/[0.14] bg-black text-white placeholder:text-white/30 focus-visible:ring-white/35" />
@@ -386,7 +388,7 @@ export default function RegisterPage() {
                   'Create account'
                 )}
               </Button>
-            </form>
+            </form>}
 
             <div className="mt-8 border-t border-white/[0.1] pt-6">
               <p className="text-sm text-white/40">
