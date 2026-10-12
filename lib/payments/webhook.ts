@@ -1,6 +1,7 @@
 import 'server-only'
 import type Stripe from 'stripe'
 import {paymentDb,stripeClient} from './server'
+import {checkoutCustomer} from './checkout'
 import {settleRequest,emailTransaction} from './service'
 import {syncSubscription,settleCareInvoice} from './care'
 const idOf=(v:string|{id:string}|null)=>typeof v==='string'?v:v?.id
@@ -20,7 +21,7 @@ export async function handleStripeEvent(event:Stripe.Event){
     const {data:r}=await db.from('payment_requests').select('*').eq('id',a.request_id).single();if(!r||r.user_id!==a.user_id||r.amount_cents!==a.amount_cents)throw new Error('Invoice mismatch.')
     const pi=idOf(session.payment_intent);if(!pi)throw new Error('Payment intent missing.')
     const intent=await stripe.paymentIntents.retrieve(pi,{expand:['latest_charge']});if(intent.status!=='succeeded'||intent.currency!=='cad'||intent.amount_received!==a.amount_cents||intent.metadata.koryx_attempt!==a.id)throw new Error('Payment not verified.')
-    const t=await settleRequest(r,'stripe',pi,'stripe',pi,new Date(event.created*1000).toISOString());const charge=intent.latest_charge;if(charge&&typeof charge!=='string'&&charge.amount_refunded){const {error}=await db.rpc('koryx_sync_refund',{p_stripe_id:pi,p_refunded_cents:charge.amount_refunded});if(error)throw new Error('Could not sync an existing refund.')}await emailTransaction(t)
+    const t=await settleRequest(r,'stripe',pi,'stripe',pi,new Date(event.created*1000).toISOString(),'',checkoutCustomer(session.customer_details));const charge=intent.latest_charge;if(charge&&typeof charge!=='string'&&charge.amount_refunded){const {error}=await db.rpc('koryx_sync_refund',{p_stripe_id:pi,p_refunded_cents:charge.amount_refunded});if(error)throw new Error('Could not sync an existing refund.')}await emailTransaction(t)
     const {error:e}=await db.from('checkout_attempts').update({status:'completed',session_id:session.id}).eq('id',a.id);if(e)throw new Error('Could not complete checkout.')
    }else if(a.care_id&&session.mode==='subscription'&&session.subscription){
     if(session.metadata?.koryx_care!==a.care_id)throw new Error('Care checkout mismatch.')
