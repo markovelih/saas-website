@@ -1,3 +1,4 @@
+import type {PaymentRequest,Transaction,BillingState,CareService,CheckoutAttempt} from '@/lib/payments/types'
 import type {MailJob} from '@/lib/billing/mail'
 import type {Delivery,BillingSettings,Payment,BillingSnapshot,ManagedDomain,Renewal,ProjectInvoice} from '@/lib/billing/types'
 export type OrderStatus = 
@@ -45,6 +46,12 @@ export type Order = {
 export interface Database {
   public: {
     Tables: {
+      payment_requests: {Relationships: [];Row:PaymentRequest;Insert:Partial<PaymentRequest>;Update:Partial<PaymentRequest>}
+      payment_transactions: {Relationships: [];Row:Transaction;Insert:Partial<Transaction>;Update:Partial<Transaction>}
+      project_billing_state: {Relationships: [];Row:BillingState;Insert:Partial<BillingState>;Update:Partial<BillingState>}
+      care_services: {Relationships: [];Row:CareService;Insert:Partial<CareService>;Update:Partial<CareService>}
+      checkout_attempts: {Relationships: [];Row:CheckoutAttempt;Insert:Partial<CheckoutAttempt>;Update:Partial<CheckoutAttempt>}
+      stripe_events: {Relationships: [];Row:{id:string;type:string;processed_at:string};Insert:{id:string;type:string};Update:never}
       order_domains: {Relationships: [];Row:ManagedDomain;Insert:Omit<ManagedDomain,'id'|'created_at'>;Update:Partial<ManagedDomain>}
       domain_renewals: {Relationships: [];Row:Renewal;Insert:Omit<Renewal,'id'|'created_at'>;Update:Partial<Renewal>}
       project_invoices: {Relationships: [];Row:ProjectInvoice;Insert:Omit<ProjectInvoice,'id'|'created_at'>;Update:Partial<ProjectInvoice>}
@@ -77,7 +84,7 @@ export interface Database {
       }
     }
     Views: Record<string, never>
-    Functions: {koryx_attach_preview:{Args:{p_order_id:string;p_path:string};Returns:undefined};koryx_save_domain:{Args:{p_order_id:string;p_domain:Record<string,unknown>};Returns:ManagedDomain};koryx_auth_email_limit:{Args:{p_key:string;p_limit:number;p_seconds:number};Returns:boolean};koryx_settle_renewal:{Args:{p_id:string;p_snapshot:BillingSnapshot;p_next_date:string|null};Returns:Renewal};koryx_record_payment: {Args: {p_order_id:string;p_snapshot:BillingSnapshot};Returns:Payment}}
+    Functions: {koryx_settle_care:{Args:{p_care_id:string;p_snapshot:BillingSnapshot;p_stripe_id:string;p_due_date:string;p_next_date:string};Returns:Transaction};koryx_sync_refund:{Args:{p_stripe_id:string;p_refunded_cents:number};Returns:undefined};koryx_issue_installment:{Args:{p_order_id:string;p_kind:string;p_snapshot:BillingSnapshot};Returns:PaymentRequest};koryx_settle_installment:{Args:{p_request_id:string;p_snapshot:BillingSnapshot;p_source:string;p_stripe_id:string|null};Returns:Transaction};koryx_attach_preview:{Args:{p_order_id:string;p_path:string};Returns:undefined};koryx_save_domain:{Args:{p_order_id:string;p_domain:Record<string,unknown>};Returns:ManagedDomain};koryx_auth_email_limit:{Args:{p_key:string;p_limit:number;p_seconds:number};Returns:boolean};koryx_settle_renewal:{Args:{p_id:string;p_snapshot:BillingSnapshot;p_next_date:string|null};Returns:Renewal};koryx_record_payment: {Args: {p_order_id:string;p_snapshot:BillingSnapshot};Returns:Payment}}
     Enums: {
       order_status: OrderStatus
       user_role: UserRole

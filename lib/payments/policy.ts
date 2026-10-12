@@ -1,0 +1,3 @@
+export const TERMS_VERSION='2026-10-12'
+export const paymentPolicy='Pay 50% of the agreed project price to start, then the remaining 50% after you review and approve the work. You may also pay the full project price upfront. The final balance requires your payment; it is never charged automatically.'
+export const cancellationPolicy='If you voluntarily cancel your project, Koryx retains 50% of the agreed project price. A 50% deposit is non-refundable; if you paid in full, the remaining 50% is refundable. This policy does not limit any refund or cancellation rights that cannot be excluded under applicable law. Contact support@koryx.ca to request cancellation or a refund.'
