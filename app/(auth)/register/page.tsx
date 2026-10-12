@@ -360,7 +360,7 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <p className="text-xs text-white/35">Password must be at least 8 characters</p>
+              <p className="text-xs text-white/35">Password must be at least 8 characters</p><p className="text-xs text-white/45 leading-relaxed">By creating an account, you agree to the <Link href="/terms" target="_blank" className="underline">terms of service</Link>. Read our <Link href="/privacy" target="_blank" className="underline">privacy policy</Link>. Creating an account does not place a paid order.</p>
 
               <Button type="submit" disabled={isLoading} className="h-12 w-full rounded-full bg-white font-semibold text-black transition hover:bg-white/90">
                 {isLoading ? (
