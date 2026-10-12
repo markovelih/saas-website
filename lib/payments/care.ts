@@ -1,7 +1,8 @@
 import 'server-only'
 import {randomUUID} from 'node:crypto'
+import {embeddedOptions,resumeEmbeddedSession} from './checkout'
 import type Stripe from 'stripe'
-import {paymentDb,stripeClient,SITE} from './server'
+import {paymentDb,stripeClient} from './server'
 import {billingSettings} from '@/lib/billing/service'
 import type {BillingSnapshot} from '@/lib/billing/types'
 import type {CareService} from './types'
@@ -17,11 +18,11 @@ export async function openCareCheckout(c:CareService,userId:string){
  // Keep a future first charge on the recorded renewal date; Stripe requires >=48h for a Checkout trial.
  if(date<Math.floor(Date.now()/1000)+172800)throw new Error('Automatic renewal needs a first charge date at least 48 hours away. Ask Koryx to arrange this renewal and set the next date.')
  let {data:a}=await db.from('checkout_attempts').select('*').eq('care_id',c.id).in('status',['creating','open']).maybeSingle()
- if(a?.session_id){const s=await stripe.checkout.sessions.retrieve(a.session_id);if(s.status==='open'&&s.url)return s.url;if(s.status==='complete')throw new Error('Your renewal is being confirmed. Refresh shortly.');await db.from('checkout_attempts').update({status:'expired'}).eq('id',a.id);a=null}
+ if(a?.session_id){const secret=await resumeEmbeddedSession(stripe,a.session_id);if(secret)return secret;await db.from('checkout_attempts').update({status:'expired'}).eq('id',a.id);a=null}
  if(a&&Date.now()-Date.parse(a.created_at)<60000)throw new Error('Checkout is being prepared. Try again shortly.')
  if(!a){const {data,error}=await db.from('checkout_attempts').insert({care_id:c.id,order_id:c.order_id,user_id:userId,amount_cents:c.amount_cents,snapshot:await careSnapshot(c,new Date().toISOString())}).select('*').single();if(error||!data)throw new Error('Another checkout is being prepared.');a=data}
- const s=await stripe.checkout.sessions.create({mode:'subscription',customer_email:a.snapshot!.customer.email,allowed_payment_method_types:['card'],payment_method_collection:'always',line_items:[{price_data:{currency:'cad',unit_amount:c.amount_cents,recurring:{interval:c.interval},product_data:{name:'Koryx · '+c.name}},quantity:1}],subscription_data:{trial_end:date,metadata:{koryx_care:c.id,koryx_attempt:a.id}},metadata:{koryx_care:c.id,koryx_attempt:a.id},consent_collection:{terms_of_service:'required'},custom_text:{submit:{message:`Automatic ${c.interval==='year'?'annual':'monthly'} renewal. First charge on ${c.next_date}. Cancel future renewals in your Koryx dashboard.`}},success_url:SITE+'/dashboard/renewals?checkout=success',cancel_url:SITE+'/dashboard/renewals?checkout=cancelled',expires_at:Math.floor(Date.now()/1000)+1860},{idempotencyKey:'koryx-care/'+a.id})
- const {error}=await db.from('checkout_attempts').update({session_id:s.id,session_url:s.url,expires_at:new Date(s.expires_at*1000).toISOString(),status:'open'}).eq('id',a.id);if(error||!s.url)throw new Error('Checkout could not be saved. Please retry shortly.');return s.url
+ const s=await stripe.checkout.sessions.create({...embeddedOptions('/dashboard/renewals?checkout=success'),mode:'subscription',customer_email:a.snapshot!.customer.email,allowed_payment_method_types:['card'],payment_method_collection:'always',line_items:[{price_data:{currency:'cad',unit_amount:c.amount_cents,recurring:{interval:c.interval},product_data:{name:'Koryx · '+c.name}},quantity:1}],subscription_data:{trial_end:date,metadata:{koryx_care:c.id,koryx_attempt:a.id}},metadata:{koryx_care:c.id,koryx_attempt:a.id},consent_collection:{terms_of_service:'required'},custom_text:{submit:{message:`Automatic ${c.interval==='year'?'annual':'monthly'} renewal. First charge on ${c.next_date}. Cancel future renewals in your Koryx dashboard.`}},expires_at:Math.floor(Date.now()/1000)+1860},{idempotencyKey:'koryx-care/'+a.id})
+ const {error}=await db.from('checkout_attempts').update({session_id:s.id,session_url:s.url,expires_at:new Date(s.expires_at*1000).toISOString(),status:'open'}).eq('id',a.id);if(error||!s.client_secret)throw new Error('Checkout could not be saved. Please retry shortly.');return s.client_secret
 }
 export async function syncSubscription(sub:Stripe.Subscription){
  const id=sub.metadata.koryx_care;if(!id)return
@@ -41,7 +42,7 @@ export async function settleCareInvoice(invoice:Stripe.Invoice){
  if(invoice.currency!=='cad'||invoice.amount_paid!==c.amount_cents)throw new Error('Renewal invoice amount mismatch.')
  const payments=await stripe.invoicePayments.list({invoice:invoice.id,status:'paid',limit:10})
  const paid=payments.data.find(p=>p.payment.type==='payment_intent'&&p.amount_paid===invoice.amount_paid),pi=stripeId(paid?.payment.payment_intent);if(!pi)throw new Error('Renewal card payment not found.')
- const snapshot=await careSnapshot(c,new Date((invoice.status_transitions.paid_at||invoice.created)*1000).toISOString());snapshot.reference=invoice.id
+ const snapshot=await careSnapshot(c,new Date((invoice.status_transitions.paid_at||invoice.created)*1000).toISOString());snapshot.reference=invoice.id;snapshot.customer.name=invoice.customer_name||snapshot.customer.name;const address=invoice.customer_address;if(address)snapshot.customer.address=[address.line1,address.line2,address.city,address.state,address.postal_code,address.country].filter(Boolean).join(', ').slice(0,500)
  const {data:t,error}=await db.rpc('koryx_settle_care',{p_care_id:c.id,p_snapshot:snapshot,p_stripe_id:pi,p_due_date:new Date(invoice.period_start*1000).toISOString().slice(0,10),p_next_date:c.next_date});if(error||!t)throw new Error(error?.message||'Renewal could not be recorded.');
  const intent=await stripe.paymentIntents.retrieve(pi,{expand:['latest_charge']});const charge=intent.latest_charge;if(charge&&typeof charge!=='string'&&charge.amount_refunded){const {error:e}=await db.rpc('koryx_sync_refund',{p_stripe_id:pi,p_refunded_cents:charge.amount_refunded});if(e)throw new Error('Could not sync an existing renewal refund.')}return t
 }
