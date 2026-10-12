@@ -10,8 +10,7 @@ export function EmbeddedCheckout({clientSecret,publishableKey,returnPath}:{clien
   if(!ready||!mount.current)return
   let disposed=false,checkout:Embedded|undefined
   const factory=(window as unknown as {Stripe?:StripeFactory}).Stripe
-  if(!factory)return
-  factory(publishableKey).createEmbeddedCheckoutPage({clientSecret,onComplete:()=>window.location.assign(returnPath)}).then(instance=>{if(disposed){instance.destroy();return}checkout=instance;if(mount.current)instance.mount(mount.current)}).catch(()=>{if(!disposed)setError('The secure payment form could not load. Retry or contact support@koryx.ca.')})
+  Promise.resolve().then(()=>{if(!factory)throw new Error('Stripe did not initialize');return factory(publishableKey).createEmbeddedCheckoutPage({clientSecret,onComplete:()=>window.location.assign(returnPath)})}).then(instance=>{if(disposed){instance.destroy();return}checkout=instance;if(mount.current)instance.mount(mount.current)}).catch(()=>{if(!disposed)setError('The secure payment form could not load. Retry or contact support@koryx.ca.')})
   return ()=>{disposed=true;checkout?.destroy()}
  },[clientSecret,publishableKey,ready,retry,returnPath])
  return <section className="mt-6 min-w-0" aria-label="Secure payment form">
