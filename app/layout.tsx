@@ -15,13 +15,15 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Koryx | Premium Web Development Agency',
-  description: 'We build exceptional websites for ambitious brands. Custom web development, e-commerce solutions, and digital experiences that convert.',
+  title: 'Koryx | Custom Websites, Apps & Software',
+  description: 'Order a custom website, SaaS application, or software for your business. Koryx handles design, development, integrations, and launch.',
   keywords: ['web development', 'web design', 'custom websites', 'e-commerce', 'digital agency'],
   authors: [{ name: 'Koryx' }],
+  metadataBase: new URL('https://koryx.ca'),
+  icons: { icon: [{ url: '/icon.svg?v=2', type: 'image/svg+xml' }], apple: '/icon.svg?v=2' },
   openGraph: {
-    title: 'Koryx | Premium Web Development Agency',
-    description: 'We build exceptional websites for ambitious brands.',
+    title: 'Koryx | Custom Websites, Apps & Software',
+    description: 'Custom websites, applications, and software built for your business.',
     type: 'website',
   },
 }

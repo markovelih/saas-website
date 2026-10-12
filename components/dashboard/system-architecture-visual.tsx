@@ -11,11 +11,11 @@ const steps = [
 ]
 
 const codeLines = [
-  '<ApexProject status="active">',
+  '<KoryxProject status="active">',
   '  strategy: conversion-first',
   '  stack: Next.js + Supabase',
   '  delivery: premium build',
-  '</ApexProject>',
+  '</KoryxProject>',
 ]
 
 export function SystemArchitectureVisual() {
@@ -53,7 +53,7 @@ export function SystemArchitectureVisual() {
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-white">Website redesign</p>
-                <p className="mt-1 text-xs text-white/40">Apex Studio production flow</p>
+                <p className="mt-1 text-xs text-white/40">Koryx production flow</p>
               </div>
 
               <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-xs text-emerald-300">

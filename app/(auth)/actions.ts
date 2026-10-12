@@ -78,7 +78,7 @@ export async function register(formData: FormData) {
     return { error: profileError.message }
   }
 
-  redirect('/login')
+  redirect('/login?redirect=%2Fdashboard%2Fnew-order')
 }
 
 export async function login(formData: FormData) {
@@ -100,7 +100,9 @@ export async function login(formData: FormData) {
     return { error: 'Invalid email or password' }
   }
 
-  redirect('/dashboard')
+  const destination = String(formData.get('redirect') || '')
+  const allowedDestinations = ['/dashboard/new-order', '/dashboard/orders']
+  redirect(allowedDestinations.includes(destination) ? destination : '/dashboard')
 }
 
 export async function logout() {

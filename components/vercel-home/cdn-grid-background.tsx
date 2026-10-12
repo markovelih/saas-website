@@ -1,6 +1,6 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 
 interface LightBeamProps {
   delay?: number
@@ -11,6 +11,8 @@ interface LightBeamProps {
 }
 
 function LightBeam({ delay = 0, duration = 4, path, color, className = '' }: LightBeamProps) {
+  const reduce = useReducedMotion()
+  if (reduce) return null
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.8 }}

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   Archive,
@@ -53,7 +54,7 @@ const initialNotifications = [
   {
     id: 2,
     title: 'Design review pending',
-    description: 'Apex Studio will review your project details soon.',
+    description: 'Koryx will review your project details soon.',
     time: '12m ago',
     unread: true,
   },
@@ -391,12 +392,7 @@ export function Sidebar({ isAdmin, userName, userEmail, role }: SidebarProps) {
     <>
       <div className="flex h-14 items-center border-b border-white/[0.08] px-4">
         <Link href="/" className="flex items-center gap-2.5" onClick={() => setMobileOpen(false)}>
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-white text-black">
-            <span className="text-sm font-bold">A</span>
-          </div>
-          <span className="text-[15px] font-semibold tracking-[-0.02em] text-white">
-            Apex Studio
-          </span>
+          <Image src="/koryx-logo.png" alt="Koryx" width={140} height={36} className="h-auto w-[120px]" />
         </Link>
       </div>
 
@@ -579,10 +575,7 @@ export function Sidebar({ isAdmin, userName, userEmail, role }: SidebarProps) {
     <>
       <div className="fixed left-0 right-0 top-0 z-50 flex h-14 items-center justify-between border-b border-white/[0.08] bg-black px-4 lg:hidden">
         <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-white text-black">
-            <span className="text-sm font-bold">A</span>
-          </div>
-          <span className="text-[15px] font-semibold text-white">Apex Studio</span>
+          <Image src="/koryx-logo.png" alt="Koryx" width={140} height={36} className="h-auto w-[120px]" />
         </Link>
 
         <button

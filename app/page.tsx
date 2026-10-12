@@ -1,24 +1,8 @@
-import { Deploy } from '@/components/vercel-home/deploy'
-import { Features } from '@/components/vercel-home/features'
-import { Footer } from '@/components/vercel-home/footer'
-import { Hero } from '@/components/vercel-home/hero'
-import { LogoCloud } from '@/components/vercel-home/logo-cloud'
 import { Navbar } from '@/components/vercel-home/navbar'
-import { Testimonials } from '@/components/vercel-home/testimonials'
-import { Pricing } from '@/components/vercel-home/pricing'
-import { Workflow } from '@/components/vercel-home/workflow'
+import { Hero } from '@/components/vercel-home/hero'
+import { Features, WorkShowcase, QualitySection, ProcessSection, FAQSection } from '@/components/vercel-home/features'
+import { Footer } from '@/components/vercel-home/footer'
 
 export default function HomePage() {
-  return (
-    <div className="bg-black text-white min-h-screen overflow-x-hidden">
-      <Navbar />
-      <Hero />
-      <LogoCloud />
-      <Features />
-      <Deploy />
-      <Workflow />
-      <Testimonials />
-      <Footer />
-    </div>
-  )
+  return <div className="bg-black text-white min-h-screen overflow-x-hidden"><Navbar/><main><Hero/><WorkShowcase/><Features/><QualitySection/><ProcessSection/><FAQSection/></main><Footer/></div>
 }
