@@ -1,65 +1,7 @@
 'use server'
-
-import { createClient } from '@/lib/supabase/server'
-import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
-import type { OrderStatus } from '@/lib/supabase/types'
-
-async function requireAdmin() {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) redirect('/login')
-  if (user.email !== 'artpas01@gmail.com') redirect('/dashboard')
-
-  return supabase
-}
-
-export async function updateOrder(formData: FormData) {
-  const supabase = await requireAdmin()
-
-  const id = String(formData.get('id'))
-  const status = String(formData.get('status')) as OrderStatus
-  const quoteRaw = String(formData.get('quote_price') || '')
-  const adminNotes = String(formData.get('admin_notes') || '')
-  const invoiceSent = formData.get('invoice_sent') === 'on'
-  const paid = formData.get('paid') === 'on'
-
-  const quote = quoteRaw.trim() === '' ? null : Number(quoteRaw)
-
-  await supabase
-    .from('orders')
-    .update({
-      status,
-      quote_price: quote,
-      invoice_sent: invoiceSent,
-      paid,
-      admin_notes: adminNotes,
-    })
-    .eq('id', id)
-
-  revalidatePath('/dashboard/admin')
-  revalidatePath('/dashboard/orders')
-  revalidatePath('/dashboard')
-}
-
-export async function updateUserProfile(formData: FormData) {
-  const supabase = await requireAdmin()
-
-  const id = String(formData.get('id'))
-  const fullName = String(formData.get('full_name') || '')
-  const role = formData.get('role') === 'admin' ? 'admin' : 'user'
-
-  await supabase
-    .from('profiles')
-    .update({
-      full_name: fullName,
-      role,
-    })
-    .eq('id', id)
-
-  revalidatePath('/dashboard/admin')
-}
+import {founderClient} from '@/lib/supabase/admin'
+import {z} from 'zod'
+import {revalidatePath} from 'next/cache'
+const schema=z.object({id:z.string().uuid(),status:z.enum(['pending','in_review','invoice_sent','paid','in_progress','completed']),quote_price:z.number().finite().min(0).max(1000000).nullable(),invoice_sent:z.boolean(),paid:z.boolean(),admin_notes:z.string().max(10000)})
+export async function updateOrder(raw:unknown){const parsed=schema.safeParse(raw);if(!parsed.success)return {error:'Check the quote amount and project details.'};const data=parsed.data;if((data.invoice_sent||data.paid||['invoice_sent','paid'].includes(data.status))&&data.quote_price===null)return {error:'Set an agreed quote before recording an invoice or payment.'};const {supabase}=await founderClient();const {id,...values}=data;const {data:changed,error}=await supabase.from('orders').update({...values,invoice_sent:values.invoice_sent||values.status==='invoice_sent',paid:values.paid||values.status==='paid'}).eq('id',id).select('id').maybeSingle();if(error||!changed)return {error:'Changes could not be saved. Please refresh and try again.'};for(const path of ['/dashboard/admin','/dashboard/orders','/dashboard',`/dashboard/orders/${id}`])revalidatePath(path);return {success:true}}
+export async function updateUserProfile(raw:unknown){const parsed=z.object({id:z.string().uuid(),full_name:z.string().trim().min(2).max(100)}).safeParse(raw);if(!parsed.success)return {error:'Enter a valid client name.'};const {supabase}=await founderClient();const {error}=await supabase.from('profiles').update({full_name:parsed.data.full_name}).eq('id',parsed.data.id);if(error)return {error:'Client name could not be saved.'};revalidatePath('/dashboard','layout');return {success:true}}

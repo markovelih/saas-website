@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import {useRouter} from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
@@ -13,6 +14,7 @@ import { login } from '../actions'
 import { toast } from 'sonner'
 
 export default function LoginPage() {
+  const router=useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -128,7 +130,7 @@ export default function LoginPage() {
             {/* Footer */}
             <p className="text-center text-sm text-muted-foreground mt-6">
               {"Don't have an account? "}
-              <Link href="/register" className="text-foreground hover:underline">
+              <Link href="/register" onClick={e=>{e.preventDefault();router.push("/register"+window.location.search)}} className="text-foreground hover:underline">
                 Create account
               </Link>
             </p>

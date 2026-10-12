@@ -31,6 +31,12 @@ async function createSupabaseClient() {
   )
 }
 
+
+function safeDestination(raw:string){
+ try { const url=new URL(raw,'https://koryx.ca');if(url.origin==='https://koryx.ca'&&['/dashboard/new-order','/dashboard/orders'].includes(url.pathname))return url.pathname+url.search } catch {}
+ return '/dashboard'
+}
+
 export async function register(formData: FormData) {
   const fullName = String(formData.get('fullName') || '').trim()
   const email = String(formData.get('email') || '').trim().toLowerCase()
@@ -78,7 +84,8 @@ export async function register(formData: FormData) {
     return { error: profileError.message }
   }
 
-  redirect('/login?redirect=%2Fdashboard%2Fnew-order')
+  const destination=safeDestination(String(formData.get('redirect')||'/dashboard/new-order'))
+  redirect('/login?redirect='+encodeURIComponent(destination))
 }
 
 export async function login(formData: FormData) {
@@ -100,9 +107,7 @@ export async function login(formData: FormData) {
     return { error: 'Invalid email or password' }
   }
 
-  const destination = String(formData.get('redirect') || '')
-  const allowedDestinations = ['/dashboard/new-order', '/dashboard/orders']
-  redirect(allowedDestinations.includes(destination) ? destination : '/dashboard')
+  redirect(safeDestination(String(formData.get('redirect')||'')))
 }
 
 export async function logout() {

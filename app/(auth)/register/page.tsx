@@ -199,6 +199,8 @@ export default function RegisterPage() {
     formData.set('phone', phone.replace(/\D/g, ''))
     formData.set('country', selectedCountry.name)
 
+    const destination=new URLSearchParams(window.location.search).get('redirect')
+    if(destination)formData.set('redirect',destination)
     const result = await register(formData)
 
     if (result?.error) {

@@ -1,35 +1,3 @@
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
-import { AdminPanelClient } from './admin-panel-client'
-
-export default async function DashboardAdminPage() {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) redirect('/login')
-  if (user.email !== 'artpas01@gmail.com') redirect('/dashboard')
-
-  const { data: ordersData } = await supabase
-    .from('orders')
-    .select('*')
-    .order('created_at', { ascending: false })
-
-  const { data: profilesData } = await supabase
-    .from('profiles')
-    .select('*')
-    .order('created_at', { ascending: false })
-
-  return (
-    <AdminPanelClient
-      orders={ordersData || []}
-      profiles={profilesData || []}
-      user={{
-        email: user.email,
-        fullName: user.user_metadata?.full_name || 'Artem Pasieka',
-      }}
-    />
-  )
-}
+import {founderClient} from '@/lib/supabase/admin'
+import {AdminPanelClient} from './admin-panel-client'
+export default async function AdminPage({searchParams}:{searchParams:Promise<{view?:string;project?:string}>}){const query=await searchParams;const {supabase,user,profile}=await founderClient();const [orders,profiles]=await Promise.all([supabase.from('orders').select('*').order('created_at',{ascending:false}),supabase.from('profiles').select('id,email,full_name,role,created_at').order('created_at',{ascending:false})]);if(orders.error||profiles.error)return <p role="alert">Studio data could not be loaded. Please refresh.</p>;return <AdminPanelClient initialView={query.view==='clients'?'clients':query.view==='list'?'list':'board'} initialProject={query.project} orders={orders.data||[]} profiles={profiles.data||[]} user={{email:user.email,fullName:profile?.full_name||'Founder'}}/>}
