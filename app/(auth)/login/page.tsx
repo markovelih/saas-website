@@ -18,6 +18,8 @@ export default function LoginPage() {
 
   async function handleSubmit(formData: FormData) {
     setIsLoading(true)
+    const destination = new URLSearchParams(window.location.search).get('redirect')
+    if (destination) formData.set('redirect', destination)
     const result = await login(formData)
     if (result?.error) {
       toast.error(result.error)
@@ -58,8 +60,8 @@ export default function LoginPage() {
     priority
   />
 </Link>
-              <h1 className="text-2xl font-bold mb-2">Welcome back</h1>
-              <p className="text-muted-foreground">Sign in to access your dashboard</p>
+              <h1 className="text-2xl font-bold mb-2">Your Koryx account</h1>
+              <p className="text-muted-foreground">Sign in to submit a project or view your orders</p>
             </div>
 
             {/* Form */}
@@ -80,12 +82,7 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
-                  <Link
-                    href="#"
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    Forgot password?
-                  </Link>
+
                 </div>
                 <div className="relative">
                   <Input
