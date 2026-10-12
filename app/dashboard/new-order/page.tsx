@@ -26,6 +26,9 @@ const websiteTypes = [
   'Landing Page',
   'Blog',
   'Web Application',
+  'SaaS Platform',
+  'Custom Software',
+  'Integration or New Feature',
   'Restaurant Website',
   'Booking Platform',
   'Other',
@@ -105,7 +108,7 @@ export default function NewOrderPage() {
       toast.error(result.error)
       setIsLoading(false)
     } else {
-      toast.success('Order submitted successfully!')
+      toast.success('Project brief submitted successfully!')
     }
   }
 
@@ -120,9 +123,9 @@ export default function NewOrderPage() {
           <ArrowLeft className="w-4 h-4" />
           <span>Back to dashboard</span>
         </Link>
-        <h1 className="text-2xl sm:text-3xl font-bold">Create New Order</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold">Start Your Project</h1>
         <p className="text-muted-foreground mt-1">
-          Tell us about your project and we&apos;ll get back to you within 24 hours
+          Tell us about your idea so we can review the scope and plan your project
         </p>
       </div>
 
@@ -149,7 +152,7 @@ export default function NewOrderPage() {
 
             <div className="grid sm:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="websiteType">Type of Website *</Label>
+                <Label htmlFor="websiteType">Type of Project *</Label>
                 <Select name="websiteType" required>
                   <SelectTrigger className="h-12">
                     <SelectValue placeholder="Select type" />
@@ -340,7 +343,7 @@ export default function NewOrderPage() {
             ) : (
               <>
                 <Check className="w-5 h-5 mr-2" />
-                Submit Order
+                Send Project Brief
               </>
             )}
           </Button>
