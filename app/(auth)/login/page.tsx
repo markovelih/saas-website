@@ -9,7 +9,7 @@ import { ArrowLeft, Eye, EyeOff, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { AnimatedBackground } from '@/components/animated-background'
+import { AuthBackdrop } from '@/components/auth-backdrop'
 import { login } from '../actions'
 import { toast } from 'sonner'
 
@@ -31,8 +31,8 @@ export default function LoginPage() {
 
   return (
     <>
-      <AnimatedBackground />
-      <div className="min-h-screen flex items-center justify-center px-4 py-12">
+      <AuthBackdrop />
+      <div className="relative z-10 min-h-screen flex items-center justify-center px-4 py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
