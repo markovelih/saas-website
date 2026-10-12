@@ -70,7 +70,7 @@ const menus: Record<string, { columns: { title: string; items: MenuItem[] }[] }>
         title: 'Solutions',
         items: [
           { icon: Users, label: 'Small Business', desc: 'Perfect for local services' },
-          { icon: Rocket, label: 'Startup Launch', desc: 'MVP to market in weeks' },
+          { icon: Rocket, label: 'Startup Launch', desc: 'Scope and build your first product' },
           { icon: Sparkles, label: 'Premium Design', desc: 'Stand out from competitors' },
         ],
       },
@@ -99,7 +99,7 @@ const menus: Record<string, { columns: { title: string; items: MenuItem[] }[] }>
         title: 'Support',
         items: [
           { icon: MessageSquare, label: 'Direct Contact', desc: 'Quick responses via email', iconColor: 'text-emerald-400' },
-          { icon: Timer, label: 'Fast Fixes', desc: 'Bug fixes within 24 hours', iconColor: 'text-amber-400' },
+          { icon: Timer, label: 'Fast Fixes', desc: 'Support agreed in your proposal', iconColor: 'text-amber-400' },
           { icon: Wrench, label: 'Maintenance', desc: 'Keep your site up to date', iconColor: 'text-sky-400' },
         ],
       },
@@ -295,7 +295,7 @@ export function Navbar() {
 
                           return (
                             <Link
-                              href={item.href || '#'}
+                              href={item.href || (activeMenu === 'Process' ? '/#workflow' : '/#services')}
                               key={item.label}
                               onMouseEnter={() => setHoveredItem(item.label)}
                               className="flex min-h-[50px] items-start gap-3"
@@ -404,7 +404,7 @@ export function Navbar() {
   transition={{ duration: 0.18, delay: index * 0.015 }}
 >
   <Link
-    href={item.href || '#'}
+    href={item.href || (activeMenu === 'Process' ? '/#workflow' : '/#services')}
     onClick={() => setMobileOpen(false)}
     className="flex items-center gap-4 text-white/65"
   >
