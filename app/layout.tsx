@@ -23,7 +23,11 @@ export const metadata: Metadata = {
   keywords: ['web development', 'web design', 'custom websites', 'e-commerce', 'digital agency'],
   authors: [{ name: 'Koryx' }],
   metadataBase: new URL('https://koryx.ca'),
-  icons: { icon: [{ url: '/icon.svg?v=2', type: 'image/svg+xml' }], apple: '/icon.svg?v=2' },
+  icons: {
+    icon: [{ url: '/favicon.png', type: 'image/png', sizes: '96x96' }],
+    shortcut: '/favicon.ico',
+    apple: [{ url: '/apple-icon.png', type: 'image/png', sizes: '180x180' }],
+  },
   openGraph: {
     title: 'Koryx | Custom Websites, Apps & Software',
     description: 'Custom websites, applications, and software built for your business.',
