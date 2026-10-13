@@ -17,11 +17,11 @@ export const FreightTruck=memo(function FreightTruck(){
       <radialGradient id={id+'-tire'}><stop stopColor="#454545"/><stop offset=".65" stopColor="#1b1b1b"/><stop offset=".85" stopColor="#101010"/><stop offset="1" stopColor="#2f2f2f"/></radialGradient>
       <radialGradient id={id+'-rim'}><stop stopColor="#e5e5e5"/><stop offset=".45" stopColor="#939393"/><stop offset=".53" stopColor="#414141"/><stop offset=".78" stopColor="#c9c9c9"/><stop offset="1" stopColor="#5e5e5e"/></radialGradient>
       <linearGradient id={id+'-blue'} x1="0" y1="0" x2="0" y2="1"><stop stopColor="#168dff" stopOpacity=".2"/><stop offset="1" stopColor="#083f82" stopOpacity=".4"/></linearGradient>
-      <linearGradient id={id+'-scanGlow'}><stop stopColor="#149cff" stopOpacity="0"/><stop offset=".5" stopColor="#199aff" stopOpacity=".12"/><stop offset="1" stopColor="#56cbff" stopOpacity=".25"/></linearGradient>
+      <linearGradient id={id+'-scanGlow'} x1="0" y1="0" x2="0" y2="1"><stop stopColor="#149cff" stopOpacity="0"/><stop offset=".5" stopColor="#199aff" stopOpacity=".17"/><stop offset="1" stopColor="#149cff" stopOpacity="0"/></linearGradient><linearGradient id={id+'-beam'} gradientUnits="userSpaceOnUse" x1="70" y1="0" x2="880" y2="0"><stop stopColor="#49bfff" stopOpacity="0"/><stop offset=".12" stopColor="#8bdeff"/><stop offset=".88" stopColor="#8bdeff"/><stop offset="1" stopColor="#49bfff" stopOpacity="0"/></linearGradient>
       <filter id={id+'-glow'} x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2.5"/></filter>
       <filter id={id+'-shadow'} x="-10%" y="-250%" width="120%" height="600%"><feGaussianBlur stdDeviation="12"/></filter>
-      <clipPath id={id+'-scan'}><rect className={s.scanClip} x="0" y="10" width="250" height="385"/></clipPath>
-      <mask id={id+'-skin'} maskUnits="userSpaceOnUse" x="0" y="0" width="960" height="430"><rect width="960" height="430" fill="white"/><rect className={s.skinCut} x="0" y="10" width="250" height="385" fill="black"/></mask>
+      <clipPath id={id+'-scan'}><rect className={s.scanClip} x="70" y="-23" width="810" height="46"/></clipPath>
+      <mask id={id+'-skin'} maskUnits="userSpaceOnUse" x="0" y="0" width="960" height="430"><rect width="960" height="430" fill="white"/><rect className={s.skinCut} x="70" y="-23" width="810" height="46" fill="black"/></mask>
     </defs>
     <ellipse cx="473" cy="365" rx="371" ry="15" fill="#000" opacity=".8" filter={url('shadow')}/>
     <g className={s.exterior} mask={url('skin')}>
@@ -49,13 +49,20 @@ export const FreightTruck=memo(function FreightTruck(){
       <path d="M687 223H757V293H686Z" fill="none" stroke="#636363"/>
       <path d="M750 158V286M699 222H747" stroke="#d2d2d2" opacity=".3"/>
       <rect x="733" y="232" width="15" height="4" rx="2" fill="#303030"/>
-      <path d="M767 221L802 242V270L767 251Z" fill="#434343"/>
-      {Array.from({length:6},(_,i)=><path key={i} d={`M771 ${229+i*5}L798 ${245+i*5}`} stroke="#1c1c1c" strokeWidth="2"/>)}
-      <path d="M806 242L846 224V268L806 282Z" fill="#282828" stroke="#939393"/>
-      {Array.from({length:7},(_,i)=><path key={i} d={`M810 ${247+i*4}L843 ${232+i*4}`} stroke="#878787" strokeWidth="1.3"/>)}
-      <path d="M807 287L848 273V288L808 302Z" fill="#dadada" opacity=".9"/>
-      <path d="M813 279L838 270" stroke="#ededed" strokeWidth="5" strokeLinecap="round"/>
-      <path d="M838 271L847 267" stroke="#b8b8b8" strokeWidth="4"/>
+      <path d="M764 218L807 238L849 221V275L808 293L762 270Z" fill={url('front')} stroke="#a0a0a0" strokeWidth=".8"/>
+      <path d="M771 230L800 244V267L771 254Z" fill="#5c5c5c"/>
+      <path d="M774 234L797 245M774 239L797 250" stroke="#d6d6d6" strokeWidth=".8" opacity=".28"/>
+      <path d="M810 242L843 229V266L810 280Z" fill="#171717" stroke="#7e7e7e" strokeWidth="1.5" strokeLinejoin="round"/>
+      {Array.from({length:6},(_,i)=><path key={i} d={`M814 ${246+i*5}L840 ${236+i*5}`} stroke="#949494" strokeWidth="1.35"/>)}
+      <path d="M826 239V267" stroke="#545454" strokeWidth="1"/>
+      <path d="M822 246L831 242V249L822 253Z" fill="#c1c1c1" stroke="#323232" strokeWidth=".7"/>
+      <path d="M765 267L807 287L850 269V291L808 310L763 287Z" fill="#707070" stroke="#bababa" strokeWidth=".8"/>
+      <path d="M812 286L831 278V284L812 292Z" fill="#efefef"/>
+      <path d="M834 277L846 272V278L834 283Z" fill="#cdcdcd"/>
+      <path d="M769 274L786 282V287L769 279Z" fill="#dbdbdb"/>
+      <path d="M811 299L839 287" stroke="#202020" strokeWidth="4"/>
+      <path d="M818 300L830 295V299L818 304Z" fill="#afafaf"/>
+      <path d="M768 286L801 302M811 309L847 294" stroke="#dddddd" strokeWidth="1.2" opacity=".65"/>
       <path d="M685 259H720V285H685Z" fill="#4a4a4a"/><path d="M689 269H715M689 279H715" stroke="#ababab" strokeWidth="3"/>
       <path d="M681 173L673 176V206H681M768 172L784 177V198L776 200" fill="#3a3a3a" stroke="#a0a0a0" strokeWidth="2"/>
       <path d="M695 145L706 129H764L779 146Z" fill="#c2c2c2" stroke="#898989"/>
@@ -98,6 +105,6 @@ export const FreightTruck=memo(function FreightTruck(){
       </g>
       <g className={s.scanLabels} fill="#b8e7ff" fontFamily="monospace" fontSize="9" letterSpacing="1"><path d="M746 278L782 367H852M400 205L427 58H518M385 307L357 372H277" stroke="#48baff" strokeWidth=".8" fill="none"/><circle cx="746" cy="278" r="3" fill="#b2e9ff"/><circle cx="400" cy="205" r="3"/><circle cx="385" cy="307" r="3"/><text x="786" y="383">POWERTRAIN / 06</text><text x="431" y="49">SECURED CARGO</text><text x="267" y="387">CHASSIS / FRAME</text></g>
     </g>
-    <g className={s.scanPlane} aria-hidden="true"><rect className={s.scanVolume} y="44" width="250" height="318" fill={url('scanGlow')}/><path className={s.scanEdge} d="M250 44V362" stroke="#7fd8ff" strokeWidth="1.2"/><path className={s.scanHalo} d="M250 44V362" stroke="#22a5ff" strokeWidth="6" filter={url('glow')}/><path d="M0 52V44H12M238 44H250V52M0 354V362H12M238 362H250V354" stroke="#4ebeff" strokeWidth="1.5" fill="none"/><text x="8" y="34" fill="#73c7ff" fontSize="8" fontFamily="monospace" letterSpacing="1.8">X-RAY / ACTIVE</text></g>
+    <g className={s.scanPlane} aria-hidden="true"><rect className={s.scanVolume} x="70" y="-23" width="810" height="46" fill={url('scanGlow')}/><path className={s.scanHalo} d="M70 0H880" stroke={url('beam')} strokeWidth="5" filter={url('glow')}/><path className={s.scanEdge} d="M70 0H880" stroke={url('beam')} strokeWidth="1"/></g>
   </svg>
 })
