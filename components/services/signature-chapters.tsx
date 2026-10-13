@@ -4,6 +4,8 @@ import type {ReactNode} from 'react'
 import type {Service} from './catalog'
 import {AuditCanvas,ConnectionCanvas,DesignCanvas,PortalCanvas,ProductEngine,ProtectionCanvas,ScheduleCanvas,StoreCanvas} from './signature-demos'
 import {DetailVisual} from './reference-scenes'
+import {CommerceScan} from '@/components/motion/commerce-scan'
+import {SecurityMotionGrid} from '@/components/motion/security-scenes'
 import s from './signature.module.css'
 
 function Intro({service,title,actions}:{service:Service;title:ReactNode;actions:ReactNode}){return <header className={s.pageIntro} data-kind={service.kind}><Link href="/services"><ArrowLeft size={12}/> All services</Link><small>{service.kicker}</small><h1>{title}</h1><p>{service.summary}</p><div className={s.introActions}>{actions}</div></header>}
@@ -24,6 +26,7 @@ export function SignatureChapters({service,actions}:{service:Service;actions:Rea
   <Intro service={service} actions={actions} title={<>Good products.<br/>A considered purchase.</>}/>
   <section className={`${s.chapter} ${s.storeChapter}`}><header><div><span className={s.label}>Discovery has a destination.</span><h2>From the first look<br/>to the last detail.</h2></div><p>Explore a sample product, choose its finish and try the bag. We build the catalogue and purchase journey around what you sell.</p></header><StoreCanvas/></section>
   <section className={`${s.chapter} ${s.storeFulfilment}`}><div><span className={s.label}>Behind a smooth purchase</span><h2>The order doesn’t<br/>end at checkout.</h2><p>Customers need a clear confirmation. Your team needs useful order records and the right stock workflow. We scope both sides of the purchase.</p></div><div className={s.orderStages}><span>01 / Product selected <small>CATALOGUE</small></span><span>02 / Payment confirmed <small>PROVIDER</small></span><span>03 / Order recorded <small>WORKSPACE</small></span><span>04 / Customer informed <small>EMAIL</small></span></div></section>
+  <CommerceScan/>
   <section className={`${s.chapter} ${s.scopeList}`}>{['Products, variants and catalogue structure','Cart, order summary and supported checkout','Inventory and fulfilment workflows','Shipping, policies and tax setup agreed with you'].map((text,i)=><div key={text}><span>0{i+1} / STORE FOUNDATION</span><p>{text}.</p></div>)}</section>
  </div>
  if(service.kind==='booking')return <div className={s.chapters}>
@@ -51,6 +54,7 @@ export function SignatureChapters({service,actions}:{service:Service;actions:Rea
  </div>
  return <div className={s.chapters}>
   <Intro service={service} actions={actions} title={<>Clear boundaries.<br/>A careful launch.</>}/>
+  <SecurityMotionGrid/>
   <section className={`${s.chapter} ${s.protectionChapter}`}><div><span className={s.label}>Access is a decision.</span><h2>The right request.<br/>The right permission.</h2><p>Try another account role or identity state. Private information should stay within its intended audience, with the rules enforced on the server.</p><ul><li>Authentication and ownership checks.</li><li>Scoped administrative controls.</li><li>Provider-backed network protection.</li></ul></div><ProtectionCanvas/></section>
   <section className={`${s.chapter} ${s.launchChecklist}`}><div><span className={s.label}>From preview to production</span><h2>Launch is a checklist.<br/>Not a leap.</h2><p>We coordinate the domain, HTTPS, production settings and core journeys. Backups, monitoring and maintenance are included when they are part of your agreed scope.</p></div><ol><li>Confirm domain and hosting ownership.</li><li>Configure HTTPS and production integrations.</li><li>Review access and critical journeys.</li><li>Agree on renewal and maintenance responsibilities.</li><li>Complete the launch and practical handover.</li></ol></section>
   <section className={`${s.chapter} ${s.searchOutline}`}><div><span className={s.label}>Practical protection</span><h2>Layers chosen<br/>for your product.</h2></div><p>Network-level mitigation, application limits and account permissions have different jobs. We choose the protections available with your provider and configuration, without promising protection from every incident.</p></section>
