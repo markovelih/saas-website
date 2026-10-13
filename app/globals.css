@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@import './workspace-theme.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -352,3 +353,17 @@ input,textarea{min-width:0}
     font-size: 16px !important;
   }
 }
+
+/* Monochrome selection and quiet field focus throughout Koryx. */
+*::selection { background: #e5e5e5 !important; color: #090909 !important; }
+[data-workspace-theme="light"]::selection,
+[data-workspace-theme="light"] *::selection { background: #171719 !important; color: #fff !important; }
+input:focus, textarea:focus, select:focus, [contenteditable="true"]:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--ws-strong-line, #777) !important;
+}
+
+:focus-visible { outline-color: var(--foreground) !important; }
