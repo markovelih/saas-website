@@ -41,7 +41,7 @@ const journeys: {points: Point[]; duration: number; delay: number}[] = [
   {points: [[7, 1], [6, 1], [6, 2], [5, 2]], duration: 6.3, delay: -4.7},
 ]
 
-export function DeliveryGlobe() {
+export function DeliveryGlobe({showMarks=true,multicolor=false}:{showMarks?:boolean;multicolor?:boolean}={}) {
   const ref = useRef<HTMLDivElement>(null)
   const id = useId().replace(/:/g, '')
   useEffect(() => {
@@ -56,7 +56,7 @@ export function DeliveryGlobe() {
   }, [])
 
   return <div ref={ref} className={s.scene} data-running="false">
-    <svg viewBox="0 0 480 270" role="img" aria-label="Koryx global delivery network: light signals travel along a curved globe between Koryx logos" className={s.globe}>
+    <svg viewBox="0 0 480 270" role="img" aria-label={showMarks?"Koryx global delivery network: light signals travel along a curved globe between Koryx logos":"Illustrative network routes: coloured signals follow the curved globe wireframe"} className={s.globe}>
       <defs>
         <linearGradient id={`${id}-fade`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="white"/><stop offset=".75" stopColor="white"/><stop offset="1" stopColor="black"/></linearGradient>
         <mask id={`${id}-mask`}><rect width="480" height="250" fill={`url(#${id}-fade)`}/></mask>
@@ -71,14 +71,14 @@ export function DeliveryGlobe() {
           })}
         </g>
         <g fill="none" className={s.signals}>
-          {journeys.map(({points, duration, delay}, index) => <g key={index} style={{'--duration': `${duration}s`, '--delay': `${delay}s`} as CSSProperties}>
+          {journeys.map(({points, duration, delay}, index) => <g key={index} style={{'--duration': `${duration}s`, '--delay': `${delay}s`,...(multicolor?{'--signal':`var(--globe-${['green','amber','blue','green','amber','cyan','blue'][index]})`}:{})} as CSSProperties}>
             <path d={route(points)} pathLength="1" className={s.halo}/>
             <path d={route(points)} pathLength="1" className={s.trail}/>
             <path d={route(points)} pathLength="1" className={s.head}/>
           </g>)}
         </g>
       </g>
-      {nodes.map((position, index) => {
+      {showMarks&&nodes.map((position, index) => {
         const [x, y] = point(position)
         return <g key={index} transform={`translate(${x} ${y})`} className={s.node}>
           <circle r="13" className={s.ripple} style={{animationDelay: `${-index * .83}s`}}/>
