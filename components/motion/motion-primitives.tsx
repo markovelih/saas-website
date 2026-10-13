@@ -4,7 +4,7 @@ import {useEffect,useRef} from 'react'
 import type {CSSProperties,ReactNode,PointerEvent} from 'react'
 import s from './motion.module.css'
 
-export function MotionSurface({children,className='',interactive=false,label}:{children:ReactNode;className?:string;interactive?:boolean;label?:string}){
+export function MotionSurface({children,className='',interactive=false,pointerRegion,label}:{children:ReactNode;className?:string;interactive?:boolean;pointerRegion?:string;label?:string}){
  const ref=useRef<HTMLDivElement>(null)
  const frame=useRef(0)
  useEffect(()=>{
@@ -17,7 +17,7 @@ export function MotionSurface({children,className='',interactive=false,label}:{c
  },[])
  function move(event:PointerEvent<HTMLDivElement>){
   if(!interactive||event.pointerType!=='mouse'||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return
-  const el=event.currentTarget,rect=el.getBoundingClientRect()
+  const el=event.currentTarget,region=pointerRegion?el.querySelector(pointerRegion)||el:el,rect=region.getBoundingClientRect()
   const x=Math.max(0,Math.min(1,(event.clientX-rect.left)/rect.width)),y=Math.max(0,Math.min(1,(event.clientY-rect.top)/rect.height))
   cancelAnimationFrame(frame.current)
   frame.current=requestAnimationFrame(()=>{el.style.setProperty('--pointer-x',`${x*100}%`);el.style.setProperty('--pointer-y',`${y*100}%`);el.style.setProperty('--rotate-x',`${(0.5-y)*8}deg`);el.style.setProperty('--rotate-y',`${(x-0.5)*10}deg`)})
