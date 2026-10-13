@@ -9,7 +9,7 @@
  --ws-success:#9cd2ad; --ws-warning:#e4c894; --ws-error:#f3b0a6;
 }
 [data-workspace-theme] { color:var(--ws-text); color-scheme:dark; }
-[data-workspace-theme="light"] {
+:root[data-workspace-theme="light"], [data-workspace-theme="light"] {
  color-scheme:light;
  --ws-background:#f5f5f7; --ws-sidebar:#fff; --ws-surface:#fff;
  --ws-input:#f7f7f9; --ws-hover:#eeeeF1; --ws-text:#18181b;
