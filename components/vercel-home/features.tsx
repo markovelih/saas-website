@@ -7,6 +7,7 @@ import type { ReactNode } from 'react'
 import s from './studio.module.css'
 import { ExperienceLab } from './experience-lab'
 import { BudgetPricing } from '@/components/workspace/budget-pricing'
+import { DeliveryGlobe } from './delivery-globe'
 
 export const services = [
   { slug: 'business-websites', icon: Globe, title: 'Websites & brand experiences', short: 'Business websites', description: 'A distinctive home for your business. Thoughtful design, expressive motion, and a clear path from first impression to enquiry.', includes: ['Custom UI/UX & responsive layouts', 'Landing pages & content management', 'Forms, technical SEO & analytics'], result: 'A finished website on your domain, ready for visitors.', audience: 'Local businesses, service brands, portfolios, and companies ready to improve their online presence.', visual: 'website' },
@@ -49,7 +50,7 @@ export function WebsitePreview({ type = 'website' }: { type?: string }) {
 export function WorkShowcase() { return <ExperienceLab/> }
 
 export function GlobeVisual() {
-  return <svg className={s.diagram} viewBox="0 0 440 230" role="img" aria-label="Animated global network connecting your website to visitors"><defs><radialGradient id="globeGlow"><stop stopColor="#379fff" stopOpacity=".15" /><stop offset="1" stopColor="#379fff" stopOpacity="0" /></radialGradient></defs><circle cx="220" cy="145" r="125" fill="url(#globeGlow)" /><path d="M65 210a155 155 0 0 1 310 0M65 210h310M83 140h274M123 82h194M220 55v155" className={s.gridline}/><path d="M130 210C130 30 310 30 310 210M177 210C177 3 263 3 263 210" className={s.gridline}/><path d="M92 163L155 163L179 103L240 103L270 165L351 165" stroke="#449eff" strokeWidth="1.5" fill="none" className={s.signal}/>{[[92,163],[179,103],[240,103],[270,165],[351,165],[220,65]].map(([x,y],i)=><g key={i}><circle cx={x} cy={y} r="10" fill="#090909" stroke="#ffffff25"/><circle cx={x} cy={y} r="3" fill={i%2 ? '#fff' : '#449eff'} className={s.pulse} style={{animationDelay:`-${i*.5}s`}}/></g>)}<text x="170" y="228">YOUR BRAND. EVERYWHERE.</text></svg>
+  return <DeliveryGlobe/>
 }
 
 export function SecurityVisual() {
@@ -71,7 +72,7 @@ export function QualitySection() {
     { title: 'Connected to the way you work.', text: 'Payments, booking, CRM, email, and custom APIs. Bring the right tools together and remove repetitive steps from your day.', visual: <IntegrationVisual/> },
     { title: 'Security built into the plan.', text: 'HTTPS, provider-backed DDoS mitigation, secure sign-in, and scoped data access. Additional protections are chosen for your application.', visual: <SecurityVisual/> },
   ]
-  return <section className={s.section}><div className={s.wrap}><Reveal className={s.intro}><div><p className={s.eyebrow}>More than a good-looking page</p><h2 className={s.heading}>The details that make<br /><span className="text-white/40">the difference.</span></h2></div><Link href="/services/security" className={s.link}>Explore our approach <ArrowRight size={16}/></Link></Reveal><div className={s.benefits}>{cards.map(c=><Reveal className={s.benefit} key={c.title}><h3>{c.title}</h3><p>{c.text}</p>{c.visual}<div className={s.visualLabel}>Concept illustration</div></Reveal>)}</div></div></section>
+  return <section id="quality" className={s.section}><div className={s.wrap}><Reveal className={s.intro}><div><p className={s.eyebrow}>More than a good-looking page</p><h2 className={s.heading}>The details that make<br /><span className="text-white/40">the difference.</span></h2></div><Link href="/services/security" className={s.link}>Explore our approach <ArrowRight size={16}/></Link></Reveal><div className={s.benefits}>{cards.map(c=><Reveal className={s.benefit} key={c.title}><h3>{c.title}</h3><p>{c.text}</p>{c.visual}<div className={s.visualLabel}>Concept illustration</div></Reveal>)}</div></div></section>
 }
 
 export function Features() {
