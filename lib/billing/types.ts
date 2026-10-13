@@ -1,5 +1,5 @@
-export type BillingItem = {description:string;quantity:number;unit_price:number;discount?:Discount}
-export type Discount={type:'amount'|'percent';value:number}
+export type BillingItem = {description:string;quantity:number;unit_price:number;service_code?:string;discount?:Discount}
+export type Discount={type:'amount'|'percent';value:number;high_approved?:boolean}
 export type DocumentSelection='invoice'|'receipt'|'both'
 export type ManagedDomain={id:string;order_id:string;user_id:string;hostname:string;status:'connected'|'pending'|'expired';renewal_date:string|null;cost_price:number;retail_price:number;notes:string;created_at:string}
 export type PublicDomain=Omit<ManagedDomain,'cost_price'|'notes'>
@@ -9,7 +9,7 @@ export type Delivery = {
  website_url?: string; preview_path?: string; service_status?: 'active'|'maintenance'|'offline'|'not_launched';
  domain_status?: 'connected'|'pending'|'expired'; domain_renewal_date?: string|null;
  domain_renewal_price?: number|null; hosting_renewal_date?: string|null; hosting_renewal_price?: number|null;
- updated_at?: string; notes?: string; bill_to_name?: string; bill_to_address?: string; billing_items?: BillingItem[];discount?:Discount;
+ diagnostic_report?:string; updated_at?: string; notes?: string; bill_to_name?: string; bill_to_address?: string; billing_items?: BillingItem[];discount?:Discount;
 }
 export type BillingSettings = {id: boolean; seller_name: string; seller_address: string; support_email: string; tax_id: string; tax_label: string; tax_rate: number; from_email: string;usdt_address?:string;btc_address?:string}
 export const defaultBilling: BillingSettings = {id:true,seller_name:'Koryx',seller_address:'',support_email:'support@koryx.ca',tax_id:'',tax_label:'Tax',tax_rate:0,from_email:'support@koryx.ca'}
