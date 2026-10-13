@@ -1,19 +1,16 @@
 'use client'
 
-import {useEffect,useRef,useState} from 'react'
+import {useState} from 'react'
 import type {CSSProperties,ReactNode} from 'react'
 import {ArrowUpRight,Check,CalendarDays,Code2,Database,FileText,Folder,Globe,Layers,Lock,Mail,Search,ShieldCheck,ShoppingBag,Sparkles,User,Workflow} from 'lucide-react'
 import type {ServiceKind} from './catalog'
+import {MotionSurface,SignalPath} from '@/components/motion/motion-primitives'
 import s from './reference.module.css'
 
 export function BrandMark(){return <svg viewBox="0 0 128 128" fill="currentColor" aria-hidden="true"><path d="M27 83V104L98 27H77ZM63 84L79 101H99L76 73Z"/></svg>}
-function Animated({children,className=''}:{children:ReactNode;className?:string}){
- const ref=useRef<HTMLDivElement>(null)
- useEffect(()=>{const el=ref.current;if(!el)return;let visible=false;const update=()=>{el.dataset.running=String(visible&&!document.hidden)};const observer=new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;update()},{threshold:.05});observer.observe(el);document.addEventListener('visibilitychange',update);return()=>{observer.disconnect();document.removeEventListener('visibilitychange',update)}},[])
- return <div ref={ref} className={`${s.animation} ${className}`} data-running="false">{children}</div>
-}
+function Animated({children,className=''}:{children:ReactNode;className?:string}){return <MotionSurface className={`${s.animation} ${className}`}>{children}</MotionSurface>}
 function WindowBar({label}:{label:string}){return <div className={s.windowBar}><span><i/><i/><i/></span><small><Lock size={10}/> {label}</small><ArrowUpRight size={12}/></div>}
-function Signal({d,delay=0}:{d:string;delay?:number}){return <><path d={d} className={s.wire}/><path d={d} pathLength="1" className={s.signal} style={{animationDelay:`-${delay}s`}}/></>}
+function Signal({d,delay=0}:{d:string;delay?:number}){const tones=['blue','cyan','violet'] as const;return <SignalPath d={d} tone={tones[Math.round(delay*2)%3]} delay={-delay} duration={7}/>}
 function Website(){return <div className={s.websiteStage}><div className={s.browserBack}/><div className={s.browserBack}/><div className={s.browser}><WindowBar label="your-brand.ca / preview"/><div className={s.websiteArt}><small>FORM / SPACES</small><span className={s.artNav}>Work &nbsp; About ↗</span><h3>A different<br/>perspective.</h3><div className={s.arch}/><div className={s.landscape}/><span className={s.artFoot}>DESIGNED AROUND YOU</span></div></div><div className={`${s.annotation} ${s.commentOne}`}><span className={s.person}>You</span><div><strong>Your feedback</strong><p>More space. Let the design breathe.</p></div></div><div className={`${s.annotation} ${s.commentTwo}`}><Check size={15}/><span>Mobile layout refined.</span></div><div className={`${s.annotation} ${s.commentThree}`}><BrandMark/><span>Version 02 · Ready for review</span></div></div>}
 function Software(){return <div className={s.softwareStage}><div className={s.apiList}>{[['POST','/accounts/create'],['GET','/projects'],['POST','/workflow/run'],['GET','/documents'],['POST','/notifications'],['GET','/reports'],['POST','/webhooks']].map(([method,path],i)=><div key={path} style={{'--n':i} as CSSProperties}><span>{method}</span><code>{path}</code><Check size={12}/></div>)}</div><div className={s.codePanel}><WindowBar label="your-product / workflow"/><pre><span>when</span> request.received{'\n'}  validate(input){'\n'}  <span>await</span> process(task){'\n'}  save(result){'\n'}  notify(customer){'\n\n'}<em>✓ workflow complete</em></pre><div className={s.execution}><i/><i/><i/><i/><i/></div></div></div>}
 function Commerce(){return <div className={s.commerceStage}><div className={s.store}><WindowBar label="your-store.ca"/><div className={s.storeIntro}><small>SOLA — OBJECTS</small><h3>Less, but<br/>better.</h3><p>Objects made to stay.</p><span>Explore collection ↗</span></div><div className={s.object}/><div className={s.productStrip}>{['01 / Stone','02 / Sand','03 / Clay'].map(x=><span key={x}>{x}<i/></span>)}</div></div><div className={s.orderFloat}><ShoppingBag size={16}/><div><strong>An effortless purchase</strong><p>Product → Cart → Confirmation</p></div><Check size={14}/></div></div>}
