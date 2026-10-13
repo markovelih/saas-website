@@ -48,7 +48,7 @@ export function Hero() {
             initial={reduce ? false : { opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.08 }}
-            className="bg-gradient-to-b from-white via-white to-white/55 bg-clip-text text-[36px] font-bold leading-[0.98] tracking-[-0.055em] text-transparent sm:text-[70px] md:text-[76px]"
+            className="site-hero-heading bg-gradient-to-b from-white via-white to-white/55 bg-clip-text text-[36px] font-bold leading-[0.98] tracking-[-0.055em] text-transparent sm:text-[70px] md:text-[76px]"
           >
             Websites. Apps.
             <br />
