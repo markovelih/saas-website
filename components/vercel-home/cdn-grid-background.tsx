@@ -61,8 +61,8 @@ export function CdnGridBackground() {
             className="absolute inset-[-35%] opacity-[0.34] max-md:opacity-[0.42]"
             style={{
               backgroundImage: `
-                linear-gradient(to right, rgba(255,255,255,0.34) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255,255,255,0.34) 1px, transparent 1px)
+                linear-gradient(to right, rgba(var(--site-grid-ink,255,255,255),0.34) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(var(--site-grid-ink,255,255,255),0.34) 1px, transparent 1px)
               `,
               backgroundSize: '72px 72px',
             }}
@@ -96,9 +96,9 @@ export function CdnGridBackground() {
         </div>
       </div>
 
-      <div className="absolute left-1/2 top-[49%] h-[440px] w-[780px] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.98)_0%,rgba(0,0,0,0.92)_48%,transparent_72%)] max-md:h-[500px] max-md:w-[92vw]" />
+      <div className="absolute left-1/2 top-[49%] h-[440px] w-[780px] -translate-x-1/2 -translate-y-1/2 site-grid-center max-md:h-[500px] max-md:w-[92vw]" />
 
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_0%,rgba(0,0,0,0.18)_58%,#000_100%)]" />
+      <div className="absolute inset-0 site-grid-edge" />
     </div>
   )
 }
