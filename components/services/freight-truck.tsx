@@ -1,0 +1,104 @@
+'use client'
+
+import {memo,useId} from 'react'
+import s from './logistics-design.module.css'
+
+export const FreightTruck=memo(function FreightTruck(){
+  const id=useId().replaceAll(':','')
+  const url=(name:string)=>`url(#${id}-${name})`
+  const wheels=[{x:175,y:317,r:31},{x:242,y:317,r:31},{x:586,y:317,r:31},{x:645,y:317,r:31},{x:796,y:327,r:35}]
+  return <svg className={s.truck} data-freight-truck viewBox="0 0 960 430" role="img" aria-label="Custom truck model: move the scanner to reveal cargo, chassis and engine">
+    <defs>
+      <linearGradient id={id+'-trailer'} x1="0" y1="0" x2="0.3" y2="1"><stop stopColor="#dce2e5"/><stop offset=".38" stopColor="#9da7ad"/><stop offset=".76" stopColor="#626e75"/><stop offset="1" stopColor="#b7c0c3"/></linearGradient>
+      <linearGradient id={id+'-roof'} x1="0" x2="1" y2=".7"><stop stopColor="#f2f5f3"/><stop offset="1" stopColor="#77868d"/></linearGradient>
+      <linearGradient id={id+'-cab'} x1="0" y1="0" x2="1" y2="1"><stop stopColor="#dfe6e7"/><stop offset=".38" stopColor="#93a2aa"/><stop offset=".7" stopColor="#5a6874"/><stop offset="1" stopColor="#273c4d"/></linearGradient>
+      <linearGradient id={id+'-front'}><stop stopColor="#7c8d97"/><stop offset="1" stopColor="#263b49"/></linearGradient>
+      <linearGradient id={id+'-glass'} x1="0" y1="0" x2="1" y2="1"><stop stopColor="#577c88"/><stop offset=".45" stopColor="#172a34"/><stop offset="1" stopColor="#081217"/></linearGradient>
+      <radialGradient id={id+'-tire'}><stop stopColor="#3d464c"/><stop offset=".65" stopColor="#151c21"/><stop offset=".85" stopColor="#0b1115"/><stop offset="1" stopColor="#253138"/></radialGradient>
+      <radialGradient id={id+'-rim'}><stop stopColor="#e0e6e7"/><stop offset=".45" stopColor="#86969f"/><stop offset=".53" stopColor="#35434b"/><stop offset=".78" stopColor="#c1cbd0"/><stop offset="1" stopColor="#51606b"/></radialGradient>
+      <linearGradient id={id+'-blue'} x1="0" y1="0" x2="0" y2="1"><stop stopColor="#168dff" stopOpacity=".2"/><stop offset="1" stopColor="#083f82" stopOpacity=".4"/></linearGradient>
+      <linearGradient id={id+'-scanGlow'}><stop stopColor="#149cff" stopOpacity="0"/><stop offset=".5" stopColor="#199aff" stopOpacity=".12"/><stop offset="1" stopColor="#56cbff" stopOpacity=".25"/></linearGradient>
+      <filter id={id+'-glow'} x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2.5"/></filter>
+      <filter id={id+'-shadow'} x="-10%" y="-250%" width="120%" height="600%"><feGaussianBlur stdDeviation="12"/></filter>
+      <clipPath id={id+'-scan'}><rect className={s.scanClip} x="0" y="10" width="250" height="385"/></clipPath>
+      <mask id={id+'-skin'} maskUnits="userSpaceOnUse" x="0" y="0" width="960" height="430"><rect width="960" height="430" fill="white"/><rect className={s.skinCut} x="0" y="10" width="250" height="385" fill="black"/></mask>
+    </defs>
+    <ellipse cx="473" cy="365" rx="371" ry="15" fill="#000" opacity=".8" filter={url('shadow')}/>
+    <g className={s.exterior} mask={url('skin')}>
+      <path d="M116 287H682L828 302V324H111Z" fill="#172128" stroke="#3a4953"/>
+      <path d="M112 284H670L722 299H112Z" fill="#6e7b82"/>
+      <path d="M625 268L694 268L727 303H625Z" fill="#313f47"/>
+      <path d="M89 112L142 79H664L644 113Z" fill={url('roof')} stroke="#b7c2c7" strokeWidth="1.2"/>
+      <path d="M89 112H644V282H89Z" fill={url('trailer')} stroke="#d0d8da" strokeWidth="1.2"/>
+      <path d="M644 113L664 79V250L644 282Z" fill="#586c78" stroke="#9baeb8"/>
+      <path d="M99 122H631V270H99Z" fill="none" stroke="#e0e8ea" opacity=".28"/>
+      {Array.from({length:39},(_,i)=><path key={i} d={`M${105+i*13.4} 121V270`} stroke="#0a1820" strokeWidth="1" opacity=".18"/>)}
+      <path d="M96 277H636" stroke="#f1f4f0" opacity=".65" strokeWidth="3"/>
+      <path d="M98 119H635" stroke="#fff" opacity=".42" strokeWidth="2"/>
+      <path d="M132 205H165L183 182H218L177 233H143Z" fill="#d9e8ec" opacity=".75"/>
+      <text x="232" y="220" fill="#e9eef0" fontSize="38" fontFamily="Arial,sans-serif" fontWeight="700" letterSpacing="-2">MONO</text>
+      <text x="365" y="218" fill="#d9e4e7" fontSize="10" fontFamily="monospace" letterSpacing="4">FREIGHT</text>
+      <path d="M525 143H614M525 152H575" stroke="#e1e8ea" opacity=".55"/>
+      {[108,281,475,623].map(x=><rect key={x} x={x} y="281" width="12" height="4" rx="1" fill="#db9a4e"/>)}
+      <path d="M697 152L725 123H784L832 153L850 226V301L813 314H688V232Z" fill={url('cab')} stroke="#acbdc5" strokeWidth="1.2"/>
+      <path d="M697 152L725 123H784L832 153H765Z" fill={url('roof')}/>
+      <path d="M765 154L832 153L850 226L807 247Z" fill={url('front')} stroke="#647d8c"/>
+      <path d="M704 158H758V215H694Z" fill={url('glass')} stroke="#9badb7"/>
+      <path d="M770 161L825 160L840 216L805 230L770 212Z" fill={url('glass')} stroke="#9badb7"/>
+      <path d="M706 161H753V168H703Z" fill="#d4e7e9" opacity=".3"/>
+      <path d="M780 163L816 165L825 199" fill="none" stroke="#e2e9e7" opacity=".16" strokeWidth="3"/>
+      <path d="M687 223H757V293H686Z" fill="none" stroke="#526673"/>
+      <path d="M750 158V286M699 222H747" stroke="#c6d5da" opacity=".3"/>
+      <rect x="733" y="232" width="15" height="4" rx="2" fill="#203340"/>
+      <path d="M767 221L802 242V270L767 251Z" fill="#314754"/>
+      {Array.from({length:6},(_,i)=><path key={i} d={`M771 ${229+i*5}L798 ${245+i*5}`} stroke="#111e29" strokeWidth="2"/>)}
+      <path d="M806 242L846 224V268L806 282Z" fill="#172b39" stroke="#8397a1"/>
+      {Array.from({length:7},(_,i)=><path key={i} d={`M810 ${247+i*4}L843 ${232+i*4}`} stroke="#728b9a" strokeWidth="1.3"/>)}
+      <path d="M807 287L848 273V288L808 302Z" fill="#d0dce0" opacity=".9"/>
+      <path d="M813 279L838 270" stroke="#d5f3ff" strokeWidth="5" strokeLinecap="round"/>
+      <path d="M838 271L847 267" stroke="#eab16c" strokeWidth="4"/>
+      <path d="M685 259H720V285H685Z" fill="#384e5b"/><path d="M689 269H715M689 279H715" stroke="#9aafb9" strokeWidth="3"/>
+      <path d="M681 173L673 176V206H681M768 172L784 177V198L776 200" fill="#243f4b" stroke="#8fa4b0" strokeWidth="2"/>
+      <path d="M695 145L706 129H764L779 146Z" fill="#b7c4c8" stroke="#778d9a"/>
+      <path d="M809 241L793 249M833 209L820 200" stroke="#aec4ce" strokeWidth="1.3"/>
+      <path d="M114 299H282V309H114M553 299H676V310H553" fill="#465b67" stroke="#8d9ba3"/>
+      <rect x="348" y="295" width="95" height="24" rx="4" fill="#45535a" stroke="#91a0a7"/>
+      <path d="M365 296V318M426 296V318" stroke="#bdc6c8" opacity=".6" strokeWidth="4"/>
+      <path d="M310 291V328H318V294M478 291V328H486V294" stroke="#313f48" strokeWidth="6"/>
+      {wheels.map(({x,y,r})=><g key={x}><ellipse cx={x+6} cy={y-2} rx={r+3} ry={r} fill="#090d11"/><ellipse cx={x} cy={y} rx={r} ry={r+3} fill={url('tire')} stroke="#4a565d" strokeWidth="1.3"/><ellipse cx={x} cy={y} rx={r*.6} ry={r*.65} fill={url('rim')}/><ellipse cx={x} cy={y} rx={r*.23} ry={r*.25} fill="#526575" stroke="#c4d2d6"/>{Array.from({length:8},(_,i)=>{const a=i*Math.PI/4;return <circle key={i} cx={x+Math.cos(a)*r*.38} cy={y+Math.sin(a)*r*.4} r="2.1" fill="#152733"/>})}<path d={`M${x-r*.7} ${y-r*.6}Q${x} ${y-r*1.04} ${x+r*.65} ${y-r*.5}`} fill="none" stroke="#8298a2" opacity=".4"/></g>)}
+      <path d="M756 310Q795 278 833 305" fill="none" stroke="#8398a4" strokeWidth="7"/>
+    </g>
+    <g className={s.xrayLayer} clipPath={url('scan')}>
+      <g className={s.blueStructure} fill={url('blue')} stroke="#4abfff" strokeWidth="1.1" strokeLinejoin="round">
+        <path d="M89 112L142 79H664V250L644 282H89ZM89 112H644V282M644 113L664 79"/>
+        {Array.from({length:14},(_,i)=><path key={i} d={`M${110+i*39} 111V281M${110+i*39} 111L${149+i*37} 80`} opacity=".5"/>)}
+        <path d="M89 158H644M89 218H644M100 285H678L823 306V324H109Z" fill="none"/>
+        <path d="M697 152L725 123H784L832 153L850 226V301L813 314H688V232Z"/>
+        <path d="M704 158H758V215H694ZM770 161L825 160L840 216L805 230L770 212Z" fill="#082440" fillOpacity=".55"/>
+        <path d="M765 154V280M765 154L832 153M697 223H757V293H686M807 247V301" fill="none"/>
+        <path d="M681 269H838M675 296H822M281 301H548M283 313H549" fill="none" strokeWidth="3"/>
+        {wheels.map(({x,y,r})=><g key={x}><ellipse cx={x} cy={y} rx={r} ry={r+3} fill="#072340" fillOpacity=".6"/><ellipse cx={x} cy={y} rx={r*.62} ry={r*.66} fill="none"/><ellipse cx={x} cy={y} rx={r*.22} ry={r*.24} fill="#168dff" fillOpacity=".5"/><path d={`M${x-r} ${y}H${x+r}M${x} ${y-r}V${y+r}`} opacity=".5"/></g>)}
+        <path d="M154 295L171 277H248L269 295M562 295L579 277H650L672 295" fill="none"/>
+        <path d="M168 315H251M583 315H655M775 326H819" strokeWidth="4"/>
+        {[175,242,586,645,796].map(x=><path key={x} d={`M${x-10} 290l4-5 4 10 4-10 4 10 4-5`} fill="none"/>)}
+        <path d="M326 292H455V319H326Z" fill="#0a3f72" fillOpacity=".5"/>
+        <path d="M337 296V315M349 296V315M432 296V315M444 296V315" strokeWidth="2"/>
+        <g className={s.cargo}>
+          {Array.from({length:7},(_,i)=>{const x=118+i*70;return <g key={i}><path d={`M${x} 198l13-10h47v54l-13 10h-47ZM${x} 198h47v54M${x+47} 198l13-10`} fill="#0a63af" fillOpacity=".28"/><path d={`M${x} 258h60M${x+5} 259v7M${x+30} 259v7M${x+55} 259v7M${x+20} 202v42M${x+27} 202v42`} stroke="#88d8ff" opacity=".65"/>{i%2===0&&<path d={`M${x+4} 151l13-10h42v42l-13 10h-42ZM${x+4} 151h42v42M${x+46} 151l13-10`} fill="#126eba" fillOpacity=".25"/>}<path d={`M${x+10} 217h12m-6-6v12`} stroke="#b5e7ff" opacity=".7"/></g>})}
+        </g>
+        <g className={s.engine}>
+          <path d="M741 247L757 236L800 247V288L782 300L741 281Z" fill="#126fb6" fillOpacity=".6" strokeWidth="1.4"/>
+          <path d="M741 247L782 261L800 247M782 261V300" fill="none"/>
+          {[0,1,2,3,4,5].map(i=><path key={i} d={`M${748+i*6} ${244+i*2}l-4 16 8 3 4-16Z`} fill="#2b9cdb" fillOpacity=".45"/>)}
+          <path d="M799 272H828V289H808M737 268H726V286H753M762 288V306H692" fill="none" stroke="#a4e0ff" strokeWidth="2"/>
+          <ellipse cx="802" cy="280" rx="10" ry="13" fill="none"/><path d="M802 268V292M792 280H812" opacity=".8"/>
+          <path d="M707 182V205H724V183M705 205H728V213H702M730 193l13-3 5 13-13 5ZM719 216V238" fill="none" strokeWidth="2"/>
+        </g>
+        <path d="M114 271H623" stroke="#a9e6ff" strokeWidth="2"/>
+        <path d="M722 310H357M626 295H464" stroke="#298cff" strokeWidth="2" strokeDasharray="5 6"/>
+      </g>
+      <g className={s.scanLabels} fill="#b8e7ff" fontFamily="monospace" fontSize="9" letterSpacing="1"><path d="M746 278L782 367H852M400 205L427 58H518M385 307L357 372H277" stroke="#48baff" strokeWidth=".8" fill="none"/><circle cx="746" cy="278" r="3" fill="#b2e9ff"/><circle cx="400" cy="205" r="3"/><circle cx="385" cy="307" r="3"/><text x="786" y="383">POWERTRAIN / 06</text><text x="431" y="49">SECURED CARGO</text><text x="267" y="387">CHASSIS / FRAME</text></g>
+    </g>
+    <g className={s.scanPlane} aria-hidden="true"><rect className={s.scanVolume} y="44" width="250" height="318" fill={url('scanGlow')}/><path className={s.scanEdge} d="M250 44V362" stroke="#7fd8ff" strokeWidth="1.2"/><path className={s.scanHalo} d="M250 44V362" stroke="#22a5ff" strokeWidth="6" filter={url('glow')}/><path d="M0 52V44H12M238 44H250V52M0 354V362H12M238 362H250V354" stroke="#4ebeff" strokeWidth="1.5" fill="none"/><text x="8" y="34" fill="#73c7ff" fontSize="8" fontFamily="monospace" letterSpacing="1.8">X-RAY / ACTIVE</text></g>
+  </svg>
+})
