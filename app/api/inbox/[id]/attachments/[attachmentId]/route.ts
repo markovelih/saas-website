@@ -1,0 +1,2 @@
+import {attachmentLink} from '@/lib/inbox/server'
+export async function GET(_request:Request,{params}:{params:Promise<{id:string;attachmentId:string}>}){try{const {id,attachmentId}=await params;return new Response(null,{status:302,headers:{Location:await attachmentLink(id,attachmentId),'Cache-Control':'private, no-store','Referrer-Policy':'no-referrer'}})}catch{return new Response('Attachment is unavailable.',{status:403,headers:{'Cache-Control':'private, no-store'}})}}

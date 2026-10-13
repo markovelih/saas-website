@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono, Montserrat } from 'next/font/google'
 import {PrivacyControls} from '@/components/legal/cookie-preferences'
-import { Toaster } from 'sonner'
+import {ThemeProvider,SiteToaster} from '@/components/theme-provider'
 import './globals.css'
 import {SiteTypography} from '@/components/site-typography'
 
@@ -44,21 +44,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${roundedFont.variable} bg-background`}>
+    <html lang="en" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} ${roundedFont.variable} bg-background`}>
       <body className="font-sans antialiased min-h-screen">
-        <SiteTypography>{children}</SiteTypography>
-        <Toaster 
-          position="top-right" 
-          theme="dark"
-          toastOptions={{
-            style: {
-              background: 'oklch(0.12 0 0)',
-              border: '1px solid oklch(0.25 0 0)',
-              color: 'oklch(0.98 0 0)',
-            },
-          }}
-        />
-        <PrivacyControls/>
+        <ThemeProvider attribute="data-workspace-theme" defaultTheme="system" enableSystem enableColorScheme storageKey="koryx-theme" disableTransitionOnChange><SiteTypography>{children}</SiteTypography>
+        <SiteToaster/>
+        <PrivacyControls/></ThemeProvider>
       </body>
     </html>
   )
