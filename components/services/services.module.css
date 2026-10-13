@@ -17,3 +17,6 @@
 
 .overviewHero h1{font-weight:600}.sectionIntro h2{font-weight:550}.serviceCardCopy{min-height:225px}
 @media(max-width:700px){.serviceCardCopy{min-height:0}}
+
+.scene p{max-width:none}.compact .hubCanvas{height:283px}.compact .simulation{min-height:60px}.compact .demoFooter{min-height:85px}
+.scene .simulation{max-width:none}.scene .demoFooter p{max-width:none}
