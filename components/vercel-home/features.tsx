@@ -8,6 +8,7 @@ import s from './studio.module.css'
 import { ExperienceLab } from './experience-lab'
 import { BudgetPricing } from '@/components/workspace/budget-pricing'
 import { DeliveryGlobe } from './delivery-globe'
+import {IntegrationShowcase,SecurityShowcase} from '@/components/services/service-demos'
 
 export const services = [
   { slug: 'business-websites', icon: Globe, title: 'Websites & brand experiences', short: 'Business websites', description: 'A distinctive home for your business. Thoughtful design, expressive motion, and a clear path from first impression to enquiry.', includes: ['Custom UI/UX & responsive layouts', 'Landing pages & content management', 'Forms, technical SEO & analytics'], result: 'A finished website on your domain, ready for visitors.', audience: 'Local businesses, service brands, portfolios, and companies ready to improve their online presence.', visual: 'website' },
@@ -33,7 +34,7 @@ export const faqs = [
 
 export function Reveal({ children, className = '' }: { children: ReactNode; className?: string }) {
   const reduce = useReducedMotion()
-  return <motion.div className={className} initial={reduce ? false : { opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .12 }} transition={{ duration: .65, ease: [.16, 1, .3, 1] }}>{children}</motion.div>
+  return <motion.div className={className} initial={reduce ? false : { opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .12 }} transition={{ duration: .45, ease: [.16, 1, .3, 1] }}>{children}</motion.div>
 }
 
 export function ProjectButtons() {
@@ -53,13 +54,8 @@ export function GlobeVisual() {
   return <DeliveryGlobe/>
 }
 
-export function SecurityVisual() {
-  return <svg className={s.diagram} viewBox="0 0 440 230" role="img" aria-label="Illustration of traffic passing through a security layer"><path d="M25 48L177 114M25 114H177M25 180L177 114M243 114H412" className={s.gridline}/><path d="M25 48L177 114M25 114H177M25 180L177 114" stroke="#ff7777" strokeWidth="1.5" fill="none" className={s.flow}/><path d="M243 114H412" stroke="#81adff" strokeWidth="2" className={s.flow}/>{[48,114,180].map((y,i)=><g key={y}><circle cx="25" cy={y} r="6" fill="#090909" stroke="#ff777760"/><path d={`M${85+i*17} ${y-8}l8 8m-8 0l8-8`} stroke="#ff7777" className={s.pulse}/></g>)}<circle cx="212" cy="114" r="38" fill="#0b0b0b" stroke="#ffffff35"/><path d="M212 94l16 6v14c0 11-16 19-16 19s-16-8-16-19v-14z" fill="none" stroke="white" strokeWidth="1.5"/><path d="M204 112l6 6 11-12" stroke="white" fill="none" strokeWidth="1.5"/><rect x="355" y="91" width="61" height="45" rx="8" fill="#090909" stroke="#ffffff25"/><text x="365" y="118">YOUR APP</text><text x="174" y="177">SECURITY LAYER</text><text x="35" y="222">DDoS · HTTPS · ACCESS CONTROL</text></svg>
-}
-
-export function IntegrationVisual() {
-  return <svg className={s.diagram} viewBox="0 0 440 230" role="img" aria-label="Animated connections between your application and business tools"><path d="M68 115H172M244 115L358 48M244 115H358M244 115L358 182" className={s.gridline}/>{['M68 115H172','M244 115L358 48','M244 115H358','M244 115L358 182'].map((d,i)=><path key={d} d={d} fill="none" stroke={i===1?'#ab8aff':'#72b2ff'} strokeWidth="1.5" className={s.flow} style={{animationDelay:`-${i}s`}}/>)}<rect x="15" y="95" width="90" height="40" rx="8" stroke="#ffffff25" fill="#0b0b0b"/><text x="30" y="119">YOUR BUSINESS</text><rect x="169" y="80" width="78" height="70" rx="14" stroke="#ffffff40" fill="#111"/><text x="189" y="119" style={{fill:'white'}}>KORYX</text>{[['PAYMENTS',48],['CRM / DATA',115],['EMAIL / AI',182]].map(([label,y])=><g key={label}><rect x="318" y={Number(y)-20} width="112" height="40" rx="8" stroke="#ffffff20" fill="#0b0b0b"/><text x="335" y={Number(y)+4}>{label}</text></g>)}</svg>
-}
+export function SecurityVisual() { return <SecurityShowcase compact/> }
+export function IntegrationVisual() { return <IntegrationShowcase compact/> }
 
 export function CraftVisual() {
   return <div className={s.stack} aria-label="Layered previews of your finished project" role="img"><div className={s.window}>● ● ● &nbsp; yourbrand.com<strong>Designed for your brand.</strong></div><div className={s.window}>● ● ● &nbsp; yourbrand.com<strong>Built around your workflow.</strong></div><div className={s.window}>● ● ● &nbsp; 🔒 yourbrand.com<strong>Ready for your customers.</strong><div className="mt-3 h-px bg-white/10 w-3/4" /></div></div>
@@ -89,7 +85,3 @@ export function FAQSection() {
 
 export function PricingContent() { return <BudgetPricing/> }
 
-export function ServiceDetail({ slug }: { slug: string }) {
-  const service = services.find(x=>x.slug===slug)!
-  return <div className={s.page}><Link className={s.link} href="/services">← All services</Link><div className={s.serviceHero}><div><p className={`${s.eyebrow} mt-10`}>Made for your business</p><h1>{service.title}</h1><p className={s.lead}>{service.description}</p><ProjectButtons/></div><div>{service.visual==='security'?<SecurityVisual/>:service.visual==='network'?<IntegrationVisual/>:<WebsitePreview type={service.visual}/>}<p className={s.note}>Illustrative concept. Your project is designed around your own brand and requirements.</p></div></div><div className={s.scope}><div><h2>What we can build</h2><ul>{service.includes.map(x=><li key={x}><Check size={18} className="shrink-0"/>{x}</li>)}</ul><p className={`${s.muted} mt-7`}>{service.result}</p></div><div><h2>Who it is for</h2><p className={s.muted}>{service.audience}</p><h2 className="mt-10">A scope you can review</h2><p className={s.muted}>We confirm the features, design direction, integrations, timeline, and cost with you. You receive working previews and review the important flows before launch.</p></div></div>{slug==='security'&&<p className={s.note}>DDoS mitigation is provided by the selected hosting network. Firewall rules, monitoring, and application protections depend on the agreed setup. <a href="https://vercel.com/docs/vercel-firewall/ddos-mitigation" className="underline">Read about Vercel DDoS mitigation.</a></p>}</div>
-}
