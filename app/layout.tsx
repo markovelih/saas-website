@@ -24,9 +24,9 @@ export const metadata: Metadata = {
   authors: [{ name: 'Koryx' }],
   metadataBase: new URL('https://koryx.ca'),
   icons: {
-    icon: [{ url: '/favicon.png', type: 'image/png', sizes: '96x96' }],
-    shortcut: '/favicon.ico',
-    apple: [{ url: '/apple-icon.png', type: 'image/png', sizes: '180x180' }],
+    icon: [{ url: '/brand/favicon.png', type: 'image/png', sizes: '96x96' }],
+    shortcut: '/brand/favicon.ico',
+    apple: [{ url: '/brand/apple-touch-icon.png', type: 'image/png', sizes: '180x180' }],
   },
   openGraph: {
     title: 'Koryx | Custom Websites, Apps & Software',
