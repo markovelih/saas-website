@@ -36,3 +36,21 @@ Object.assign(ukrainian,{
 })
 
 Object.assign(ukrainian,{'Notify client: findings are ready':'Повідомити клієнта про результати','Save the diagnostic report first.':'Спочатку збережи звіт діагностики.','Findings email accepted.':'Лист про результати прийнято.','Could not send findings. Please retry.':'Не вдалося надіслати повідомлення. Спробуй ще раз.'})
+Object.assign(ukrainian,{
+ 'Send a project estimate':'Надіслати попередній розрахунок',
+ 'Send a preliminary cost breakdown to any email. No client account is needed.':'Надішли попередню вартість на будь-яку пошту. Акаунт клієнта не потрібен.',
+ 'Document purpose':'Призначення документа',
+ 'Create client project':'Створити проєкт клієнту',
+ 'Email an estimate':'Надіслати розрахунок',
+ 'For information only. The email includes one estimate PDF, with no payment button, due date or receipt. It creates no project or debt.':'Лише для ознайомлення. Один PDF із розрахунком — без кнопки оплати, строку сплати чи чека. Проєкт і борг не створюються.',
+ 'Recipient email':'Email одержувача',
+ 'Recipient name (optional)':'Ім’я одержувача (необов’язково)',
+ 'Project name (optional)':'Назва проєкту (необов’язково)',
+ 'Estimated price (CAD)':'Попередня вартість (CAD)',
+ 'Send estimate PDF':'Надіслати розрахунок PDF',
+ 'Sending estimate…':'Надсилаю розрахунок…',
+ 'Estimate email accepted. No project or payment request was created.':'Лист із розрахунком прийнято до надсилання. Проєкт і вимога оплати не створені.',
+ 'Enter a valid recipient email.':'Введи правильний email одержувача.',
+ 'Add services or a price before sending the estimate.':'Додай послуги або вартість перед надсиланням розрахунку.',
+ 'The estimate could not be prepared. Please retry.':'Не вдалося підготувати розрахунок. Спробуй ще раз.',
+})
