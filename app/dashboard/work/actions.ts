@@ -29,3 +29,12 @@ export async function addWorkQuote(raw:unknown){
  if(error?.code==='23505'){const {data:old}=await supabase.from('orders').select('id').eq('assignment_key',v.request_id).maybeSingle();if(old)return {id:old.id}}
  if(error||!data)return {error:'Could not save the work quote. Please retry.'};refresh(data.id,parent?.id||null);return {id:data.id}
 }
+export async function sendDiagnosticFindings(raw:unknown){
+ const p=workRequestSchema.shape.request_id.safeParse(raw);if(!p.success)return {error:'Invalid project.'};const {supabase}=await founderClient()
+ const {data:order}=await supabase.from('orders').select('*').eq('id',p.data).single();if(!order||order.work_kind!=='diagnostic'||!order.delivery?.diagnostic_report?.trim())return {error:'Save the diagnostic report first.'}
+ const {data:auth}=await supabase.auth.admin.getUserById(order.user_id);if(!auth.user?.email)return {error:'Client account not found.'}
+ const {createHash}=await import('node:crypto'),{queueMail,deliverMail}=await import('@/lib/billing/outbox')
+ const fingerprint=createHash('sha256').update(order.delivery.diagnostic_report).digest('hex').slice(0,24)
+ const job=await queueMail(supabase,{dedupe_key:`diagnostic/${order.id}/${fingerprint}`,user_id:order.user_id,to_address:auth.user.email,from_address:'support@koryx.ca',subject:'Your Koryx diagnostic findings are ready',html:`<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;background:#fff;color:#171717;padding:32px"><p style="font-size:24px;letter-spacing:5px">koryx</p><h1 style="font-size:26px">Your diagnostic review is ready.</h1><p style="color:#666;line-height:1.7">Read the findings in your secure project workspace. We will agree on any repair scope, price and timeline separately before work begins.</p><a href="https://koryx.ca/dashboard/orders/${order.id}" style="display:inline-block;background:#171717;color:#fff;padding:14px 20px;border-radius:8px;text-decoration:none">View findings</a><p style="color:#777;font-size:12px;margin-top:32px">Questions? Reply to support@koryx.ca.</p></div>`,snapshot:null,documents:'none'})
+ return deliverMail(supabase,job)
+}
