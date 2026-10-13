@@ -21,6 +21,9 @@ export type Profile = {
 
 export type Order = {
   id: string
+  parent_order_id?:string|null
+  work_kind?:'project'|'addition'|'repair'|'diagnostic'
+  work_origin?:'koryx'|'external'
   user_id: string
   business_name: string
   website_type: string
