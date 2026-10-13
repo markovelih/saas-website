@@ -10,3 +10,7 @@ User preference, established 13 October 2026:
 - Change only the page or section requested. This preference does not authorize a site-wide redesign.
 
 The freight cutaway has an additional specific rule: its thin horizontal reveal line is moved manually by the pointer or by dragging the line on touch devices. Scrolling never moves the scanner. Only the revealed interior is blue.
+
+## Explicit interface-reference exception
+
+On 13 October 2026, the user explicitly requested that the website-capabilities section follow their supplied Vercel screenshot closely: two overlapping dark personalized interface windows, outlined headings, colourful product drawings and audience badges; a violet/turquoise fork leading into two cropped interface windows with bright A/B labels; and controlled feature-release illustrations. This specific instruction overrides the earlier no-miniature-interface preference for this section. Preserve that concrete composition rather than replacing it with abstract geometry or standalone flow diagrams. Use original KORYX content and code-drawn assets, and do not copy unsupported performance claims from the reference.
