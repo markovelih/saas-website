@@ -1,101 +1,74 @@
 'use client'
 
-import {useId,useState} from 'react'
-import type {CSSProperties} from 'react'
-import {ArrowDown,ArrowRight,ArrowUpRight,Check,ChevronLeft,ChevronRight,Headphones,Layers,Minus,Plus,ShoppingBag,Sun,Moon} from 'lucide-react'
+import {useEffect,useId,useRef,useState} from 'react'
+import {ArrowRight,ArrowUpRight,Check,Plus,Volume2,VolumeX,X} from 'lucide-react'
+import {SpatialRenderer,locations,routeDistance} from './spatial-renderer'
+import type {SoundMeter} from './spatial-renderer'
 import s from './industry-showcase.module.css'
 
-const concepts=[
- {name:'Architecture',brand:'FORME',domain:'forme.example',tag:'Spaces with a point of view.',description:'A project portfolio with an interactive building study. Explore each level and change the light.',features:['Project exploration','Floor selection','Day / evening scene'],code:'01',type:'PORTFOLIO / SPATIAL DESIGN'},
- {name:'Product commerce',brand:'OBJECT',domain:'object.example',tag:'An object. Every detail.',description:'A product experience with finish selection, an exploded view and a working local shopping bag.',features:['Product configuration','Assembly view','Local shopping bag'],code:'02',type:'COMMERCE / PRODUCT EXPERIENCE'},
- {name:'Appointments',brand:'STILL',domain:'still.example',tag:'A little room for yourself.',description:'A calm service website with a complete appointment selection flow. Choose a session, day and time.',features:['Session selection','Available sample times','Appointment review'],code:'03',type:'SERVICES / APPOINTMENT FLOW'},
+const sectors=[
+ {name:'Spatial design',brand:'OBLIQUE',code:'01',line:'A studio, experienced in three dimensions.',description:'Original three-dimensional forms with a live material and contour view. Rotate the work, change the study and open the project notes.',features:['Original procedural forms','Mouse and touch rotation','Project and material exploration']},
+ {name:'Sound & culture',brand:'PHASE',code:'02',line:'A music experience you can see and hear.',description:'An original sound instrument, not an embedded recording. Select a harmonic study, move through its form and play a short piece that shapes the visual.',features:['Evolving sound sculpture','Original eight-second sound studies','Visual response to the generated audio']},
+ {name:'Mobility',brand:'AXIS',code:'03',line:'A route becomes a spatial experience.',description:'A route explorer with a rotatable globe, calculated great-circle arcs and a moving signal. Choose two cities to change the journey.',features:['Interactive route selection','Calculated spherical distances','Rotatable globe and route signal']},
 ]
-function Building({floor,night}:{floor:number,night:boolean}){
- const uid=useId().replaceAll(':','')
- return <svg viewBox="0 0 640 520" role="img" aria-label={`Architectural building study, ${floor===-1?'all levels':'level '+(floor+1)}, ${night?'evening':'daylight'}`}>
-  <defs><linearGradient id={uid+'-glass'} x1="0" y1="0" x2="1" y2="1"><stop stopColor={night?'#a88c62':'#abb1ad'}/><stop offset="1" stopColor={night?'#514536':'#56645e'}/></linearGradient><radialGradient id={uid+'-ground'}><stop stopColor={night?'#302f2a':'#c8c6ba'}/><stop offset="1" stopColor={night?'#171919':'#e4e2d8'} stopOpacity="0"/></radialGradient></defs>
-  <ellipse cx="323" cy="421" rx="258" ry="65" fill={`url(#${uid}-ground)`}/>
-  <g className={s.siteGrid} fill="none" stroke={night?'#777b70':'#9c9c90'} strokeWidth=".7" opacity=".22">{Array.from({length:12},(_,i)=><path key={i} d={`M${30+i*44} 336L${272+i*44} 457M${62+i*44} 475L${304+i*44} 354`}/>)}</g>
-  <path d="M131 362L338 252L532 345L324 457Z" fill={night?'#3c3c35':'#c4c2b6'}/><path d="M131 362V370L324 465L532 353V345L324 457Z" fill={night?'#252723':'#afafa1'}/>
-  {[0,1,2,3].map(level=>{const selected=floor===-1||floor===level,y=352-level*68;return <g key={level} className={s.buildingLevel} style={{opacity:selected?1:.17,transform:floor===level?'translateY(-12px)':'translateY(0)'}}>
-   <path d={`M175 ${y-17}L337 ${y-104}L481 ${y-35}L319 ${y+53}Z`} fill={night?'#a19d88':'#eeece0'} stroke={night?'#aaa590':'#b7b7a9'}/>
-   <path d={`M175 ${y-17}V${y+37}L319 ${y+108}V${y+53}Z`} fill={`url(#${uid}-glass)`}/>
-   <path d={`M319 ${y+53}L481 ${y-35}V${y+20}L319 ${y+108}Z`} fill={night?'#6c604c':'#6f7971'}/>
-   {Array.from({length:9},(_,i)=><g key={i}><path d={`M${180+i*16} ${y-13+i*8}V${y+40+i*8}`} stroke={night?'#d8c7a0':'#d8d9cd'} strokeWidth="2"/><path d={`M${324+i*18} ${y+50-i*9.7}V${y+102-i*9.7}`} stroke={night?'#d9c39a':'#b9c3b7'} strokeWidth="2"/></g>)}
-   <path d={`M175 ${y+36}L319 ${y+107}L481 ${y+19}V${y+26}L319 ${y+114}L175 ${y+43}Z`} fill={night?'#b5af99':'#e3e0d1'}/>
-   <path d={`M175 ${y+13}L319 ${y+84}L481 ${y-4}`} fill="none" stroke={night?'#b0a281':'#a3b1a3'} opacity=".6"/>
-   {level===3&&<><path d={`M208 ${y-26}L338 ${y-94}L450 ${y-41}L319 ${y+30}Z`} fill={night?'#47483d':'#c7ccba'}/>{[0,1,2,3,4].map(i=><path key={i} d={`M${256+i*26} ${y-44+i*12}l26-14 15 7-26 14Z`} fill={night?'#565d4b':'#8c9b7f'}/>)}</>}
-  </g>})}
-  <g stroke={night?'#77796d':'#969888'} fill="none" strokeWidth=".8"><path d="M515 125V358M510 125H520M510 358H520"/><path d="M159 405L296 473M154 400L164 410M291 468L301 478"/></g>
-  <g fill={night?'#b4b4a2':'#737b68'} fontFamily="Arial,sans-serif" fontSize="8" letterSpacing="2"><text x="529" y="250" transform="rotate(-90 529 250)">SPATIAL STUDY / 04 LEVELS</text><text x="151" y="447">FORM / LIGHT / LIFE</text></g>
-  <g transform="translate(115 340)"><path d="M0 9V42" stroke={night?'#67675b':'#80806c'} strokeWidth="3"/><ellipse cy="0" rx="18" ry="26" fill={night?'#43493b':'#9ba88b'}/><ellipse cx="-6" cy="-7" rx="11" ry="19" fill={night?'#505642':'#a8b395'}/></g>
- </svg>
-}
-function Architecture(){
- const [floor,setFloor]=useState(-1),[night,setNight]=useState(false),[project,setProject]=useState(0)
- const projects=['The courtyard house.','A place to gather.']
- return <div className={s.architecture} data-evening={night}>
-  <nav className={s.conceptNav} aria-label="Architecture example"><strong>FORME<span>®</span></strong><span>ARCHITECTURE & INTERIORS</span><a href="#forme-project">Explore the project<ArrowUpRight size={13}/></a></nav>
-  <div className={s.archHero}><div className={s.archCopy}><span className={s.micro}>SPACES, CONSIDERED.</span><h3>Built around<br/>the way<br/>{' '}<em>you live.</em></h3><p>Material, light and a little breathing room. Architecture explored from every angle.</p><a href="#forme-project" className={s.conceptLink}>Inside the project<ArrowDown size={14}/></a><div className={s.archIndex}><span>01 — 02</span><i/><span>FORME / SELECTED WORK</span></div></div>
-   <div className={s.archScene}><Building floor={floor} night={night}/><div className={s.lightButtons} aria-label="Scene lighting">{[false,true].map(value=><button key={String(value)} onClick={()=>setNight(value)} aria-pressed={night===value} aria-label={value?'Evening scene':'Daylight scene'}>{value?<Moon size={13}/>:<Sun size={13}/>}</button>)}</div><span className={s.sceneCaption}>A BUILDING STUDY, DRAWN IN CODE.</span></div>
-  </div>
-  <div className={s.projectBar} id="forme-project"><div><span className={s.micro}>SELECTED PROJECT / {String(project+1).padStart(2,'0')}</span><h4>{projects[project]}</h4><p>{project===0?'A four-level residence around a shared courtyard.':'The same spatial system, explored as a shared studio.'}</p></div><div className={s.floorControls}><span className={s.micro}>EXPLORE THE LEVELS</span><div>{[-1,0,1,2,3].map(value=><button key={value} aria-pressed={floor===value} onClick={()=>setFloor(value)} aria-label={value===-1?'Show all building levels':'Isolate building level '+(value+1)}>{value===-1?<Layers size={12}/>:String(value+1).padStart(2,'0')}</button>)}</div></div><div className={s.projectArrows}><button onClick={()=>{setProject(v=>1-v);setFloor(-1)}} aria-label="Previous architecture project"><ChevronLeft size={17}/></button><button onClick={()=>{setProject(v=>1-v);setFloor(-1)}} aria-label="Next architecture project"><ChevronRight size={17}/></button></div></div>
+const forms=[
+ {name:'Continuum',type:'A continuous ribbon',text:'A folded ribbon becomes an uninterrupted surface. Rotate it to follow the relationship between its inside and outside.',note:'The form is a spatial study, exploring continuity rather than a construction-ready building.'},
+ {name:'Interlace',type:'A woven volume',text:'One path folds back into itself. Light traces the intersecting surfaces as you change the point of view.',note:'An original geometric study of a continuous curved volume, drawn directly in the scene.'},
+ {name:'Canopy',type:'An open surface',text:'A surface opens into three lifted edges. The contour view reveals its underlying rhythm and structure.',note:'A concept study for a spatial direction. Engineering, materials and construction are outside this example.'},
+]
+function SiteNav({brand,tag,action,onAction}:{brand:string;tag:string;action:string;onAction:()=>void}){return <nav className={s.siteNav} aria-label={brand+' website'}><strong>{brand}<span>°</span></strong><span>{tag}</span><button onClick={onAction}>{action}<ArrowUpRight size={13}/></button></nav>}
+function SpatialSite(){
+ const [form,setForm]=useState(1),[wire,setWire]=useState(false),[notes,setNotes]=useState(false),id=useId().replaceAll(':',''),item=forms[form]
+ return <div className={s.site} data-site="oblique">
+  <SiteNav brand="OBLIQUE" tag="SPATIAL THINKING / ORIGINAL FORMS" action="The studio" onAction={()=>setNotes(true)}/>
+  <div className={s.experienceHero}><div className={s.visual}><SpatialRenderer kind="space" variant={form} wire={wire}/></div><div className={s.heroWords}><span className={s.micro}>SPACE IS A FEELING.</span><h3>Shaped by<br/><span>possibility.</span></h3><p>We explore the space between<br/>a thought and a physical form.</p><button className={s.heroLink} onClick={()=>setNotes(true)}>Inside the work<ArrowUpRight size={15}/></button></div><span className={s.verticalCaption}>ROTATE THE WORK / CHANGE YOUR PERSPECTIVE</span><div className={s.sceneIndex}><span>STUDY / 0{form+1}</span><span>DRAG / SWIPE ACROSS TO ROTATE</span></div><div className={s.viewSwitch} aria-label="Spatial view"><button aria-pressed={!wire} onClick={()=>setWire(false)}>Surface</button><button aria-pressed={wire} onClick={()=>setWire(true)}>Contours</button></div></div>
+  <div className={s.studies} aria-label="Spatial studies">{forms.map((study,i)=><button key={study.name} onClick={()=>{setForm(i);setNotes(false)}} aria-pressed={form===i}><span>0{i+1}</span><strong>{study.name}</strong><small>{study.type}</small><ArrowUpRight size={14}/></button>)}</div>
+  <div className={s.projectCaption}><div><span className={s.micro}>SELECTED WORK / {item.name.toUpperCase()}</span><p>{item.text}</p></div><button onClick={()=>setNotes(true)} aria-expanded={notes} aria-controls={id+'-notes'}>Open project notes<Plus size={14}/></button></div>
+  {notes&&<div className={s.projectNotes} id={id+'-notes'} role="region" aria-label="Spatial project notes"><div><span className={s.micro}>THE WORK / {item.name.toUpperCase()}</span><button onClick={()=>setNotes(false)} aria-label="Close project notes"><X size={15}/></button></div><h4>Form follows<br/>a point of view.</h4><p>{item.note}</p><div className={s.notesColumns}><p><span>01 / EXPLORE</span>Change the study and rotate it from every angle.</p><p><span>02 / LOOK CLOSER</span>Switch to contours to see the geometry beneath the surface.</p><p><span>03 / THE DIRECTION</span>A working spatial experience, shaped specifically for this website.</p></div></div>}
  </div>
 }
-function HeadphoneModel({finish,exploded}:{finish:number,exploded:boolean}){
- const id=useId().replaceAll(':',''),metal=finish===0?'#deded8':'#65655f',dark=finish===0?'#7f827c':'#272b28'
- return <svg viewBox="0 0 620 500" role="img" aria-label={`${finish===0?'Silver':'Graphite'} over-ear headphones, ${exploded?'assembly':'assembled'} view`}>
-  <defs><linearGradient id={id+'-metal'} x1="0" y1="0" x2="1" y2=".8"><stop stopColor={metal}/><stop offset=".28" stopColor={finish===0?'#f4f4ee':'#aaa9a2'}/><stop offset=".6" stopColor={dark}/><stop offset="1" stopColor={metal}/></linearGradient><linearGradient id={id+'-pad'} x1="0" y1="0" x2="1" y2="1"><stop stopColor="#474a46"/><stop offset=".5" stopColor="#191c19"/><stop offset="1" stopColor="#41453f"/></linearGradient><radialGradient id={id+'-shine'}><stop stopColor="#ffffff" stopOpacity=".09"/><stop offset="1" stopColor="#ffffff" stopOpacity="0"/></radialGradient></defs>
-  <circle cx="310" cy="240" r="208" fill={`url(#${id}-shine)`}/>
-  <g fill="none" stroke="#a5a89d" opacity=".14"><circle cx="310" cy="245" r="199"/><circle cx="310" cy="245" r="160"/><path d="M60 245H560M310 25V465"/>{Array.from({length:48},(_,i)=><path key={i} d="M310 38V43" transform={`rotate(${i*7.5} 310 245)`}/>)}</g>
-  <ellipse cx="310" cy="442" rx="146" ry="18" fill="#000" opacity=".48"/>
-  <g className={s.headband} style={{transform:exploded?'translateY(-28px)':'translateY(0)'}}><path d="M164 289V206C164 32 447 32 447 206V286" fill="none" stroke={`url(#${id}-metal)`} strokeWidth="25"/><path d="M170 259V206C170 58 441 58 441 206V259" fill="none" stroke="#30352e" strokeWidth="13"/><path d="M167 217V298M444 217V298" fill="none" stroke={metal} strokeWidth="7"/><path d="M185 130C220 61 396 56 428 132" fill="none" stroke="#fff" strokeWidth="1" opacity=".35"/></g>
-  {[0,1].map(side=><g key={side} className={s.earcup} style={{transform:exploded?`translateX(${side?40:-40}px)`:'translateX(0)'}}>
-   <g transform={side?'translate(620 0) scale(-1 1)':''}>
-    <path d="M159 264L204 257L219 284V360L200 393L157 397L136 367V295Z" fill={`url(#${id}-metal)`} stroke={metal}/>
-    <ellipse cx="195" cy="328" rx="42" ry="70" fill={`url(#${id}-pad)`} stroke="#686e62"/>
-    <ellipse cx="200" cy="328" rx="28" ry="54" fill="#161a15" stroke="#4c5145"/>
-    <ellipse cx="202" cy="328" rx="18" ry="41" fill="#20261d"/>
-    <path d="M150 292Q133 328 150 364" fill="none" stroke="#fff" opacity=".27" strokeWidth="2"/>
-    <path d="M154 289V367" stroke={dark} strokeWidth="2"/><rect x="149" y="333" width="3" height="15" rx="1.5" fill="#1a2015"/>
-    {Array.from({length:7},(_,i)=><circle key={i} cx="147" cy={307+i*3} r=".8" fill="#1f231c"/>)}
-   </g>
-  </g>)}
-  <g className={s.driverDetail} style={{opacity:exploded?1:0}}><path d="M216 327H268M351 327H407" stroke="#a3ad97" strokeWidth=".8" strokeDasharray="3 5"/>{[287,332].map(x=><g key={x}><ellipse cx={x} cy="328" rx="16" ry="43" fill="#343d2d" stroke="#a6af9d"/><ellipse cx={x} cy="328" rx="8" ry="26" fill="none" stroke="#737e68"/>{Array.from({length:8},(_,i)=><path key={i} d={`M${x-10} ${306+i*6}h20`} stroke="#69765c" strokeWidth=".5"/>)}</g>)}<text x="310" y="405" textAnchor="middle" fill="#aab3a3" fontSize="7" fontFamily="Arial,sans-serif" letterSpacing="1.6">DRIVER / CUSHION / HOUSING</text></g>
- </svg>
-}
-function Commerce(){
- const [finish,setFinish]=useState(0),[exploded,setExploded]=useState(false),[bag,setBag]=useState<[number,number]>([0,0]),[bagOpen,setBagOpen]=useState(false)
- const count=bag[0]+bag[1]
- return <div className={s.commerce}><nav className={s.conceptNav} aria-label="Product shop example"><strong>OBJECT<span>®</span></strong><span>TOOLS FOR EVERYDAY LISTENING.</span><button className={s.bagButton} onClick={()=>setBagOpen(v=>!v)} aria-expanded={bagOpen}><ShoppingBag size={14}/><span>Bag ({count})</span></button></nav>
-  <div className={s.productHero}><div className={s.productScene}><HeadphoneModel finish={finish} exploded={exploded}/><span className={s.productCoordinate}>OBJECT / H—01</span><button className={s.assemblyButton} onClick={()=>setExploded(v=>!v)} aria-pressed={exploded}><Layers size={13}/>{exploded?'Bring it together':'Explore the assembly'}</button></div><div className={s.productCopy}><span className={s.micro}>THE LISTENING COLLECTION / 01</span><h3>Less noise.<br/><em>More detail.</em></h3><p>An over-ear headphone concept. A considered silhouette, soft cushions and a finish that feels like you.</p><div className={s.finishPicker}><span>Finish / {finish===0?'Silver':'Graphite'}</span><div>{['Silver','Graphite'].map((name,index)=><button key={name} onClick={()=>setFinish(index)} aria-pressed={finish===index} aria-label={'Select '+name+' finish'} style={{'--finish':index===0?'#c6c7bd':'#444b40'} as CSSProperties}><i/>{name}</button>)}</div></div><button className={s.addBag} onClick={()=>{setBag(v=>v.map((n,i)=>i===finish?n+1:n) as [number,number]);setBagOpen(true)}}>Add to the example bag<Plus size={15}/></button><span className={s.commerceNote}>CONCEPT PRODUCT / NO CHECKOUT OR PAYMENT</span></div></div>
-  {bagOpen&&<div className={s.shoppingBag} role="region" aria-label="Example shopping bag"><div><span className={s.micro}>YOUR EXAMPLE BAG</span><strong>{count===0?'A little space for something good.':count+' object'+(count===1?'':'s')+', considered.'}</strong></div>{bag.map((n,i)=>n>0&&<div key={i} className={s.bagItem}><Headphones size={22}/><span>H—01 / {i===0?'Silver':'Graphite'}</span><button aria-label={'Remove one '+(i===0?'Silver':'Graphite')+' headphone'} onClick={()=>setBag(v=>v.map((value,j)=>j===i?Math.max(0,value-1):value) as [number,number])}><Minus size={12}/></button><output aria-label="Quantity">{n}</output><button aria-label={'Add one '+(i===0?'Silver':'Graphite')+' headphone'} onClick={()=>setBag(v=>v.map((value,j)=>j===i?value+1:value) as [number,number])}><Plus size={12}/></button></div>)}<p>Selections stay in this example. No order is placed.</p></div>}
-  <div className={s.productFooter}>{[['01','The shape.','An original product model, built from vector geometry.'],['02','The interaction.','Finish and assembly respond directly to your selection.'],['03','The journey.','From exploring the details to reviewing your bag.']].map(([n,title,copy])=><div key={n}><span>{n}</span><h4>{title}</h4><p>{copy}</p></div>)}</div>
+const soundStudies=[{name:'Drift',caption:'Open harmonics. A slow, suspended movement.',tones:[110,164.81,220]},{name:'Pulse',caption:'A measured rhythm. One form, repeated differently.',tones:[130.81,196,261.63]},{name:'Glass',caption:'Brighter harmonics. A light, shifting structure.',tones:[220,277.18,329.63]}]
+function SoundSite(){
+ const [study,setStudy]=useState(0),[playing,setPlaying]=useState(false),[message,setMessage]=useState('Sound is off. The visual is yours to explore.')
+ const meter=useRef<SoundMeter>(null),audio=useRef<AudioContext|null>(null),timer=useRef<ReturnType<typeof setTimeout>|null>(null)
+ useEffect(()=>{function hidden(){if(document.hidden){if(timer.current)clearTimeout(timer.current);meter.current=null;void audio.current?.close();audio.current=null;setPlaying(false);setMessage('Sound is off.')}}document.addEventListener('visibilitychange',hidden);return()=>{document.removeEventListener('visibilitychange',hidden);if(timer.current)clearTimeout(timer.current);meter.current=null;void audio.current?.close();audio.current=null}},[])
+ function stop(){if(timer.current)clearTimeout(timer.current);timer.current=null;meter.current=null;void audio.current?.close();audio.current=null;setPlaying(false);setMessage('Sound is off. The visual is yours to explore.')}
+ async function play(){
+  if(playing){stop();return}
+  try{
+   const ctx=new AudioContext();audio.current=ctx;await ctx.resume();if(audio.current!==ctx)return
+   const analyser=ctx.createAnalyser();analyser.fftSize=256;const master=ctx.createGain();master.gain.value=.45;master.connect(analyser);analyser.connect(ctx.destination)
+   const start=ctx.currentTime
+   soundStudies[study].tones.forEach((frequency,i)=>{const oscillator=ctx.createOscillator(),gain=ctx.createGain();oscillator.type='sine';oscillator.frequency.value=frequency;gain.gain.setValueAtTime(0,start);if(study===1){for(let beat=0;beat<14;beat++){const t=start+.3+beat*.5;gain.gain.linearRampToValueAtTime(.038/(i+1),t+.06);gain.gain.linearRampToValueAtTime(.004/(i+1),t+.35)}}else gain.gain.linearRampToValueAtTime(.035/(i+1),start+.6);gain.gain.setTargetAtTime(0,start+7,.18);oscillator.connect(gain);gain.connect(master);oscillator.start(start);oscillator.stop(start+8)})
+   const samples=new Uint8Array(analyser.fftSize);meter.current={read:()=>{analyser.getByteTimeDomainData(samples);let sum=0;for(const value of samples)sum+=((value-128)/128)**2;return Math.min(1,Math.sqrt(sum/samples.length)*28)}}
+   setPlaying(true);setMessage('Playing '+soundStudies[study].name+' — an original eight-second sound study.')
+   timer.current=setTimeout(()=>{meter.current=null;void ctx.close();if(audio.current===ctx)audio.current=null;setPlaying(false);setMessage('Study complete. Choose a different form or listen again.')},8100)
+  }catch{setPlaying(false);setMessage('Audio could not start on this browser. You can still explore the visual.');meter.current=null;void audio.current?.close();audio.current=null}
+ }
+ return <div className={s.site} data-site="phase">
+  <SiteNav brand="PHASE" tag="SOUND / FORM / MOVEMENT" action={playing?'Stop sound':'Listen'} onAction={()=>{void play()}}/>
+  <div className={s.experienceHero}><div className={s.visual}><SpatialRenderer kind="sound" variant={study} meter={meter}/></div><div className={s.heroWords}><span className={s.micro}>AN INSTRUMENT FOR THE IMAGINATION.</span><h3>Feel the<br/><span>frequency.</span></h3><p>Sound becomes a form.<br/>A form becomes a feeling.</p><button className={s.soundPlay} onClick={()=>{void play()}} aria-pressed={playing} aria-label={playing?'Stop sound study':'Play eight-second sound study'}>{playing?<VolumeX size={15}/>:<Volume2 size={15}/>}<span>{playing?'Stop the study':'Listen to the shape'}</span><i>{playing?'PLAYING':'08 SEC'}</i></button></div><span className={s.verticalCaption}>HARMONICS / A STUDY IN SOUND</span><div className={s.sceneIndex}><span>PHASE / 0{study+1}</span><span>SWIPE ACROSS / CHANGE PERSPECTIVE</span></div><span className={s.soundMark} aria-hidden="true">{Array.from({length:24},(_,i)=><i key={i} style={{height:(9+Math.sin(i*.65)**2*24)+'px'}}/>)}</span></div>
+  <div className={s.soundChoices} aria-label="Sound studies">{soundStudies.map((item,i)=><button key={item.name} onClick={()=>{stop();setStudy(i)}} aria-pressed={study===i}><span>0{i+1}</span><strong>{item.name}</strong><p>{item.caption}</p><ArrowUpRight size={14}/></button>)}</div>
+  <div className={s.soundStatus} role="status"><i data-playing={playing}/>{message}<span>ORIGINAL SYNTHESISED SOUND / NO AUTOPLAY</span></div>
  </div>
 }
-const sessions=[{name:'A first conversation',duration:30,description:'A little space to meet, talk and find your direction.'},{name:'A guided session',duration:60,description:'Set aside a full hour for an unhurried session.'},{name:'A follow-up',duration:45,description:'Return to the conversation and plan the next step.'}]
-const days=['Monday','Tuesday','Wednesday','Thursday','Friday']
-const sampleSlots=[['09:00','11:00','14:00'],['10:00','13:00','16:00'],['09:30','12:00','15:00'],['10:30','13:30','16:30'],['09:00','11:30','14:30']]
-function Appointments(){
- const [session,setSession]=useState(0),[day,setDay]=useState(0),[time,setTime]=useState<string|null>(null),[review,setReview]=useState(false)
- return <div className={s.appointments}><nav className={s.conceptNav} aria-label="Appointment website example"><strong>still<span>®</span></strong><span>A SPACE TO SLOW DOWN.</span><a href="#still-booking">Find your moment<ArrowUpRight size={13}/></a></nav>
-  <div className={s.stillHero}><div><span className={s.micro}>THOUGHTFUL SPACE. HUMAN CONNECTION.</span><h3>A moment<br/>that belongs<br/>{' '}<em>to you.</em></h3><p>A considered place for a conversation. Explore a session and make room in your day.</p><a className={s.conceptLink} href="#still-booking">Choose a session<ArrowDown size={14}/></a></div><div className={s.stillArt} aria-hidden="true"><div className={s.orbit}/><div className={s.orbit}/><div className={s.orbit}/><div className={s.pebble}/><div className={s.pebble}/><div className={s.pebble}/><span>PAUSE / BREATHE / BEGIN</span><i/><i/></div></div>
-  <div className={s.booking} id="still-booking"><div className={s.bookingIntro}><span className={s.micro}>YOUR NEXT LITTLE STEP</span><h4>Make room.<br/>We’ll take it from here.</h4><p>Choose a sample session and time.<br/>No personal details needed.</p><div className={s.bookingSteps}>{['Session','Time','Review'].map((name,i)=><span key={name} data-complete={i===0||i===1&&!!time||i===2&&review}><i>{i===2&&review?<Check size={11}/>:i+1}</i>{name}</span>)}</div></div><div className={s.bookingForm}>
-   <div className={s.sessionButtons} aria-label="Session type">{sessions.map((item,i)=><button key={item.name} aria-pressed={session===i} onClick={()=>{setSession(i);setTime(null);setReview(false)}}><span>{item.name}</span><small>{item.duration} min</small></button>)}</div>
-   <p className={s.sessionDescription}>{sessions[session].description}</p>
-   <div className={s.dayPicker} aria-label="Sample appointment day">{days.map((name,i)=><button key={name} onClick={()=>{setDay(i);setTime(null);setReview(false)}} aria-pressed={day===i} aria-label={'Select '+name}><span>{name.slice(0,3)}</span><i/></button>)}</div>
-   <div className={s.timePicker} aria-label="Sample appointment time">{sampleSlots[day].map(slot=><button key={slot} aria-pressed={time===slot} onClick={()=>{setTime(slot);setReview(false)}}>{slot}</button>)}</div>
-   <button className={s.reviewButton} disabled={!time} onClick={()=>setReview(true)}>Review your selection<ArrowRight size={14}/></button>
-   <div className={s.bookingStatus} role="status">{review?<><Check size={15}/><span><strong>{sessions[session].name} / {days[day]} at {time}</strong><small>{sessions[session].duration} minutes · Selection reviewed. This is an example; no appointment is booked.</small></span></>:<span>Sample schedule · Times are illustrative, not live availability.</span>}</div>
-  </div></div>
+function MobilitySite(){
+ const [from,setFrom]=useState(0),[to,setTo]=useState(2),[detail,setDetail]=useState(false),distance=routeDistance(from,to)
+ return <div className={s.site} data-site="axis">
+  <SiteNav brand="AXIS" tag="MOVEMENT, WITH PERSPECTIVE." action="Route details" onAction={()=>setDetail(v=>!v)}/>
+  <div className={s.experienceHero}><div className={s.visual}><SpatialRenderer kind="route" from={from} to={to}/></div><div className={s.heroWords}><span className={s.micro}>A CONNECTION WORTH EXPLORING.</span><h3>{locations[from].name}<br/><span>to {locations[to].name}.</span></h3><p>One journey.<br/>An entirely different point of view.</p><div className={s.distance}><strong>{distance.toLocaleString('en-CA')}</strong><span>KM / APPROX. GREAT-CIRCLE DISTANCE</span></div></div><span className={s.verticalCaption}>ROTATE THE WORLD / FOLLOW THE CONNECTION</span><div className={s.sceneIndex}><span>AXIS / ROUTE EXPLORER</span><span>SWIPE ACROSS / ROTATE THE GLOBE</span></div></div>
+  <div className={s.routePlanner}><label>FROM<select aria-label="Route origin" value={from} onChange={event=>{const value=Number(event.target.value);setFrom(value);if(value===to)setTo((value+1)%locations.length)}}>{locations.map((city,i)=><option key={city.name} value={i}>{city.name}</option>)}</select></label><button aria-label="Reverse selected route" onClick={()=>{setFrom(to);setTo(from)}}><ArrowRight size={17}/></button><label>TO<select aria-label="Route destination" value={to} onChange={event=>setTo(Number(event.target.value))}>{locations.map((city,i)=><option key={city.name} value={i} disabled={i===from}>{city.name}</option>)}</select></label><button className={s.routeDetailsButton} onClick={()=>setDetail(v=>!v)} aria-expanded={detail}>Explore the route<Plus size={14}/></button></div>
+  <div className={s.routeSummary} role="status"><span>{locations[from].name} → {locations[to].name}</span><p>A calculated connection on a spherical Earth model. This study illustrates route discovery, not live transport availability.</p></div>
+  {detail&&<div className={s.routeDetail}><div><span>THE ORIGIN</span><strong>{locations[from].name}</strong><p>{locations[from].lat.toFixed(2)}° latitude / {locations[from].lon.toFixed(2)}° longitude</p></div><div><span>THE CONNECTION</span><strong>{distance.toLocaleString('en-CA')} km</strong><p>Approximate city-to-city distance on a sphere of radius 6,371 km. Actual transport routes may differ.</p></div><div><span>THE DESTINATION</span><strong>{locations[to].name}</strong><p>{locations[to].lat.toFixed(2)}° latitude / {locations[to].lon.toFixed(2)}° longitude</p></div></div>}
  </div>
 }
 export function IndustryShowcase(){
- const [active,setActive]=useState(0),id=useId().replaceAll(':',''),concept=concepts[active]
+ const [active,setActive]=useState(0),id=useId().replaceAll(':',''),sector=sectors[active]
  return <div className={s.showcase}>
-  <div className={s.sectors} role="tablist" aria-label="Explore website templates">{concepts.map((item,i)=><button key={item.brand} role="tab" id={id+'-tab-'+i} aria-controls={id+'-preview'} aria-selected={active===i} tabIndex={active===i?0:-1} onClick={()=>setActive(i)} onKeyDown={event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();const next=event.key==='Home'?0:event.key==='End'?2:(i+(event.key==='ArrowRight'?1:2))%3;setActive(next);document.getElementById(id+'-tab-'+next)?.focus()}}><span>{item.code} / {item.name}</span><strong>{item.brand}</strong><p>{item.tag}</p><ArrowUpRight size={18}/></button>)}</div>
-  <div className={s.browser} id={id+'-preview'} role="tabpanel" aria-labelledby={id+'-tab-'+active} tabIndex={0}><div className={s.browserChrome}><span><i/><i/><i/></span><span>{concept.domain}</span><span>INTERACTIVE WEBSITE CONCEPT</span></div><div key={active} className={s.preview}>{active===0?<Architecture/>:active===1?<Commerce/>:<Appointments/>}</div></div>
-  <div className={s.conceptDetails}><div><span className={s.micro}>{concept.type}</span><p>{concept.description}</p></div><ul>{concept.features.map(item=><li key={item}><Check size={12}/>{item}</li>)}</ul><span className={s.codeNote}>HTML / CSS / SVG / REACT<br/>ORIGINAL VISUALS. WORKING INTERACTIONS.</span></div>
-  <p className={s.disclosure}>Three original website templates to explore. Fictional brands and sample content; bookings and shopping bags stay inside these examples. Your project’s content, integrations and launch are scoped separately.</p>
+  <div className={s.selectorHead}><span>ORIGINAL WEBSITES / THREE DIFFERENT WORLDS</span><span>CHOOSE AN EXPERIENCE<ArrowRight size={11}/></span></div>
+  <div className={s.sectors} role="tablist" aria-label="Explore original website experiences">{sectors.map((item,i)=><button key={item.brand} role="tab" id={id+'-tab-'+i} aria-controls={id+'-site'} aria-selected={active===i} tabIndex={active===i?0:-1} onClick={()=>setActive(i)} onKeyDown={event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();const next=event.key==='Home'?0:event.key==='End'?2:(i+(event.key==='ArrowRight'?1:2))%3;setActive(next);document.getElementById(id+'-tab-'+next)?.focus()}}><span>{item.code} / {item.name}</span><strong>{item.brand}</strong><ArrowUpRight size={16}/></button>)}</div>
+  <div className={s.liveSite} id={id+'-site'} role="tabpanel" aria-labelledby={id+'-tab-'+active} tabIndex={0}><div key={active}>{active===0?<SpatialSite/>:active===1?<SoundSite/>:<MobilitySite/>}</div></div>
+  <div className={s.experienceDetails}><div><span className={s.micro}>A WEBSITE WITH ITS OWN LANGUAGE.</span><h4>{sector.line}</h4><p>{sector.description}</p></div><ul>{sector.features.map(item=><li key={item}><Check size={12}/>{item}</li>)}</ul></div>
+  <p className={s.disclosure}>Original interactive websites created for the KORYX portfolio. Brands and project content are illustrative. Your project’s content, integrations and launch are agreed separately.</p>
  </div>
 }
