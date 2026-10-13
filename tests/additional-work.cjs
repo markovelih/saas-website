@@ -3,6 +3,20 @@ function load(file,overrides={}){file=path.resolve(file);const m={exports:{}};co
 const c=load('lib/billing/service-catalog.ts'),{totals}=load('lib/billing/pricing.ts'),{paymentSnapshot}=load('lib/billing/service.ts'),{defaultBilling}=load('lib/billing/types.ts');
 assert.equal(c.servicePreset('pages','koryx',true).discount.value,15);assert.equal(c.servicePreset('pages','external',true).unit_price,188);assert.equal(c.servicePreset('pages','external',true).discount,undefined);assert.equal(c.servicePreset('diagnostic','external').unit_price,50);assert.equal(c.servicePreset('domain','koryx',true).discount,undefined);
 assert.equal(c.validateDiscount({type:'percent',value:30}),null);assert(c.validateDiscount({type:'percent',value:50}));assert.equal(c.validateDiscount({type:'percent',value:50,high_approved:true}),null);assert(c.validateDiscount({type:'percent',value:90,high_approved:true}));assert(c.validateDiscount({type:'percent',value:17}));assert(c.validateServiceChanges([{...c.servicePreset('pages'),unit_price:1}],{type:'percent',value:0}));assert(c.validateServiceChanges([{...c.servicePreset('pages'),unit_price:100.25}],{type:'percent',value:0}));assert.equal(c.validateDiagnostic([c.servicePreset('diagnostic','external')]),null);assert(c.validateDiagnostic([c.servicePreset('diagnostic'),c.servicePreset('pages')]));
+// Domains and every diagnostic variant stay full-price even under a global discount.
+const {billingItemsSchema}=load('lib/billing/schema.ts');
+for(const variant of c.diagnosticServices){
+ const item=c.servicePreset(variant.code,'external',true);
+ assert.equal(item.discount,undefined);assert.equal(item.unit_price,variant.price);
+ assert(billingItemsSchema.safeParse([item]).success);assert.equal(c.validateDiagnostic([item]),null);
+ assert.equal(c.validateServiceChanges([item],{type:'percent',value:30}),null);
+ assert(c.validateServiceChanges([{...item,discount:{type:'percent',value:10}}],{type:'percent',value:0}));
+ assert.equal(totals([item],{type:'percent',value:70}).total,variant.price);
+}
+const protectedItems=[{...c.servicePreset('pages'),quantity:2,discount:{type:'percent',value:20}},c.servicePreset('diagnostic_issue'),c.servicePreset('domain')];
+assert.deepEqual(totals(protectedItems,{type:'percent',value:30}),{subtotal:405,discount_amount:132,total:273});
+assert(c.validateServiceChanges([{...c.servicePreset('domain'),discount:{type:'percent',value:5}}],{type:'percent',value:0}));
+assert(c.validateServiceChanges([{...c.servicePreset('diagnostic'),unit_price:25}],{type:'percent',value:0}));
 const childItems=[{...c.servicePreset('pages','koryx',true),quantity:2},c.servicePreset('feature','koryx',true)],total=totals(childItems).total;assert.equal(total,510);
 const snapshot=paymentSnapshot({id:'child',parent_order_id:'parent',business_name:'Two pages and a feature',website_type:'Additional work',quote_price:total,delivery:{billing_items:childItems}},{email:'test@example.com',full_name:'Test'},defaultBilling,'btc',new Date().toISOString());assert.equal(snapshot.items.length,2);assert.equal(snapshot.total,510);assert(snapshot.items.every(i=>!i.description.includes('Original')));
 const user='00000000-0000-4000-8000-000000000001',parentId='00000000-0000-4000-8000-000000000002';const rows={profiles:[{id:user}],orders:[{id:parentId,user_id:user,business_name:'Original paid site',parent_order_id:null,work_origin:'koryx',paid:true,status:'completed',quote_price:9999,delivery:{billing_items:[{description:'Original site',quantity:1,unit_price:9999}]}}]};let inserts=0;
