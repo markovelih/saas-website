@@ -17,11 +17,11 @@ export const FreightTruck=memo(function FreightTruck(){
       <radialGradient id={id+'-tire'}><stop stopColor="#454545"/><stop offset=".65" stopColor="#1b1b1b"/><stop offset=".85" stopColor="#101010"/><stop offset="1" stopColor="#2f2f2f"/></radialGradient>
       <radialGradient id={id+'-rim'}><stop stopColor="#e5e5e5"/><stop offset=".45" stopColor="#939393"/><stop offset=".53" stopColor="#414141"/><stop offset=".78" stopColor="#c9c9c9"/><stop offset="1" stopColor="#5e5e5e"/></radialGradient>
       <linearGradient id={id+'-blue'} x1="0" y1="0" x2="0" y2="1"><stop stopColor="#168dff" stopOpacity=".2"/><stop offset="1" stopColor="#083f82" stopOpacity=".4"/></linearGradient>
-      <linearGradient id={id+'-scanGlow'} x1="0" y1="0" x2="0" y2="1"><stop stopColor="#149cff" stopOpacity="0"/><stop offset=".5" stopColor="#199aff" stopOpacity=".17"/><stop offset="1" stopColor="#149cff" stopOpacity="0"/></linearGradient><linearGradient id={id+'-beam'} gradientUnits="userSpaceOnUse" x1="70" y1="0" x2="880" y2="0"><stop stopColor="#49bfff" stopOpacity="0"/><stop offset=".12" stopColor="#8bdeff"/><stop offset=".88" stopColor="#8bdeff"/><stop offset="1" stopColor="#49bfff" stopOpacity="0"/></linearGradient>
+<linearGradient id={id+'-beam'} gradientUnits="userSpaceOnUse" x1="70" y1="0" x2="880" y2="0"><stop stopColor="#49bfff" stopOpacity="0"/><stop offset=".12" stopColor="#8bdeff"/><stop offset=".88" stopColor="#8bdeff"/><stop offset="1" stopColor="#49bfff" stopOpacity="0"/></linearGradient>
       <filter id={id+'-glow'} x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2.5"/></filter>
       <filter id={id+'-shadow'} x="-10%" y="-250%" width="120%" height="600%"><feGaussianBlur stdDeviation="12"/></filter>
-      <clipPath id={id+'-scan'}><rect className={s.scanClip} x="70" y="-23" width="810" height="46"/></clipPath>
-      <mask id={id+'-skin'} maskUnits="userSpaceOnUse" x="0" y="0" width="960" height="430"><rect width="960" height="430" fill="white"/><rect className={s.skinCut} x="70" y="-23" width="810" height="46" fill="black"/></mask>
+      <clipPath id={id+'-scan'}><rect className={s.scanClip} x="0" y="0" width="960" height="430"/></clipPath>
+      <mask id={id+'-skin'} maskUnits="userSpaceOnUse" x="0" y="0" width="960" height="430"><rect width="960" height="430" fill="white"/><rect className={s.skinCut} x="0" y="0" width="960" height="430" fill="black"/></mask>
     </defs>
     <ellipse cx="473" cy="365" rx="371" ry="15" fill="#000" opacity=".8" filter={url('shadow')}/>
     <g className={s.exterior} mask={url('skin')}>
@@ -103,8 +103,8 @@ export const FreightTruck=memo(function FreightTruck(){
         <path d="M114 271H623" stroke="#a9e6ff" strokeWidth="2"/>
         <path d="M722 310H357M626 295H464" stroke="#298cff" strokeWidth="2" strokeDasharray="5 6"/>
       </g>
-      <g className={s.scanLabels} fill="#b8e7ff" fontFamily="monospace" fontSize="9" letterSpacing="1"><path d="M746 278L782 367H852M400 205L427 58H518M385 307L357 372H277" stroke="#48baff" strokeWidth=".8" fill="none"/><circle cx="746" cy="278" r="3" fill="#b2e9ff"/><circle cx="400" cy="205" r="3"/><circle cx="385" cy="307" r="3"/><text x="786" y="383">POWERTRAIN / 06</text><text x="431" y="49">SECURED CARGO</text><text x="267" y="387">CHASSIS / FRAME</text></g>
+
     </g>
-    <g className={s.scanPlane} aria-hidden="true"><rect className={s.scanVolume} x="70" y="-23" width="810" height="46" fill={url('scanGlow')}/><path className={s.scanHalo} d="M70 0H880" stroke={url('beam')} strokeWidth="5" filter={url('glow')}/><path className={s.scanEdge} d="M70 0H880" stroke={url('beam')} strokeWidth="1"/></g>
+    <g className={s.scanPlane}><path className={s.scanHalo} d="M60 0H890" stroke={url('beam')} strokeWidth="4" filter={url('glow')}/><path className={s.scanEdge} d="M60 0H890" stroke={url('beam')} strokeWidth="1"/><rect data-scan-handle className={s.scanHandle} x="60" y="-60" width="830" height="120" fill="transparent"/><path d="M458 0h44" stroke="#c7efff" strokeWidth="2" strokeLinecap="round" pointerEvents="none"/></g>
   </svg>
 })
