@@ -54,3 +54,21 @@ Object.assign(ukrainian,{
  'Add services or a price before sending the estimate.':'Додай послуги або вартість перед надсиланням розрахунку.',
  'The estimate could not be prepared. Please retry.':'Не вдалося підготувати розрахунок. Спробуй ще раз.',
 })
+
+Object.assign(ukrainian,{'Appearance':'Тема','Dark':'Темна','Light':'Світла'})
+
+Object.assign(ukrainian,{
+ 'Diagnostic type':'Вид діагностики',
+ 'Specific issue investigation':'Пошук конкретної проблеми',
+ 'Performance diagnostics':'Діагностика швидкодії',
+ 'Security & integration diagnostics':'Діагностика безпеки та інтеграцій',
+ 'Initial technical review and a short findings report.':'Первинний технічний огляд і короткий звіт із висновками.',
+ 'Investigate one clearly described fault and report the findings.':'Дослідження однієї конкретно описаної несправності та звіт із висновками.',
+ 'Review loading speed and performance bottlenecks with prioritised recommendations.':'Перевірка швидкості завантаження та вузьких місць із пріоритетними рекомендаціями.',
+ 'Review basic security settings and integration failures; this is not a penetration test.':'Перевірка базових налаштувань безпеки та збоїв інтеграцій; без тестування на проникнення.',
+ 'Investigation and report only. Fixes require a separate approved quote.':'Лише дослідження та звіт. Виправлення потребують окремого погодженого кошторису.',
+ 'Domains and diagnostics are not discounted.':'На домени та діагностику знижки не діють.',
+ 'Not available for this service':'Недоступна для цієї послуги',
+ 'Discounts are not available for domains or diagnostics.':'На домени та діагностику не можна застосувати знижку.',
+ 'Service discounts apply first. The order discount applies only to eligible services. Domains and diagnostics keep their full price.':'Спочатку рахуються знижки на послуги. Загальна знижка діє лише на дозволені послуги. Домени та діагностика зберігають повну ціну.',
+})
