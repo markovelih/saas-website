@@ -65,7 +65,7 @@ const destinations = [
 ] as const
 function ConnectionScene() {
   return <div className={s.connectionCanvas} aria-hidden="true">
-    <svg viewBox="0 0 600 310" preserveAspectRatio="none"><SignalPath d="M104 155H264" tone="amber" duration={7}/>{destinations.map(({y,tone})=><SignalPath key={y} d={`M332 155H350Q382 155 382 ${y}H439`} tone={tone} duration={7}/>)}</svg>
+    <svg viewBox="0 0 600 310" preserveAspectRatio="none"><SignalPath d="M104 155H264" tone="amber" duration={2}/>{destinations.map(({y,tone})=><SignalPath key={y} d={`M332 155H350Q382 155 382 ${y}H439`} tone={tone} duration={2}/>)}</svg>
     <div className={s.eventSource}><Workflow size={20} strokeWidth={1.2}/><span>A customer<br/>takes action</span></div>
     <div className={s.connectionCore}><div className={s.coreGrid}/><KoryxMark/><i/><span>YOUR WORKFLOW</span></div>
     {destinations.map(({name,Icon,y})=><div key={name} className={s.destination} style={{top:`${y/3.1}%`}}><Icon size={15} strokeWidth={1.4}/><span>{name}</span><i/></div>)}
