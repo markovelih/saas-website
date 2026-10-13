@@ -9,13 +9,13 @@ export const FreightTruck=memo(function FreightTruck(){
   const wheels=[{x:175,y:317,r:31},{x:242,y:317,r:31},{x:586,y:317,r:31},{x:645,y:317,r:31},{x:796,y:327,r:35}]
   return <svg className={s.truck} data-freight-truck viewBox="0 0 960 430" role="img" aria-label="Custom truck model: move the scanner to reveal cargo, chassis and engine">
     <defs>
-      <linearGradient id={id+'-trailer'} x1="0" y1="0" x2="0.3" y2="1"><stop stopColor="#dce2e5"/><stop offset=".38" stopColor="#9da7ad"/><stop offset=".76" stopColor="#626e75"/><stop offset="1" stopColor="#b7c0c3"/></linearGradient>
-      <linearGradient id={id+'-roof'} x1="0" x2="1" y2=".7"><stop stopColor="#f2f5f3"/><stop offset="1" stopColor="#77868d"/></linearGradient>
-      <linearGradient id={id+'-cab'} x1="0" y1="0" x2="1" y2="1"><stop stopColor="#dfe6e7"/><stop offset=".38" stopColor="#93a2aa"/><stop offset=".7" stopColor="#5a6874"/><stop offset="1" stopColor="#273c4d"/></linearGradient>
-      <linearGradient id={id+'-front'}><stop stopColor="#7c8d97"/><stop offset="1" stopColor="#263b49"/></linearGradient>
-      <linearGradient id={id+'-glass'} x1="0" y1="0" x2="1" y2="1"><stop stopColor="#577c88"/><stop offset=".45" stopColor="#172a34"/><stop offset="1" stopColor="#081217"/></linearGradient>
-      <radialGradient id={id+'-tire'}><stop stopColor="#3d464c"/><stop offset=".65" stopColor="#151c21"/><stop offset=".85" stopColor="#0b1115"/><stop offset="1" stopColor="#253138"/></radialGradient>
-      <radialGradient id={id+'-rim'}><stop stopColor="#e0e6e7"/><stop offset=".45" stopColor="#86969f"/><stop offset=".53" stopColor="#35434b"/><stop offset=".78" stopColor="#c1cbd0"/><stop offset="1" stopColor="#51606b"/></radialGradient>
+      <linearGradient id={id+'-trailer'} x1="0" y1="0" x2="0.3" y2="1"><stop stopColor="#e1e1e1"/><stop offset=".38" stopColor="#a5a5a5"/><stop offset=".76" stopColor="#6c6c6c"/><stop offset="1" stopColor="#bebebe"/></linearGradient>
+      <linearGradient id={id+'-roof'} x1="0" x2="1" y2=".7"><stop stopColor="#f4f4f4"/><stop offset="1" stopColor="#838383"/></linearGradient>
+      <linearGradient id={id+'-cab'} x1="0" y1="0" x2="1" y2="1"><stop stopColor="#e5e5e5"/><stop offset=".38" stopColor="#9f9f9f"/><stop offset=".7" stopColor="#666666"/><stop offset="1" stopColor="#393939"/></linearGradient>
+      <linearGradient id={id+'-front'}><stop stopColor="#8a8a8a"/><stop offset="1" stopColor="#383838"/></linearGradient>
+      <linearGradient id={id+'-glass'} x1="0" y1="0" x2="1" y2="1"><stop stopColor="#757575"/><stop offset=".45" stopColor="#272727"/><stop offset="1" stopColor="#101010"/></linearGradient>
+      <radialGradient id={id+'-tire'}><stop stopColor="#454545"/><stop offset=".65" stopColor="#1b1b1b"/><stop offset=".85" stopColor="#101010"/><stop offset="1" stopColor="#2f2f2f"/></radialGradient>
+      <radialGradient id={id+'-rim'}><stop stopColor="#e5e5e5"/><stop offset=".45" stopColor="#939393"/><stop offset=".53" stopColor="#414141"/><stop offset=".78" stopColor="#c9c9c9"/><stop offset="1" stopColor="#5e5e5e"/></radialGradient>
       <linearGradient id={id+'-blue'} x1="0" y1="0" x2="0" y2="1"><stop stopColor="#168dff" stopOpacity=".2"/><stop offset="1" stopColor="#083f82" stopOpacity=".4"/></linearGradient>
       <linearGradient id={id+'-scanGlow'}><stop stopColor="#149cff" stopOpacity="0"/><stop offset=".5" stopColor="#199aff" stopOpacity=".12"/><stop offset="1" stopColor="#56cbff" stopOpacity=".25"/></linearGradient>
       <filter id={id+'-glow'} x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2.5"/></filter>
@@ -25,48 +25,47 @@ export const FreightTruck=memo(function FreightTruck(){
     </defs>
     <ellipse cx="473" cy="365" rx="371" ry="15" fill="#000" opacity=".8" filter={url('shadow')}/>
     <g className={s.exterior} mask={url('skin')}>
-      <path d="M116 287H682L828 302V324H111Z" fill="#172128" stroke="#3a4953"/>
-      <path d="M112 284H670L722 299H112Z" fill="#6e7b82"/>
-      <path d="M625 268L694 268L727 303H625Z" fill="#313f47"/>
-      <path d="M89 112L142 79H664L644 113Z" fill={url('roof')} stroke="#b7c2c7" strokeWidth="1.2"/>
-      <path d="M89 112H644V282H89Z" fill={url('trailer')} stroke="#d0d8da" strokeWidth="1.2"/>
-      <path d="M644 113L664 79V250L644 282Z" fill="#586c78" stroke="#9baeb8"/>
-      <path d="M99 122H631V270H99Z" fill="none" stroke="#e0e8ea" opacity=".28"/>
-      {Array.from({length:39},(_,i)=><path key={i} d={`M${105+i*13.4} 121V270`} stroke="#0a1820" strokeWidth="1" opacity=".18"/>)}
-      <path d="M96 277H636" stroke="#f1f4f0" opacity=".65" strokeWidth="3"/>
+      <path d="M116 287H682L828 302V324H111Z" fill="#1f1f1f" stroke="#474747"/>
+      <path d="M112 284H670L722 299H112Z" fill="#797979"/>
+      <path d="M625 268L694 268L727 303H625Z" fill="#3d3d3d"/>
+      <path d="M89 112L142 79H664L644 113Z" fill={url('roof')} stroke="#c0c0c0" strokeWidth="1.2"/>
+      <path d="M89 112H644V282H89Z" fill={url('trailer')} stroke="#d6d6d6" strokeWidth="1.2"/>
+      <path d="M644 113L664 79V250L644 282Z" fill="#696969" stroke="#ababab"/>
+      <path d="M99 122H631V270H99Z" fill="none" stroke="#e6e6e6" opacity=".28"/>
+      {Array.from({length:39},(_,i)=><path key={i} d={`M${105+i*13.4} 121V270`} stroke="#161616" strokeWidth="1" opacity=".18"/>)}
+      <path d="M96 277H636" stroke="#f3f3f3" opacity=".65" strokeWidth="3"/>
       <path d="M98 119H635" stroke="#fff" opacity=".42" strokeWidth="2"/>
-      <path d="M132 205H165L183 182H218L177 233H143Z" fill="#d9e8ec" opacity=".75"/>
-      <text x="232" y="220" fill="#e9eef0" fontSize="38" fontFamily="Arial,sans-serif" fontWeight="700" letterSpacing="-2">MONO</text>
-      <text x="365" y="218" fill="#d9e4e7" fontSize="10" fontFamily="monospace" letterSpacing="4">FREIGHT</text>
-      <path d="M525 143H614M525 152H575" stroke="#e1e8ea" opacity=".55"/>
-      {[108,281,475,623].map(x=><rect key={x} x={x} y="281" width="12" height="4" rx="1" fill="#db9a4e"/>)}
-      <path d="M697 152L725 123H784L832 153L850 226V301L813 314H688V232Z" fill={url('cab')} stroke="#acbdc5" strokeWidth="1.2"/>
+      <text x="136" y="207" fill="#dedede" fontSize="28" fontFamily="Arial,sans-serif" letterSpacing="2">KORYX</text>
+      <text x="136" y="227" fill="#b8b8b8" fontSize="8" fontFamily="monospace" letterSpacing="2">TRANSPORT / CONCEPT 01</text>
+      <path d="M525 143H614M525 152H575" stroke="#e7e7e7" opacity=".55"/>
+      {[108,281,475,623].map(x=><rect key={x} x={x} y="281" width="12" height="4" rx="1" fill="#a2a2a2"/>)}
+      <path d="M697 152L725 123H784L832 153L850 226V301L813 314H688V232Z" fill={url('cab')} stroke="#bababa" strokeWidth="1.2"/>
       <path d="M697 152L725 123H784L832 153H765Z" fill={url('roof')}/>
-      <path d="M765 154L832 153L850 226L807 247Z" fill={url('front')} stroke="#647d8c"/>
-      <path d="M704 158H758V215H694Z" fill={url('glass')} stroke="#9badb7"/>
-      <path d="M770 161L825 160L840 216L805 230L770 212Z" fill={url('glass')} stroke="#9badb7"/>
-      <path d="M706 161H753V168H703Z" fill="#d4e7e9" opacity=".3"/>
-      <path d="M780 163L816 165L825 199" fill="none" stroke="#e2e9e7" opacity=".16" strokeWidth="3"/>
-      <path d="M687 223H757V293H686Z" fill="none" stroke="#526673"/>
-      <path d="M750 158V286M699 222H747" stroke="#c6d5da" opacity=".3"/>
-      <rect x="733" y="232" width="15" height="4" rx="2" fill="#203340"/>
-      <path d="M767 221L802 242V270L767 251Z" fill="#314754"/>
-      {Array.from({length:6},(_,i)=><path key={i} d={`M771 ${229+i*5}L798 ${245+i*5}`} stroke="#111e29" strokeWidth="2"/>)}
-      <path d="M806 242L846 224V268L806 282Z" fill="#172b39" stroke="#8397a1"/>
-      {Array.from({length:7},(_,i)=><path key={i} d={`M810 ${247+i*4}L843 ${232+i*4}`} stroke="#728b9a" strokeWidth="1.3"/>)}
-      <path d="M807 287L848 273V288L808 302Z" fill="#d0dce0" opacity=".9"/>
-      <path d="M813 279L838 270" stroke="#d5f3ff" strokeWidth="5" strokeLinecap="round"/>
-      <path d="M838 271L847 267" stroke="#eab16c" strokeWidth="4"/>
-      <path d="M685 259H720V285H685Z" fill="#384e5b"/><path d="M689 269H715M689 279H715" stroke="#9aafb9" strokeWidth="3"/>
-      <path d="M681 173L673 176V206H681M768 172L784 177V198L776 200" fill="#243f4b" stroke="#8fa4b0" strokeWidth="2"/>
-      <path d="M695 145L706 129H764L779 146Z" fill="#b7c4c8" stroke="#778d9a"/>
-      <path d="M809 241L793 249M833 209L820 200" stroke="#aec4ce" strokeWidth="1.3"/>
-      <path d="M114 299H282V309H114M553 299H676V310H553" fill="#465b67" stroke="#8d9ba3"/>
-      <rect x="348" y="295" width="95" height="24" rx="4" fill="#45535a" stroke="#91a0a7"/>
-      <path d="M365 296V318M426 296V318" stroke="#bdc6c8" opacity=".6" strokeWidth="4"/>
-      <path d="M310 291V328H318V294M478 291V328H486V294" stroke="#313f48" strokeWidth="6"/>
-      {wheels.map(({x,y,r})=><g key={x}><ellipse cx={x+6} cy={y-2} rx={r+3} ry={r} fill="#090d11"/><ellipse cx={x} cy={y} rx={r} ry={r+3} fill={url('tire')} stroke="#4a565d" strokeWidth="1.3"/><ellipse cx={x} cy={y} rx={r*.6} ry={r*.65} fill={url('rim')}/><ellipse cx={x} cy={y} rx={r*.23} ry={r*.25} fill="#526575" stroke="#c4d2d6"/>{Array.from({length:8},(_,i)=>{const a=i*Math.PI/4;return <circle key={i} cx={x+Math.cos(a)*r*.38} cy={y+Math.sin(a)*r*.4} r="2.1" fill="#152733"/>})}<path d={`M${x-r*.7} ${y-r*.6}Q${x} ${y-r*1.04} ${x+r*.65} ${y-r*.5}`} fill="none" stroke="#8298a2" opacity=".4"/></g>)}
-      <path d="M756 310Q795 278 833 305" fill="none" stroke="#8398a4" strokeWidth="7"/>
+      <path d="M765 154L832 153L850 226L807 247Z" fill={url('front')} stroke="#797979"/>
+      <path d="M704 158H758V215H694Z" fill={url('glass')} stroke="#aaaaaa"/>
+      <path d="M770 161L825 160L840 216L805 230L770 212Z" fill={url('glass')} stroke="#aaaaaa"/>
+      <path d="M706 161H753V168H703Z" fill="#e3e3e3" opacity=".3"/>
+      <path d="M780 163L816 165L825 199" fill="none" stroke="#e7e7e7" opacity=".16" strokeWidth="3"/>
+      <path d="M687 223H757V293H686Z" fill="none" stroke="#636363"/>
+      <path d="M750 158V286M699 222H747" stroke="#d2d2d2" opacity=".3"/>
+      <rect x="733" y="232" width="15" height="4" rx="2" fill="#303030"/>
+      <path d="M767 221L802 242V270L767 251Z" fill="#434343"/>
+      {Array.from({length:6},(_,i)=><path key={i} d={`M771 ${229+i*5}L798 ${245+i*5}`} stroke="#1c1c1c" strokeWidth="2"/>)}
+      <path d="M806 242L846 224V268L806 282Z" fill="#282828" stroke="#939393"/>
+      {Array.from({length:7},(_,i)=><path key={i} d={`M810 ${247+i*4}L843 ${232+i*4}`} stroke="#878787" strokeWidth="1.3"/>)}
+      <path d="M807 287L848 273V288L808 302Z" fill="#dadada" opacity=".9"/>
+      <path d="M813 279L838 270" stroke="#ededed" strokeWidth="5" strokeLinecap="round"/>
+      <path d="M838 271L847 267" stroke="#b8b8b8" strokeWidth="4"/>
+      <path d="M685 259H720V285H685Z" fill="#4a4a4a"/><path d="M689 269H715M689 279H715" stroke="#ababab" strokeWidth="3"/>
+      <path d="M681 173L673 176V206H681M768 172L784 177V198L776 200" fill="#3a3a3a" stroke="#a0a0a0" strokeWidth="2"/>
+      <path d="M695 145L706 129H764L779 146Z" fill="#c2c2c2" stroke="#898989"/>
+      <path d="M809 241L793 249M833 209L820 200" stroke="#c0c0c0" strokeWidth="1.3"/>
+      <path d="M114 299H282V309H114M553 299H676V310H553" fill="#575757" stroke="#999999"/>
+      <rect x="348" y="295" width="95" height="24" rx="4" fill="#515151" stroke="#9d9d9d"/>
+      <path d="M365 296V318M426 296V318" stroke="#c4c4c4" opacity=".6" strokeWidth="4"/>
+      <path d="M310 291V328H318V294M478 291V328H486V294" stroke="#3d3d3d" strokeWidth="6"/>
+      {wheels.map(({x,y,r})=><g key={x}><ellipse cx={x+6} cy={y-2} rx={r+3} ry={r} fill="#0c0c0c"/><ellipse cx={x} cy={y} rx={r} ry={r+3} fill={url('tire')} stroke="#545454" strokeWidth="1.3"/><ellipse cx={x} cy={y} rx={r*.6} ry={r*.65} fill={url('rim')}/><ellipse cx={x} cy={y} rx={r*.23} ry={r*.25} fill="#626262" stroke="#cfcfcf"/>{Array.from({length:8},(_,i)=>{const a=i*Math.PI/4;return <circle key={i} cx={x+Math.cos(a)*r*.38} cy={y+Math.sin(a)*r*.4} r="2.1" fill="#242424"/>})}<path d={`M${x-r*.7} ${y-r*.6}Q${x} ${y-r*1.04} ${x+r*.65} ${y-r*.5}`} fill="none" stroke="#949494" opacity=".4"/></g>)}
+      <path d="M756 310Q795 278 833 305" fill="none" stroke="#949494" strokeWidth="7"/>
     </g>
     <g className={s.xrayLayer} clipPath={url('scan')}>
       <g className={s.blueStructure} fill={url('blue')} stroke="#4abfff" strokeWidth="1.1" strokeLinejoin="round">
