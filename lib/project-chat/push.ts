@@ -9,15 +9,14 @@ export async function deliverChatPush(orderId?:string){
  const db=chatStorageClient(),{data:jobs,error}=await db.rpc('koryx_claim_chat_push',{p_order_id:orderId});if(error)throw new Error('Push queue unavailable')
  let delivered=0
  for(const job of jobs||[]){
-  const [{data:thread,error:threadError},{data:order,error:orderError},{data:message,error:messageError},{data:subscriptions,error:subscriptionError},{data:paid,error:paidError}]=await Promise.all([
-   db.from('project_chat_threads').select('developer_id').eq('order_id',job.order_id).maybeSingle(),
-   db.from('orders').select('user_id').eq('id',job.order_id).maybeSingle(),
+  const [{data:recipient,error:recipientError},{data:message,error:messageError},{data:subscriptions,error:subscriptionError}]=await Promise.all([
+   db.rpc('koryx_chat_push_recipient',{p_order_id:job.order_id}),
    db.from('project_chat_messages').select('deleted_at,sender_id,sender_role').eq('id',job.message_id).maybeSingle(),
    db.from('project_push_subscriptions').select('*').eq('user_id',job.user_id),
-   db.rpc('koryx_chat_paid',{p_order_id:job.order_id}),
   ])
-  const sent=[...(job.sent_subscriptions||[])];let retry=Boolean(threadError||orderError||messageError||subscriptionError||paidError)
-  if(!retry&&thread?.developer_id&&paid&&order?.user_id===job.user_id&&message&&!message.deleted_at&&message.sender_role==='developer'&&message.sender_id!==job.user_id){
+  const sent=[...(job.sent_subscriptions||[])];let retry=Boolean(recipientError||messageError||subscriptionError)
+  const senderAllowed=message&&(message.sender_id===recipient?.developer_id||(!recipient?.direct&&message.sender_id==='2f0a1860-cb7a-4104-967d-86ccc9166cdc'))
+  if(!retry&&recipient?.user_id===job.user_id&&senderAllowed&&message&&!message.deleted_at&&message.sender_role==='developer'&&message.sender_id!==job.user_id){
    await Promise.all((subscriptions||[]).filter(sub=>!sent.includes(sub.id)).map(async sub=>{
     if(!validPushEndpoint(sub.endpoint)){await db.from('project_push_subscriptions').delete().eq('id',sub.id);return}
     try{

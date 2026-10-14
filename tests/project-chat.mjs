@@ -63,5 +63,41 @@ await db.exec('reset role;set role service_role');let jobs=await query('select *
 await db.exec('reset role');const count=await query('select count(*) from project_push_outbox');await as(founder);await query('select public.koryx_chat_send($1,$2,$3)',[order,'00000000-0000-4000-8000-000000000090','Retry']);await db.exec('reset role');assert.equal((await query('select count(*) from project_push_outbox'))[0].count,count[0].count);checks++
 await db.exec(`reset role;update payment_transactions set refunded_cents=amount_cents where order_id='${order}' and care_id is null`);await access(customer,false);await access(dev2,false,true);await access(founder,true)
 await db.exec("reset role;insert into storage.objects(bucket_id) values('project-chat'),('other-bucket')");await as(stranger);assert.equal((await query('select count(*) from storage.objects'))[0].count,1);checks++;
+// Upgrade an existing installation, then exercise founder-initiated direct chats without creating orders.
+await db.exec('reset role')
+const orderCount=(await query('select count(*) from orders'))[0].count
+const paymentCount=(await query('select count(*) from payment_transactions'))[0].count
+await db.exec(await fs.readFile(new URL('../supabase/20261014-direct-conversations.sql',import.meta.url),'utf8'))
+assert.equal((await query('select project_order_id from project_chat_threads where order_id=$1',[order]))[0].project_order_id,order);checks++
+await access(customer,false,true);await access(founder,true)
+await as(customer);await fails('select koryx_chat_start_direct($1)',[stranger])
+await as(dev1);await fails('select koryx_chat_start_direct($1)',[customer])
+await db.exec('reset role;set role anon');await fails('select koryx_chat_start_direct($1)',[customer])
+await as(founder);await fails('select koryx_chat_start_direct($1)',[founder]);await fails('select koryx_chat_start_direct($1)',['00000000-0000-4000-8000-000000000999'])
+let direct=(await query('select koryx_chat_start_direct($1) page',[customer]))[0].page
+const directId=direct.thread.order_id
+assert.equal(direct.thread.kind,'direct');assert.equal(direct.thread.project_id,null);assert.equal(direct.thread.can_write,true);assert.equal(direct.thread.paid,false);assert.equal(direct.thread.title,'Jane');checks++
+assert.equal((await query('select koryx_chat_start_direct($1) page',[customer]))[0].page.thread.order_id,directId);checks++
+await fails('select koryx_assign_project_developer($1,$2)',[directId,dev1])
+for(const id of [stranger,dev1,dev2]){await as(id);assert.equal((await query('select koryx_chat_access($1,true) allowed',[directId]))[0].allowed,false);await fails('select koryx_chat_page($1)',[directId]);checks++}
+await as(customer);direct=(await query('select koryx_chat_page($1) page',[directId]))[0].page
+assert.equal(direct.thread.title,'Artem');assert.equal(direct.thread.can_write,true);assert.equal(direct.events.length,0);assert.ok(!JSON.stringify(direct).includes('PrivateSurname'));checks++
+await as(customer);await fails('select koryx_chat_send($1,$2,$3,$4)',[directId,'00000000-0000-4000-8000-000000000114','Wrong conversation reply',mid])
+const directReply='00000000-0000-4000-8000-000000000110',directMessage='00000000-0000-4000-8000-000000000111'
+await query('select koryx_chat_send($1,$2,$3)',[directId,directReply,'Can we discuss an idea before I order?'])
+await as(founder);await query('select koryx_chat_send($1,$2,$3,$4)',[directId,directMessage,'Yes, let’s talk.',directReply]);await query('select koryx_chat_change($1,$2,$3)',[directId,directMessage,'pin']);checks++
+await as(customer);await fails('select koryx_chat_change($1,$2,$3,$4)',[directId,directMessage,'edit','stolen']);await fails('select koryx_chat_change($1,$2,$3)',[directId,directMessage,'pin'])
+await query('select koryx_chat_preference($1,$2,$3)',[directId,true,true]);direct=(await query('select koryx_chat_page($1) page',[directId]))[0].page;assert.equal(direct.messages.length,2);assert.equal(direct.pins.length,1);assert.equal(direct.thread.pinned,true);checks++
+await fails('select koryx_chat_push_recipient($1)',[directId])
+await db.exec('reset role;set role service_role');const recipient=(await query('select koryx_chat_push_recipient($1) recipient',[directId]))[0].recipient;assert.equal(recipient.user_id,customer);assert.equal(recipient.direct,true);assert.equal((await query('select koryx_chat_push_recipient($1) recipient',[order]))[0].recipient,null);checks++
+await db.exec('reset role');assert.equal((await query('select user_id from project_push_outbox where message_id=$1',[directMessage]))[0].user_id,customer);assert.equal((await query('select count(*) from project_push_outbox where message_id=$1',[directReply]))[0].count,0);checks++
+// A developer who is the recipient of a direct conversation is not a moderator of it.
+await as(founder);const adminChat=(await query('select koryx_chat_start_direct($1) page',[dev1]))[0].page.thread.order_id
+await as(dev1);assert.equal((await query('select koryx_chat_moderator($1) allowed',[adminChat]))[0].allowed,false);const adminMessage=(await query('select koryx_chat_send($1,$2,$3) message',[adminChat,'00000000-0000-4000-8000-000000000112','Internal discussion'] ))[0].message;assert.equal(adminMessage.sender_role,'client');checks++
+await as(customer);assert.equal((await query('select koryx_chat_inbox() inbox'))[0].inbox.some(t=>t.order_id===adminChat),false);checks++
+// New project assignments retain normal payment restrictions and the real-order FK.
+await as(founder);await query('select koryx_assign_project_developer($1,$2)',[order2,dev2]);await as(stranger);assert.equal((await query('select koryx_chat_access($1,true) allowed',[order2]))[0].allowed,false);checks++
+await db.exec('reset role');assert.equal((await query('select count(*) from orders'))[0].count,orderCount);assert.equal((await query('select count(*) from payment_transactions'))[0].count,paymentCount);checks++
+
 console.log(`PASS: ${checks} authorization, payment, privacy, idempotency, attachment, moderation and assignment checks`)
 await db.close()
