@@ -141,3 +141,19 @@ Object.assign(ukrainian,{
 })
 
 Object.assign(ukrainian,{'Overview':'Огляд','My projects':'Мої проєкти','Project planner':'Планування проєкту','Account settings':'Налаштування акаунта'})
+
+Object.assign(ukrainian,{
+ 'Message person':'Написати',
+ 'Conversation':'Розмова',
+ 'Start the conversation':'Почніть розмову',
+ 'Chat':'Чат',
+ 'Private':'Приватні',
+ 'Private conversation':'Приватна розмова',
+ 'Your conversations. In one place.':'Усі розмови — в одному місці.',
+ 'Conversation members only':'Лише учасники розмови',
+ 'Private conversations · Project conversations':'Приватні розмови · Чати проєктів',
+ 'Private conversations appear here when Koryx starts a chat. Project chats open after payment and developer assignment.':'Приватні розмови з’являються тут, коли Koryx починає чат. Чати проєктів відкриваються після оплати та призначення розробника.',
+ 'Could not open the conversation. Please try again.':'Не вдалося відкрити розмову. Спробуй ще раз.',
+ 'Only the founder can start a private conversation':'Лише засновник може почати приватну розмову',
+ 'Choose another person from your client list':'Обери іншу людину зі списку клієнтів'
+})
