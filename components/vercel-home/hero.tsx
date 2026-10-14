@@ -40,7 +40,11 @@ export function Hero() {
           <h1
             className={`site-hero-heading ${s.heading}`}
           >
-            Your idea. Built by Koryx.
+            Websites. Apps.
+            <br />
+            Custom software.
+            <br />
+            Built for you.
           </h1>
 
           <p
