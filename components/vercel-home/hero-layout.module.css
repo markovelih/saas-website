@@ -1,0 +1,5 @@
+/* The hero and the following home sections share one continuous 1240px frame. */
+.shell{--hero-line:#262626;position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;max-width:1240px;min-height:calc(100svh - 64px);margin-inline:auto;padding-top:24px;text-align:center;border-inline:1px solid var(--hero-line);border-bottom:1px solid var(--hero-line)}
+:global([data-workspace-theme=light]) .shell{--hero-line:#e0e0e0}
+@media(max-width:1000px){.shell{margin-inline:24px}}
+@media(max-width:700px){.shell{margin-inline:16px;padding-top:23px}}
