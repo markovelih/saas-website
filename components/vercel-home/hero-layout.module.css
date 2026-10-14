@@ -2,7 +2,7 @@
  --hero-line:#262626;--hero-surface:#000;
  position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;
  max-width:1240px;margin-inline:auto;text-align:center;
- border-inline:1px solid var(--hero-line);border-bottom:1px solid var(--hero-line)
+ border:1px solid var(--hero-line)
 }
 :global([data-workspace-theme=light]) .shell{--hero-line:#e0e0e0;--hero-surface:#fff}
 .copy{position:relative;z-index:20;width:100%;max-width:960px;padding:26px 32px 0}
