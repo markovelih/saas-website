@@ -23,7 +23,7 @@ export function Hero() {
           <ArrowRight className="h-3.5 w-3.5" />
         </motion.div>
 
-        <div className="relative z-20 w-full max-w-[720px] overflow-visible border border-white/[0.20] bg-black/70 px-5 py-12 shadow-[0_0_90px_rgba(255,255,255,0.035)] backdrop-blur-[2px] md:px-12 md:py-16">
+        <div className="relative z-20 w-full max-w-[720px] overflow-visible border border-white/[0.08] bg-black/70 px-5 py-12 shadow-[0_0_90px_rgba(255,255,255,0.035)] backdrop-blur-[2px] md:px-12 md:py-16">
           <svg
   className="pointer-events-none absolute -bottom-[8px] -right-[8px] z-[999] h-4 w-4 text-white/75"
   viewBox="0 0 16 16"
