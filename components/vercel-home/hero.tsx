@@ -5,10 +5,10 @@ import s from './hero-layout.module.css'
 
 export function Hero() {
   return (
-    <section className="relative bg-black pt-16" aria-labelledby="home-hero-title">
+    <section className="relative bg-black pt-20" aria-labelledby="home-hero-title">
       <div className={s.shell}>
         <svg
-          className="pointer-events-none absolute -bottom-[8px] -right-[8px] z-[999] h-4 w-4 text-white/75"
+          className="pointer-events-none absolute -bottom-[8px] -right-[8px] z-[999] h-4 w-4 text-white/90"
           viewBox="0 0 16 16"
           fill="none"
           aria-hidden="true"
@@ -17,7 +17,7 @@ export function Hero() {
           <path d="M0 8H16" stroke="currentColor" strokeWidth="1" />
         </svg>
         <svg
-          className="pointer-events-none absolute -left-[8px] -top-[8px] z-[999] h-4 w-4 text-white/75"
+          className="pointer-events-none absolute -left-[8px] -top-[8px] z-[999] h-4 w-4 text-white/90"
           viewBox="0 0 16 16"
           fill="none"
           aria-hidden="true"

@@ -57,8 +57,8 @@ export function Navbar() {
     return () => { window.removeEventListener('keydown', close); window.removeEventListener('pointerdown', outside) }
   }, [servicesOpen, mobileOpen])
   const close = () => { setServicesOpen(false); setMobileOpen(false) }
-  return <header className="fixed top-0 inset-x-0 z-50 border-b border-white/[.08] bg-black/95 backdrop-blur-xl text-white">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex justify-between items-center gap-5">
+  return <header data-site-header className="fixed h-16 top-0 inset-x-0 z-50 border-b border-white/[.08] bg-black/95 backdrop-blur-xl text-white">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 h-full flex justify-between items-center gap-5">
       <Link href="/" aria-label="Koryx home" onClick={close}><Image src="/koryx-logo.png" alt="Koryx" width={160} height={40} priority className="w-[125px] sm:w-[140px] h-auto"/></Link>
       <nav aria-label="Main navigation" className="hidden lg:flex h-full items-center gap-1 mr-auto ml-6">
         <div ref={menuRef} className="h-full flex items-center" onMouseEnter={cancelClose} onMouseLeave={scheduleClose} onBlur={e=>{if(!e.currentTarget.contains(e.relatedTarget))closeServices()}}>

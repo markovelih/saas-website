@@ -368,3 +368,6 @@ input:focus, textarea:focus, select:focus {
 }
 
 :focus-visible { outline-color: var(--foreground) !important; }
+
+/* Keep route and section scroll targets clear of the public fixed header. */
+html:has([data-site-header]) { scroll-padding-top: 80px; }
