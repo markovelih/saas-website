@@ -4,12 +4,29 @@ import {useEffect,useId,useRef,useState} from 'react'
 import s from './grid-light.module.css'
 
 export function CdnGridBackground(){
- const id=useId().replace(/:/g,'')
- const ref=useRef<HTMLDivElement>(null)
- const grid=useRef<SVGSVGElement>(null)
- const [cells,setCells]=useState({x:34,y:20})
- useEffect(()=>{const el=ref.current,svg=grid.current;if(!el||!svg)return;let visible=false;const update=()=>{el.dataset.running=String(visible&&!document.hidden)};const intersection=new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;update()});intersection.observe(el);const resize=new ResizeObserver(([entry])=>{setCells({x:Math.floor(entry.contentRect.width/72),y:Math.floor(entry.contentRect.height/72)})});resize.observe(svg);document.addEventListener('visibilitychange',update);return()=>{intersection.disconnect();resize.disconnect();document.removeEventListener('visibilitychange',update)}},[])
- const x=cells.x,y=cells.y
- const paths=[`M72 216H576V360H936`,`M${(x-1)*72} 288H${(x-7)*72}V648H${(x-11)*72}`,`M144 ${(y-4)*72}H720V${(y-7)*72}H1080`,`M${(x-2)*72} ${(y-3)*72}H${(x-9)*72}V${(y-6)*72}H${(x-13)*72}`,`M0 648H360V864H792`]
- return <div ref={ref} data-running="false" className="pointer-events-none absolute inset-0 z-0 overflow-hidden bg-black" aria-hidden="true"><div className="absolute inset-0 overflow-hidden [perspective:1000px]" style={{maskImage:'radial-gradient(circle at 50% 50%, black 20%, transparent 88%)',WebkitMaskImage:'radial-gradient(circle at 50% 50%, black 20%, transparent 88%)'}}><div className="absolute left-1/2 top-[50%] h-[850px] w-[1450px] -translate-x-1/2 -translate-y-1/2 [transform:rotateX(58deg)] [transform-style:preserve-3d] max-md:h-[720px] max-md:w-[980px]"><svg ref={grid} className={s.grid} width="100%" height="100%"><defs><pattern id={`grid-${id}`} width="72" height="72" patternUnits="userSpaceOnUse"><path d="M72 0H0V72" className={s.gridLine}/></pattern></defs><rect width="100%" height="100%" fill={`url(#grid-${id})`}/>{paths.map((d,i)=><g key={d} className={s.trail} style={{animationDelay:`-${i*3.1}s`}}><path d={d} pathLength="1" className={s.glow}/><path d={d} pathLength="1" className={s.core}/><path d={d} pathLength="1" className={s.tip}/></g>)}</svg></div></div><div className="absolute left-1/2 top-[49%] h-[440px] w-[780px] -translate-x-1/2 -translate-y-1/2 site-grid-center max-md:h-[500px] max-md:w-[92vw]"/><div className="absolute inset-0 site-grid-edge"/></div>
+ const id=useId().replace(/:/g,''),ref=useRef<HTMLDivElement>(null),grid=useRef<SVGSVGElement>(null)
+ const [size,setSize]=useState({width:1450,height:850,cell:64})
+ useEffect(()=>{
+  const el=ref.current,svg=grid.current;if(!el||!svg)return
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)')
+  let visible=false,frame=0,position={x:0,y:0},pointerActive=false
+  const update=()=>{el.dataset.running=String(visible&&!document.hidden)}
+  const intersection=new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;update();if(!visible){cancelAnimationFrame(frame);frame=0}})
+  intersection.observe(el)
+  const resize=new ResizeObserver(([entry])=>{const {width,height}=entry.contentRect;setSize({width,height,cell:width<700?48:64})})
+  resize.observe(svg)
+  function paint(){frame=0;el!.style.setProperty('--grid-focus-x',position.x+'px');el!.style.setProperty('--grid-focus-y',position.y+'px')}
+  function move(event:PointerEvent){if(!visible||document.hidden||reduced.matches||event.pointerType!=='mouse')return;const bounds=el!.getBoundingClientRect();pointerActive=event.clientY>=bounds.top&&event.clientY<=bounds.bottom;el!.dataset.pointer=String(pointerActive);if(!pointerActive)return;position={x:event.clientX-bounds.left,y:event.clientY-bounds.top};if(!frame)frame=requestAnimationFrame(paint)}
+  function reset(){el!.dataset.pointer='false';pointerActive=false;cancelAnimationFrame(frame);frame=0}
+  function visibility(){update();if(document.hidden)reset()}
+  function motionPreference(){if(reduced.matches)reset()}
+  window.addEventListener('pointermove',move,{passive:true});window.addEventListener('blur',reset);document.documentElement.addEventListener('pointerleave',reset);document.addEventListener('visibilitychange',visibility);reduced.addEventListener('change',motionPreference)
+  return()=>{intersection.disconnect();resize.disconnect();cancelAnimationFrame(frame);window.removeEventListener('pointermove',move);window.removeEventListener('blur',reset);document.documentElement.removeEventListener('pointerleave',reset);document.removeEventListener('visibilitychange',visibility);reduced.removeEventListener('change',motionPreference)}
+ },[])
+ const cell=size.cell,x=Math.ceil(size.width/cell),y=Math.ceil(size.height/cell),cx=Math.floor(x/2),cy=Math.floor(y/2)
+ const paths=[`M0 ${cell*2}H${cell*(cx-2)}V${cell*4}H${cell*(cx+3)}`,`M${cell*x} ${cell*3}H${cell*(cx+4)}V${cell*(cy+2)}H${cell*(cx+1)}`,`M${cell} ${cell*(y-2)}H${cell*(cx-3)}V${cell*(cy-1)}H${cell*(cx+2)}`,`M${cell*(x-1)} ${cell*(y-1)}H${cell*(cx+3)}V${cell*(cy+1)}H${cell*(cx-1)}`]
+ return <div ref={ref} data-running="false" data-pointer="false" className={s.background} aria-hidden="true">
+  <svg ref={grid} className={s.grid} width="100%" height="100%"><defs><pattern id={`grid-${id}`} width={cell} height={cell} patternUnits="userSpaceOnUse"><path d={`M${cell} 0H0V${cell}`} className={s.gridLine}/></pattern><pattern id={`focus-${id}`} width={cell} height={cell} patternUnits="userSpaceOnUse"><path d={`M${cell} 0H0V${cell}`} className={s.focusLine}/><circle cx="0" cy="0" r="2" className={s.focusPoint}/></pattern></defs><rect width="100%" height="100%" fill={`url(#grid-${id})`}/><rect className={s.focusGrid} width="100%" height="100%" fill={`url(#focus-${id})`}/>{paths.map((d,i)=><g key={d} className={s.trail} style={{animationDelay:`-${i*2.7}s`}}><path d={d} pathLength="1" className={s.glow}/><path d={d} pathLength="1" className={s.core}/><path d={d} pathLength="1" className={s.tip}/></g>)}</svg>
+  <div className={s.edge}/>
+ </div>
 }
