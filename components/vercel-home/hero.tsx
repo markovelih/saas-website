@@ -4,26 +4,15 @@ import Link from 'next/link'
 import { ArrowRight, Sparkles } from 'lucide-react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { CdnGridBackground } from './cdn-grid-background'
+import s from './hero-layout.module.css'
 
 export function Hero() {
   const reduce = useReducedMotion()
   return (
-    <section className="relative min-h-screen bg-black pt-24">
+    <section className="relative bg-black pt-16">
       <CdnGridBackground />
 
-      <div className="relative z-10 mx-auto flex min-h-[calc(100vh-96px)] max-w-7xl flex-col items-center px-4 text-center">
-        <motion.div
-          initial={reduce ? false : { opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mt-2 mb-8 inline-flex items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.035] px-4 py-2 text-[13px] text-white/55 backdrop-blur-md"
-        >
-          <Sparkles className="h-3.5 w-3.5" />
-          Design & development, done for you
-          <ArrowRight className="h-3.5 w-3.5" />
-        </motion.div>
-
-        <div className="relative z-20 w-full max-w-[720px] overflow-visible border border-white/[0.08] bg-black/70 px-5 py-12 shadow-[0_0_90px_rgba(255,255,255,0.035)] backdrop-blur-[2px] md:px-12 md:py-16">
+      <div className={s.shell}>
           <svg
   className="pointer-events-none absolute -bottom-[8px] -right-[8px] z-[999] h-4 w-4 text-white/75"
   viewBox="0 0 16 16"
@@ -44,6 +33,18 @@ export function Hero() {
   <path d="M0 8H16" stroke="currentColor" strokeWidth="1" />
 </svg>
 
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mt-2 mb-8 inline-flex items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.035] px-4 py-2 text-[13px] text-white/55 backdrop-blur-md"
+        >
+          <Sparkles className="h-3.5 w-3.5" />
+          Design & development, done for you
+          <ArrowRight className="h-3.5 w-3.5" />
+        </motion.div>
+
+        <div className="relative z-20 w-full max-w-[720px] px-5 py-12 md:px-12 md:py-16">
           <motion.h1
             initial={reduce ? false : { opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
