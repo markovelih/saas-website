@@ -23,6 +23,8 @@ export const metadata: Metadata = {
   keywords: ['web development', 'web design', 'custom websites', 'e-commerce', 'digital agency'],
   authors: [{ name: 'Koryx' }],
   metadataBase: new URL('https://koryx.ca'),
+  applicationName:'Koryx',
+  appleWebApp:{capable:true,title:'Koryx',statusBarStyle:'default'},
   icons: {
     icon: [{ url: '/brand/favicon.png', type: 'image/png', sizes: '96x96' }],
     shortcut: '/brand/favicon.ico',
@@ -38,6 +40,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
+  viewportFit:'cover',
+  interactiveWidget:'resizes-content',
   
   themeColor: '#0a0a0a',
 }

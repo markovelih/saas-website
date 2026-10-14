@@ -1,5 +1,7 @@
 export type FounderLanguage='en'|'uk'
 export const ukrainian:Record<string,string>={
+ 'Mine':'Мої','Project chats':'Чати проєктів','Your workspace / Conversations':'Твоя панель / Спілкування','Your studio. Every conversation.':'Твоя студія. Усі розмови.','One project. A direct conversation.':'Один проєкт. Пряме спілкування.','Developer':'Розробник','Assigned developer':'Призначений розробник','Choose a developer…':'Вибрати розробника…','Open chat':'Відкрити чат','Project conversation':'Чат проєкту','Founder oversight':'Перегляд засновника','Search project chats':'Пошук чатів проєктів','Find a conversation…':'Знайти розмову…','Chat filters':'Фільтри чатів','All':'Усі','Unread':'Непрочитані','Pinned':'Закріплені','Awaiting developer':'Очікує розробника','Awaiting payment':'Очікує оплати','Pin chat':'Закріпити чат','Unpin chat':'Відкріпити чат','No matching conversations.':'Розмов не знайдено.','Your conversations begin here.':'Тут починаються ваші розмови.','Try another search or filter.':'Спробуй інший пошук або фільтр.','Your project chat opens after payment and developer assignment.':'Чат проєкту відкриється після оплати та призначення розробника.','Project members only':'Лише учасники проєкту','Back to chats':'До списку чатів','Loading conversation…':'Відкриваю розмову…','Search loaded messages':'Пошук у завантажених повідомленнях','Open project':'Відкрити проєкт','Pinned messages':'Закріплені повідомлення','Photo':'Фото','Opening conversation…':'Відкриваю розмову…','Earlier messages':'Попередні повідомлення','Good work starts with a conversation.':'Гарна робота починається з розмови.','Share ideas, review details and keep your project moving. Everything in one place.':'Обговорюйте ідеї, уточнюйте деталі та рухайте проєкт уперед. Усе в одному місці.','Reply':'Відповісти','Message deleted':'Повідомлення видалено','Photo or earlier message':'Фото або попереднє повідомлення','Open photo':'Відкрити фото','edited':'змінено','Retry message':'Надіслати ще раз','Retry':'Повторити','Message actions':'Дії з повідомленням','Edit message':'Редагувати повідомлення','Pin message':'Закріпити повідомлення','Unpin message':'Відкріпити повідомлення','Delete message':'Видалити повідомлення','New messages':'Нові повідомлення','Dismiss error':'Закрити помилку','Editing message':'Редагування повідомлення','Replying to':'Відповідь для','Cancel reply or edit':'Скасувати відповідь або редагування','Remove photo':'Прибрати фото','Attach photos':'Прикріпити фото','Write a message…':'Написати повідомлення…','Message':'Повідомлення','Save message':'Зберегти повідомлення','Send message':'Надіслати повідомлення','Live updates':'Оновлюється наживо','Updates every 15 seconds':'Оновлення кожні 15 секунд','Photos up to 4 MB · Shift + Enter for a new line':'Фото до 4 МБ · Shift + Enter — новий рядок','Waiting for the first payment':'Очікує першої оплати','Your developer will join soon':'Розробник незабаром приєднається','The conversation opens after a confirmed deposit or full payment.':'Розмова відкриється після підтвердження депозиту або повної оплати.','Your project conversation opens once a developer is assigned and payment is confirmed.':'Чат відкриється після призначення розробника та підтвердження оплати.','Direct conversations':'Пряме спілкування','Your project. In good company.':'Твій проєкт. У надійній команді.','Choose a conversation to share ideas, exchange files and work through the details together.':'Обери розмову, щоб ділитися ідеями, файлами та разом опрацьовувати деталі.','Client + assigned developer + founder':'Клієнт + призначений розробник + засновник','Delete this message?':'Видалити це повідомлення?','The message will be hidden for everyone in this conversation.':'Повідомлення буде приховано для всіх учасників розмови.','Saved automatically. The client joins after their first confirmed payment. You can oversee every project chat.':'Зберігається автоматично. Клієнт приєднається після першої підтвердженої оплати. Ти можеш переглядати всі чати проєктів.','Developer assignment is temporarily unavailable.':'Призначення розробника тимчасово недоступне.','Choose up to four photos at a time.':'Обери до чотирьох фото за раз.','Choose a JPG, PNG or WebP photo.':'Обери фото у форматі JPG, PNG або WebP.','Each photo must be 4 MB or smaller.':'Кожне фото має бути до 4 МБ.',
+
  'Type':'Тип', 'Your account':'Твій акаунт','Service discount':'Знижка на послугу','Order discount':'Знижка на все замовлення','Service discounts':'Знижки на послуги','Total discounts':'Усього знижок','Service discounts apply first. The order discount applies to the remaining amount.':'Спершу рахуються знижки на послуги. Загальна знижка діє на суму, що залишилась.',
  'Project development':'Розробка проєкту','Requested domains':'Замовлені домени','Save project changes before adding domains.':'Збережи зміни проєкту перед додаванням доменів.',
  'Founder workspace':'Панель засновника','Your workspace':'Твоя панель','Founder':'Засновник','Client':'Клієнт','Studio overview':'Огляд студії','Client accounts':'Акаунти клієнтів','All projects':'Усі проєкти','Billing & email':'Рахунки та листи','My account':'Мій акаунт','Find a page…':'Знайти сторінку…','Find a workspace page':'Знайти сторінку панелі','Questions & help':'Питання та допомога','Sign out':'Вийти','Open workspace menu':'Відкрити меню','Workspace navigation':'Навігація панелі','Navigate your projects and account.':'Переглянути проєкти та налаштування акаунта.',
@@ -80,3 +82,62 @@ Object.assign(ukrainian,{'Support inbox':'Вхідні листи','Read client 
 Object.assign(ukrainian,{'Send inbox TEST':'Надіслати TEST на пошту','TEST email sent to support@koryx.ca. Refresh the inbox shortly.':'Лист TEST надіслано на support@koryx.ca. За мить онови вхідну пошту.','TEST email could not be sent.':'Не вдалося надіслати лист TEST.','Invalid test request.':'Неправильний запит перевірки.'})
 
 Object.assign(ukrainian, {'Loading your workspace…': 'Завантажуємо панель…'})
+
+Object.assign(ukrainian,{
+ "Your order status changed to": "Статус твого замовлення змінено на",
+ "Ask kAI": "Запитати kAI",
+ "A little clarity. A better reply.": "Зрозумій розмову. Підготуй влучну відповідь.",
+ "Assistant action": "Дія помічника",
+ "Understand the conversation": "Розібрати розмову",
+ "Draft a reply": "Чернетка відповіді",
+ "Anything to focus on?": "На чому зосередитися?",
+ "Optional — add a little direction…": "За бажанням — додай уточнення…",
+ "Only recent text messages are sent to our AI provider when you ask. Photos and private project notes stay out. Replies follow the client’s language. Review before sending.": "Лише після твого запиту останні текстові повідомлення надсилаються AI-провайдеру. Фото й приватні нотатки проєкту не передаються. Відповіді — мовою клієнта. Перевір перед надсиланням.",
+ "Prepare a reply": "Підготувати відповідь",
+ "Analyze conversation": "Розібрати переписку",
+ "Use draft": "Вставити чернетку",
+ "Copied": "Скопійовано",
+ "Copy": "Копіювати",
+ "kAI can make mistakes. Nothing is sent to the chat automatically.": "kAI може помилятися. Нічого не надсилається в чат автоматично.",
+ "kAI is temporarily unavailable. Your conversation is unchanged.": "kAI тимчасово недоступний. Переписку не змінено.",
+ "Please try kAI again later.": "Спробуй запитати kAI трохи пізніше.",
+ "Send a message before asking kAI.": "Спочатку почни переписку, а потім запитай kAI.",
+ "Chat menu": "Меню чату",
+ "Add Koryx to Home Screen": "Додати Koryx на головний екран",
+ "Notifications": "Сповіщення",
+ "Stay in the conversation": "Не пропусти відповідь",
+ "Get a notification when your developer replies.": "Отримуй сповіщення, коли відповідає твій розробник.",
+ "Enable notifications": "Увімкнути сповіщення",
+ "Later": "Пізніше",
+ "Koryx. One tap away.": "Koryx. Поруч, в один дотик.",
+ "Your projects and conversations, right on your Home Screen.": "Проєкти й переписки — просто на головному екрані.",
+ "Koryx is already installed.": "Koryx уже встановлено.",
+ "Install Koryx": "Встановити Koryx",
+ "Open the Share menu in your browser.": "Відкрий меню «Поділитися» в браузері.",
+ "Open your browser’s menu or install icon.": "Відкрий меню браузера або значок встановлення.",
+ "Choose “Add to Home Screen” or “Install app”.": "Обери «На початковий екран» або «Встановити застосунок».",
+ "Open Koryx and enable notifications.": "Відкрий Koryx та ввімкни сповіщення.",
+ "Installation and phone notifications require the secure published site.": "Встановлення й сповіщення на телефоні працюють на опублікованому сайті з HTTPS.",
+ "Uses the Koryx website icon. Your account stays private.": "З іконкою сайту Koryx. Твій акаунт залишається приватним.",
+ "Your project. Stay in the loop.": "Твій проєкт. Будь у курсі.",
+ "Get a notification when your developer replies. Message contents stay off the lock screen.": "Отримуй сповіщення від розробника. Текст повідомлень не показується на заблокованому екрані.",
+ "Turn off notifications": "Вимкнути сповіщення",
+ "You can change this any time from the chat menu.": "Це можна змінити будь-коли в меню чату.",
+ "Phone notifications work on the secure published site. Local Wi-Fi preview does not support them.": "Сповіщення на телефоні працюють на сайті з HTTPS. Локальний перегляд через Wi-Fi їх не підтримує.",
+ "This browser does not support notifications.": "Цей браузер не підтримує сповіщення.",
+ "Notifications are blocked. Allow them in your browser settings.": "Сповіщення заблоковано. Дозволь їх у налаштуваннях браузера.",
+ "Notifications will be available once Koryx finishes setup.": "Сповіщення стануть доступними після завершення налаштування Koryx.",
+ "Notifications were not enabled. You can try again from the chat menu.": "Сповіщення не ввімкнено. Можна повторити через меню чату.",
+ "Notifications could not be enabled. Please retry.": "Не вдалося ввімкнути сповіщення. Спробуй ще раз.",
+ "Notification settings could not be saved. Please retry.": "Не вдалося зберегти налаштування сповіщень. Спробуй ще раз.",
+ "Koryx app navigation": "Навігація застосунку Koryx",
+ "Chats": "Чати",
+ "Projects": "Проєкти",
+ "Account": "Акаунт",
+ "Local preview": "Локальний перегляд",
+ "Reconnecting…": "Відновлюємо з’єднання…",
+ "Uploading photos…": "Завантажуємо фото…",
+ "Copy is unavailable. Select the text instead.": "Копіювання недоступне. Виділи текст вручну."
+})
+
+Object.assign(ukrainian,{'Overview':'Огляд','My projects':'Мої проєкти','Project planner':'Планування проєкту','Account settings':'Налаштування акаунта'})

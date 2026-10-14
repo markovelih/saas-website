@@ -5,7 +5,7 @@ import sharp from 'sharp'
 export const dynamic = 'force-static'
 export const dynamicParams = false
 
-const assets = ['favicon.png','favicon.ico','apple-touch-icon.png']
+const assets = ['favicon.png','favicon.ico','apple-touch-icon.png','app-192.png','app-512.png']
 export function generateStaticParams() {
   return assets.map(asset => ({asset}))
 }
@@ -36,7 +36,7 @@ export async function GET(_request:Request,{params}:{params:Promise<{asset:strin
   if (!assets.includes(asset)) return new Response(null,{status:404})
   const logo = await readFile(path.join(process.cwd(),'public/icon.svg'))
   const ico = asset === 'favicon.ico'
-  const size = asset === 'apple-touch-icon.png' ? 180 : 96
+  const size = asset === 'app-512.png' ? 512 : asset === 'app-192.png' ? 192 : asset === 'apple-touch-icon.png' ? 180 : 96
   const bytes = ico ? await createIco(logo) : await sharp(logo).resize(size,size).png().toBuffer()
   return new Response(new Uint8Array(bytes),{
     headers:{

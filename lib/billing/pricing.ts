@@ -20,7 +20,7 @@ export function totals(items:BillingItem[],discount:Discount={type:'amount',valu
  const off=cents(breakdown.service_discount_amount)+cents(breakdown.order_discount_amount)
  return {subtotal:subtotalCents/100,discount_amount:off/100,total:(subtotalCents-off)/100}
 }
-export function domainRetail(cost:number){return Math.ceil(cents(cost)*1.5)/100}
+export function domainRetail(cost:number,multiplier=1.65){if(!Number.isFinite(cost)||cost<0||!Number.isFinite(multiplier)||multiplier<1.5||multiplier>1.8)throw new Error('Invalid domain pricing.');return Math.ceil(cents(cost)*multiplier)/100}
 export const servicePresets:BillingItem[]=[
  {description:'Website pages',quantity:1,unit_price:150},
  {description:'Design & animation',quantity:1,unit_price:500},

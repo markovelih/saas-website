@@ -1,8 +1,12 @@
 /** @type {import("next").NextConfig} */
 const nextConfig = {
+  // Explicit local hostname for phone testing; no extra origins are trusted by default.
+  allowedDevOrigins: process.env.KORYX_DEV_HOST ? [process.env.KORYX_DEV_HOST] : [],
+  devIndicators:false,
   outputFileTracingIncludes: { '/*': ['./lib/billing/fonts/*.ttf'], '/api/projects/*/preview': ['./node_modules/@sparticuz/chromium/bin/**'], '/api/website-preview': ['./node_modules/@sparticuz/chromium/bin/**'] },
   serverExternalPackages: ['@sparticuz/chromium','puppeteer-core','sharp'],
   images: { unoptimized: true },
+  async headers(){return [{source:'/sw.js',headers:[{key:'Cache-Control',value:'no-store, max-age=0'},{key:'X-Content-Type-Options',value:'nosniff'},{key:'Content-Security-Policy',value:"default-src 'self'; script-src 'self'"}]}]},
   // Only public Supabase connection values belong here. The service role key
   // remains a server environment variable and must never be mapped into env.
   env: {
