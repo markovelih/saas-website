@@ -7,5 +7,5 @@ import home from '@/components/vercel-home/home-system.module.css'
 import { Footer } from '@/components/vercel-home/footer'
 
 export default function HomePage() {
-  return <div className="bg-black text-white min-h-screen overflow-x-hidden"><Navbar/><main><Hero/><div className={home.frame}><WorkShowcase/><HomeServices/><ProjectBlueprint/><HomeFoundations/><ProjectKit/><ProcessSection/><FAQSection/></div></main><Footer/></div>
+  return <div className="bg-black text-white min-h-screen overflow-x-clip"><Navbar/><main><Hero/><div className={home.frame}><WorkShowcase/><HomeServices/><ProjectBlueprint/><HomeFoundations/><ProjectKit/><ProcessSection/><FAQSection/></div></main><Footer/></div>
 }
