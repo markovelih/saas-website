@@ -1,0 +1,12 @@
+'use client'
+import {useEffect,useState} from 'react'
+import Link from 'next/link'
+import {MessageCircle,Loader2,UserRound,ArrowUpRight} from 'lucide-react'
+import {useFounderLanguage} from '@/components/manager/language'
+import s from '@/components/workspace/workspace.module.css'
+export function ProjectAssignment({orderId}:{orderId:string}){
+ const {t}=useFounderLanguage();const [developers,setDevelopers]=useState<{id:string;name:string;self:boolean}[]>([]),[selected,setSelected]=useState(''),[busy,setBusy]=useState(true),[error,setError]=useState(''),[ready,setReady]=useState(false)
+ useEffect(()=>{let alive=true;fetch('/api/project-chats/assignment?order='+orderId,{cache:'no-store'}).then(async response=>{const result=await response.json();if(!response.ok)throw new Error(result.error);if(alive){setDevelopers(result.developers);setSelected(result.developer_id||'');setReady(true)}}).catch(()=>{if(alive)setError(t('Developer assignment is temporarily unavailable.'))}).finally(()=>{if(alive)setBusy(false)});return()=>{alive=false}},[orderId,t])
+ async function assign(value:string){const previous=selected;setSelected(value);setBusy(true);setError('');try{const response=await fetch('/api/project-chats/assignment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({order_id:orderId,developer_id:value||null})});const result=await response.json();if(!response.ok)throw new Error(result.error)}catch(e){setSelected(previous);setError(e instanceof Error?e.message:'Could not assign developer.')}finally{setBusy(false)}}
+ return <section className={s.panel}><div className={s.row}><div><p className={s.eyebrow}>{t('Project conversation')}</p><h2 className="flex items-center gap-2"><UserRound size={19}/>{t('Developer')}</h2></div><Link className={s.secondary} href={'/dashboard/chats?project='+orderId}><MessageCircle size={14}/>{t('Open chat')}<ArrowUpRight size={13}/></Link></div><label className={`${s.field} mt-5`}>{t('Assigned developer')}<select value={selected} disabled={busy||!ready} onChange={e=>void assign(e.target.value)}><option value="">{t('Choose a developer…')}</option>{developers.map(d=><option key={d.id} value={d.id}>{d.name}{d.self?' · '+t('You'):''}</option>)}</select></label><p className={`${s.notice} mt-3`}>{busy?<Loader2 size={13} className={s.spin}/>:t('Saved automatically. The client joins after their first confirmed payment. You can oversee every project chat.')}</p>{error&&<p role="alert" className={`${s.notice} mt-3`}>{t(error)}</p>}</section>
+}

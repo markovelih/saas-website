@@ -1,0 +1,3 @@
+import {z} from 'zod'
+import {chatResponse,chatAccess,chatDbError,chatJson,privateHeaders} from '@/lib/project-chat/server'
+export async function PATCH(request:Request,{params}:{params:Promise<{id:string;messageId:string}>}){return chatResponse(request,async()=>{const ids=z.object({id:z.string().uuid(),messageId:z.string().uuid()}).parse(await params);const {db}=await chatAccess(ids.id,true);const v=z.object({action:z.enum(['edit','delete','pin','unpin']),body:z.string().max(8000).optional()}).parse(await chatJson(request));const {data,error}=await db.rpc('koryx_chat_change',{p_order_id:ids.id,p_id:ids.messageId,p_action:v.action,p_body:v.body});chatDbError(error);return Response.json({message:data},{headers:privateHeaders})})}

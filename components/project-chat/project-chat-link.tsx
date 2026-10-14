@@ -1,0 +1,5 @@
+import Link from 'next/link'
+import {MessageCircle,ArrowUpRight,LockKeyhole} from 'lucide-react'
+import {workspaceSession} from '@/lib/workspace'
+import s from '@/components/workspace/workspace.module.css'
+export async function ProjectChatLink({orderId}:{orderId:string}){const {supabase}=await workspaceSession();const {data}=await supabase.rpc('koryx_chat_access',{p_order_id:orderId});return <section className={`${s.panel} mb-7`}><div className={s.row}><div><p className={s.eyebrow}>Your project conversation</p><h2 className="flex items-center gap-2"><MessageCircle size={20}/>A direct line to your developer.</h2></div>{data?<Link className={s.primary} href={'/dashboard/chats?project='+orderId}>Open project chat<ArrowUpRight size={15}/></Link>:<span className={`${s.tag} flex gap-2 items-center`}><LockKeyhole size={12}/>Not open yet</span>}</div><p className={`${s.notice} mt-4`}>{data?'Keep ideas, feedback and project photos in one private conversation with your assigned developer.':'Your chat opens after your first confirmed payment and developer assignment. A 50% deposit also unlocks the conversation.'}</p></section>}
