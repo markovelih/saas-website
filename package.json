@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "test:project-chat": "node tests/project-chat.mjs",
-    "test:workspace": "npm run test:project-chat && node tests/workspace-pricing-and-photos.mjs && node tests/chat-experience.mjs"
+    "test:workspace": "npm run test:project-chat && node tests/workspace-pricing-and-photos.mjs && node tests/chat-experience.mjs && node tests/chat-open-and-documents.mjs"
   },
   "dependencies": {
     "@ai-sdk/react": "latest",

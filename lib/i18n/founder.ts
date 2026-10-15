@@ -157,3 +157,12 @@ Object.assign(ukrainian,{
  'Only the founder can start a private conversation':'Лише засновник може почати приватну розмову',
  'Choose another person from your client list':'Обери іншу людину зі списку клієнтів'
 })
+
+Object.assign(ukrainian,{
+ 'This project is not available.':'Цей проєкт недоступний.',
+ 'This conversation is not available.':'Ця розмова недоступна.',
+ 'Founder access required.':'Потрібен доступ засновника.',
+ 'View invoice':'Переглянути інвойс',
+ 'View receipt':'Переглянути чек',
+ 'Download PDF':'Скачати PDF'
+})
