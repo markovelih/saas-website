@@ -2,6 +2,8 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs/promises'
 import {createRequire} from 'node:module'
 import ts from 'typescript'
+import {AsyncLocalStorage} from 'node:async_hooks'
+import nextConfig from '../next.config.mjs'
 const require=createRequire(import.meta.url)
 async function load(path,stubs={}){
  const source=await fs.readFile(new URL('../'+path,import.meta.url),'utf8')
@@ -47,3 +49,12 @@ records={domain_renewals:{snapshot,status:'cancelled'}};assert.equal(await findB
 records={project_payments:{snapshot:{...snapshot,settled:false}}};assert.equal(await findBillingDocument(lookupDb(),'receipt-RC-A123'),null)
 lookupError=true;await assert.rejects(()=>findBillingDocument(lookupDb(),'invoice-KX-2026-A123'))
 console.log('PASS: founder project-to-chat resolution, failed-action handling, stable document URLs, inline/download behavior and private snapshot lookup')
+
+// Clean document URLs must reach a private dynamic route, ahead of the public static catch-all.
+globalThis.AsyncLocalStorage=AsyncLocalStorage
+const {unstable_getResponseFromNextConfig}=await import('next/experimental/testing/server.js')
+for(const [path,destination] of [['/invoice-KX-2026-A123','/documents/invoice-KX-2026-A123'],['/receipt-RC-A123','/documents/receipt-RC-A123'],['/work',null],['/process',null]]){
+ const result=await unstable_getResponseFromNextConfig({url:'https://koryx.ca'+path,nextConfig})
+ assert.equal(result.headers.get('x-middleware-rewrite'),destination?'https://koryx.ca'+destination:null)
+}
+console.log('PASS: clean invoice/receipt paths rewrite to the dynamic viewer; public pages keep their routes')
