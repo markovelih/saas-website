@@ -1,0 +1,1 @@
+export type BusinessStatistics={gross_cents:number;refunds_cents:number;net_cents:number;outstanding_cents:number;recurring_cents:number;subscriptions:number;past_due:number;projects:number;needs_review:number;in_progress:number;completed:number;customers:number;source_attention:number;updated_at:string;daily:{day:string;net_cents:number;gross_cents:number}[]}

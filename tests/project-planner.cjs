@@ -1,7 +1,7 @@
 // Run with: node tests/project-planner.cjs
 const assert=require('node:assert/strict'),fs=require('node:fs'),ts=require('typescript'),vm=require('node:vm')
 function load(file,imports={}){const exports={};const code=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;vm.runInNewContext(code,{exports,require:id=>imports[id]||(id==='server-only'?{}:require(id)),process,Buffer,Date,Set,JSON,Map},{filename:file});return exports}
-const c=load('lib/project-planner/catalog.ts'),schema=load('lib/project-planner/schema.ts',{'./catalog':c})
+const c=load('lib/project-planner/catalog.ts'),schema=load('lib/project-planner/schema.ts',{'./catalog':c,'@/lib/projects/policy':require('./helpers/load-typescript.cjs')()('lib/projects/policy.ts')})
 const input={type:'website',budget:3000,pages:5,features:['dashboard'],brief:'A customer dashboard for a small studio.'}
 assert.deepEqual(Array.from(c.normalizeFeatures('website',['dashboard','bogus','dashboard'])),['accounts','dashboard'])
 assert.equal(c.buildEstimate(input).total,3200)
@@ -31,10 +31,12 @@ assert.equal(snap.readPlan('KORYX_PLAN_V1\ninvalid json'),null)
 let inserted=null
 const actions=load('app/dashboard/new-order/actions.ts',{
  '@/lib/supabase/server':{createClient:async()=>({auth:{getUser:async()=>({data:{user:{id:'owner'}}})},from:()=>({insert:value=>{inserted=value;return {select:()=>({single:async()=>({data:{id:'saved-project'},error:null})})}}})})},
+ '@/lib/payments/server':{paymentDb:()=>({rpc:async(name,args)=>{assert.equal(name,'koryx_create_project_request');inserted=args.p_order;return {data:'saved-project',error:null}}})},
+ '@/lib/projects/monthly-pricing':load('lib/projects/monthly-pricing.ts'),
  '@/lib/domains/search':{verifyDomainQuote:()=>null},'next/cache':{revalidatePath:()=>{}},'@/lib/project-planner/schema':schema,'@/lib/project-planner/catalog':c,'@/lib/project-planner/signature':sig,'@/lib/project-planner/snapshot':snap,
 })
 ;(async()=>{
- const details={businessName:'Test studio',contactEmail:'studio@example.test',phone:'',references:'',deadline:'',designStyle:'Dark & refined'}
+ const details={requestId:'00000000-0000-4000-8000-000000000001',businessName:'Test studio',contactEmail:'studio@example.test',phone:'',references:'',deadline:'',designStyle:'Dark & refined'}
  const result=await actions.createOrder({...input,...details,user_id:'forged-owner',status:'paid',quote_price:1,paid:true,admin_notes:'forged'})
  assert.equal(result.id,'saved-project')
  assert.equal(inserted.user_id,'owner','Project ownership must come from the authenticated session')

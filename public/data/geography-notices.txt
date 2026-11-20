@@ -1,0 +1,21 @@
+Koryx map data notices
+
+Country centres contain information from the mledoze/countries database,
+made available under the Open Database License (ODbL) 1.0.
+Original database: https://github.com/mledoze/countries
+License: https://opendatacommons.org/licenses/odbl/1-0/
+Local license copy: /data/countries-ODbL.txt
+Adaptation: country codes and latitude/longitude were extracted; all other fields omitted.
+The adapted data is available without charge: /data/koryx-geography.json (centres).
+This license covers the geographic database, not Koryx software or customer reports.
+
+Land dots are sampled from world-atlas 2.0.2 countries-110m.json,
+a conversion of Natural Earth 110m public-domain country boundaries.
+Source: https://github.com/topojson/world-atlas
+Natural Earth: https://www.naturalearthdata.com/about/terms-of-use/
+Copyright 2013-2019 Michael Bostock. ISC license: /data/world-atlas-LICENSE.txt
+Adaptation: TopoJSON arcs were decoded and land points sampled on a two-degree grid;
+Antarctica was excluded. The dot grid is provided in /data/koryx-geography.json (land).
+
+Country labels and centres are approximate and do not imply a position on borders or sovereignty.
+No visitor information or customer statistics are included in these public files.

@@ -1,4 +1,5 @@
 'use server'
+import {careConsentTerms} from '@/lib/payments/consent'
 import {z} from 'zod'
 import {revalidatePath} from 'next/cache'
 import {workspaceSession} from '@/lib/workspace'
@@ -7,19 +8,34 @@ import {paymentDb,stripeClient,stripeReady} from '@/lib/payments/server'
 import {openCareCheckout,syncSubscription} from '@/lib/payments/care'
 const uuid=z.string().uuid()
 export async function configureCare(raw:unknown){
- await founderClient();const p=z.object({order_id:uuid,domain_id:uuid.nullable(),kind:z.enum(['domain','hosting']),name:z.string().trim().min(2).max(150),amount:z.number().positive().max(10000).refine(n=>Math.abs(Math.round(n*100)-n*100)<0.000001),interval:z.enum(['month','year']),date:z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(d=>!Number.isNaN(Date.parse(d+'T12:00:00Z'))&&new Date(d+'T12:00:00Z').toISOString().slice(0,10)===d)}).safeParse(raw);if(!p.success)return {error:'Check the renewal details.'}
- const d=p.data,db=paymentDb(),{data:o}=await db.from('orders').select('id,user_id').eq('id',d.order_id).single();if(!o)return {error:'Project not found.'}
- let lookup=db.from('care_services').select('*').eq('order_id',o.id).eq('kind',d.kind);lookup=d.domain_id?lookup.eq('domain_id',d.domain_id):lookup.is('domain_id',null);const {data:old}=await lookup.maybeSingle();if(old?.subscription_id||old?.consented_at)return {error:'Cancel the existing automatic renewal before changing its terms. Contact support to arrange a new plan.'}
+ await founderClient();const p=z.object({order_id:uuid,domain_id:uuid.nullable(),service_terms:z.string().trim().max(10000).default(''),kind:z.enum(['domain','hosting','managed']),name:z.string().trim().min(2).max(150),amount:z.number().positive().max(10000).refine(n=>Math.abs(Math.round(n*100)-n*100)<0.000001),interval:z.enum(['month','year']),date:z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(d=>!Number.isNaN(Date.parse(d+'T12:00:00Z'))&&new Date(d+'T12:00:00Z').toISOString().slice(0,10)===d)}).safeParse(raw);if(!p.success)return {error:'Check the renewal details.'}
+ const d=p.data,db=paymentDb(),{data:o}=await db.from('orders').select('id,user_id,purchase_mode').eq('id',d.order_id).single();if(!o)return {error:'Project not found.'}
+ if(d.kind==='managed'&&d.service_terms.length<20)return {error:'Write the agreed service scope and limits first.'}
+ if(d.kind==='managed'&&(o.purchase_mode!=='managed'||d.interval!=='month'||d.domain_id))return {error:'Managed plans require a monthly service project.'}
+ let lookup=db.from('care_services').select('*').eq('order_id',o.id).eq('kind',d.kind).neq('status','cancelled');lookup=d.domain_id?lookup.eq('domain_id',d.domain_id):lookup.is('domain_id',null);const {data:old}=await lookup.maybeSingle();if(old?.subscription_id||old?.consented_at)return {error:'Cancel the existing automatic renewal before changing its terms. Contact support to arrange a new plan.'}
  if(d.kind==='domain'){if(!d.domain_id||d.interval!=='year')return {error:'Choose an annual domain renewal.'};const {data:domain}=await db.from('order_domains').select('id,hostname,retail_price,renewal_date').eq('id',d.domain_id).eq('order_id',o.id).single();if(!domain||domain.hostname!==d.name||Math.round(Number(domain.retail_price)*100)!==Math.round(d.amount*100)||domain.renewal_date!==d.date)return {error:'Save matching domain price and renewal date first.'}}else if(d.domain_id)return {error:'Hosting cannot have a domain ID.'}
- const value={order_id:o.id,user_id:o.user_id,domain_id:d.domain_id,kind:d.kind,name:d.name,amount_cents:Math.round(d.amount*100),interval:d.interval,next_date:d.date}
+ const value={order_id:o.id,user_id:o.user_id,domain_id:d.domain_id,kind:d.kind,name:d.name,service_terms:d.service_terms,amount_cents:Math.round(d.amount*100),interval:d.interval,next_date:d.date}
  const result=old?await db.from('care_services').update(value).eq('id',old.id).is('consented_at',null).is('subscription_id',null).select('id').single():await db.from('care_services').insert(value);if(result.error)return {error:'Renewal plan could not be saved.'};revalidatePath('/dashboard/admin');revalidatePath('/dashboard/renewals');return {success:true}
 }
 export async function enableCare(raw:unknown){
  if(!stripeReady())return {error:'Card payments are not available yet. Contact support@koryx.ca.'}
- const p=z.object({id:uuid,consent:z.literal(true)}).safeParse(raw);if(!p.success)return {error:'Agree to the renewal price and schedule.'};const {user}=await workspaceSession(),db=paymentDb(),{data:c}=await db.from('care_services').select('*').eq('id',p.data.id).eq('user_id',user.id).single();if(!c)return {error:'Renewal not found.'}
- try{const {error}=await db.from('care_services').update({consented_at:new Date().toISOString()}).eq('id',c.id).eq('amount_cents',c.amount_cents).eq('next_date',c.next_date).eq('interval',c.interval).select('id').single();if(error)throw new Error('Consent could not be saved.');return {clientSecret:await openCareCheckout(c,user.id),publishableKey:process.env.STRIPE_PUBLISHABLE_KEY!}}catch(e){return {error:e instanceof Error?e.message:'Renewal checkout could not be opened.'}}
+ const p=z.object({id:uuid,consent:z.literal(true),offer:z.string().max(12000)}).safeParse(raw);if(!p.success)return {error:'Agree to the renewal price and schedule.'};const {user}=await workspaceSession(),db=paymentDb(),{data:c}=await db.from('care_services').select('*').eq('id',p.data.id).eq('user_id',user.id).single();if(!c)return {error:'Renewal not found.'};if(p.data.offer!==careConsentTerms(c))return {error:'This offer changed. Refresh and review the updated terms before authorizing payment.'}
+ try{const {error}=await db.from('care_services').update({consented_at:new Date().toISOString()}).eq('id',c.id).eq('amount_cents',c.amount_cents).eq('next_date',c.next_date).eq('interval',c.interval).eq('name',c.name).eq('service_terms',c.service_terms||'').select('id').single();if(error)throw new Error('Consent could not be saved.');return {clientSecret:await openCareCheckout(c,user.id),publishableKey:process.env.STRIPE_PUBLISHABLE_KEY!}}catch(e){return {error:e instanceof Error?e.message:'Renewal checkout could not be opened.'}}
 }
 export async function stopCare(raw:unknown){
  const p=z.object({id:uuid,confirm:z.literal(true)}).safeParse(raw);if(!p.success)return {error:'Confirm you want to stop future automatic renewals.'};const {user}=await workspaceSession(),{data:c}=await paymentDb().from('care_services').select('*').eq('id',p.data.id).eq('user_id',user.id).single();if(!c?.subscription_id)return {error:'Active renewal not found.'}
- try{const sub=await stripeClient().subscriptions.update(c.subscription_id,{cancel_at_period_end:true},{idempotencyKey:'koryx-stop/'+c.subscription_id});await syncSubscription(sub);revalidatePath('/dashboard/renewals');revalidatePath('/dashboard/admin');return {success:true}}catch{return {error:'Automatic renewal could not be stopped. Contact support.'}}
+ try{const sub=await stripeClient().subscriptions.update(c.subscription_id,{cancel_at_period_end:true});await syncSubscription(sub);revalidatePath('/dashboard/renewals');revalidatePath('/dashboard/admin');return {success:true}}catch{return {error:'Automatic renewal could not be stopped. Contact support.'}}
+}
+
+export async function restartManaged(raw:unknown){
+ const p=z.object({id:uuid,consent:z.literal(true),offer:z.string().max(12000)}).safeParse(raw);if(!p.success)return {error:'Review and authorize the service terms.'};if(!stripeReady())return {error:'Card payments are not available yet.'}
+ const {user}=await workspaceSession(),db=paymentDb(),{data:c}=await db.from('care_services').select('*').eq('id',p.data.id).eq('user_id',user.id).eq('kind','managed').eq('status','cancelled').single();if(!c||p.data.offer!==careConsentTerms(c))return {error:'This offer changed. Refresh before authorizing payment.'}
+ try{if(c.subscription_id){const previous=await stripeClient().subscriptions.retrieve(c.subscription_id);if(previous.status!=='canceled')return {error:'The previous subscription has not ended yet. Refresh its status first.'}}
+ const {data:fresh,error}=await db.rpc('koryx_restart_managed',{p_id:c.id,p_user:user.id});if(error||!fresh)throw new Error('Review your latest service offer before restarting.');return {clientSecret:await openCareCheckout(fresh,user.id),publishableKey:process.env.STRIPE_PUBLISHABLE_KEY!}
+ }catch(e){return {error:e instanceof Error?e.message:'The service could not be restarted.'}}
+}
+export async function continueCare(raw:unknown){
+ const p=z.object({id:uuid,confirm:z.literal(true),offer:z.string().max(12000)}).safeParse(raw);if(!p.success)return {error:'Confirm you want to continue recurring payments.'}
+ const {user}=await workspaceSession(),{data:c}=await paymentDb().from('care_services').select('*').eq('id',p.data.id).eq('user_id',user.id).single();if(!c?.subscription_id||!c.cancel_at_period_end||p.data.offer!==careConsentTerms(c))return {error:'Refresh and review the current plan.'}
+ try{const stripe=stripeClient(),current=await stripe.subscriptions.retrieve(c.subscription_id);if(current.status==='canceled')return {error:'This subscription ended. Start a new monthly service from its offer.'};const sub=await stripe.subscriptions.update(c.subscription_id,{cancel_at_period_end:false});await syncSubscription(sub);revalidatePath('/dashboard/renewals');revalidatePath('/dashboard/orders/'+c.order_id);return {success:true}}catch{return {error:'Could not continue the subscription. Please retry.'}}
 }

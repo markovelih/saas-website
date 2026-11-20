@@ -1,9 +1,9 @@
 /* Personal dashboard palette. Portaled dialogs receive the same theme attribute. */
 :root, [data-workspace-theme="dark"] {
- --ws-background:#09090b; --ws-sidebar:#0b0b0d; --ws-surface:#0e0e10;
- --ws-input:#141416; --ws-hover:#202024; --ws-text:#f4f4f5;
+ --ws-background:#000; --ws-sidebar:#000; --ws-surface:#000;
+ --ws-input:#000; --ws-hover:#000; --ws-text:#f4f4f5;
  --ws-secondary:#b8b8c2; --ws-muted:#919198; --ws-line:#ffffff18;
- --ws-strong-line:#ffffff50; --ws-tint:#ffffff08;
+ --ws-strong-line:#ffffff50; --ws-tint:#000;
  --ws-primary:#fafafa; --ws-primary-text:#121212; --ws-primary-hover:#ddd;
  --ws-info:#bcd5fa; --ws-info-line:#78b7ff30; --ws-info-tint:#78b7ff0b;
  --ws-success:#9cd2ad; --ws-warning:#e4c894; --ws-error:#f3b0a6;
@@ -66,3 +66,7 @@
 [data-workspace-theme="light"] [class~="bg-[#161619]"],
 [data-workspace-theme="light"] [class~="bg-[#171719]"] {background:var(--ws-input)}
 [data-workspace-theme="light"] [class~="bg-white"] {color:var(--ws-primary-text)}
+
+html:has([data-workspace-shell]){background:#000;--background:#000;--card:#000;--popover:#000;--ws-background:#000;--ws-sidebar:#000;--ws-surface:#000;--ws-input:#000;color-scheme:dark}
+html:has([data-workspace-shell]) body{background:#000}
+html:has([data-workspace-shell]) [role=dialog],html:has([data-workspace-shell]) [class~="bg-[#101012]"],html:has([data-workspace-shell]) [class~="bg-[#161619]"],html:has([data-workspace-shell]) [class~="bg-[#171719]"]{background:#000}

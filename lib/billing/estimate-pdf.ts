@@ -4,6 +4,7 @@ import {readFile} from 'node:fs/promises'
 import path from 'node:path'
 import type {BillingSnapshot} from './types'
 import {formatAmount,formatDate} from './pdf'
+import {documentPriceStages} from './document-prices'
 
 function wrap(value:string,font:PDFFont,size:number,width:number){
  const rows:string[]=[];let row=''
@@ -48,11 +49,12 @@ export async function estimatePdf(p:BillingSnapshot){
   if(item.discount_amount){text('Service discount'+(item.discount?.type==='percent'?' ('+item.discount.value+'%)':'')+': -'+formatAmount(item.discount_amount),48,top+descriptionHeight,8.5,false,muted);const original=formatAmount(item.gross_amount||item.quantity*item.unit_price),x=547-normal.widthOfTextAtSize(original,8);text(original,x,top+11.5,8,false,muted);page.drawLine({start:{x,y:841.89-top-16.5},end:{x:547,y:841.89-top-16.5},color:muted,thickness:.6})}
   y+=height;line(y-3.5)
  }
- const rows:[string,number][]=[['Subtotal',p.subtotal],...(p.service_discount_amount?[['Service discounts',-p.service_discount_amount] as [string,number]]:[]),...(p.order_discount_amount?[[`Order discount${p.discount?.type==='percent'?' ('+p.discount.value+'%)':''}`,-p.order_discount_amount] as [string,number]]:[])]
+ const prices=documentPriceStages(p)
+ const rows:[string,number][]=[['Original price',prices.original],...(prices.serviceDiscount?[['Service discounts',-prices.serviceDiscount] as [string,number]]:[]),['After service discounts',prices.afterServices],...(prices.orderDiscount?[[`Order discount${p.discount?.type==='percent'?' ('+p.discount.value+'%)':''}`,-prices.orderDiscount] as [string,number]]:[])]
  const closing='The services and discounts above are indicative. Reply to '+p.seller.support_email+' to discuss this estimate.'
  room(5+rows.length*14+25+wrap(closing,normal,9,499).length*11);y+=5
  for(const [label,value] of rows){text(label,300,y,9);right(formatAmount(value),y);y+=14}
- text('Estimated total',300,y,10,true);right(formatAmount(p.total)+' CAD',y,true);y+=25
+ text('Final estimated price',300,y,10,true);right(formatAmount(prices.final)+' CAD',y,true);y+=25
  block(closing,48,y,499,9)
  footer();return Buffer.from(await doc.save({useObjectStreams:false}))
 }
