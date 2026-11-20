@@ -6,6 +6,6 @@ export async function POST(request:Request){
  if(Number(request.headers.get('content-length'))>4.4*1024*1024)return Response.json({error:'Choose up to 10 files, 4 MB in total.'},{status:413})
  try{
   const result=await sendSupportEmail(await request.formData())
-  return Response.json(result,{status:result.error?400:200,headers:{'Cache-Control':'private, no-store'}})
+  return Response.json(result,{status:'error' in result&&result.error?400:200,headers:{'Cache-Control':'private, no-store'}})
  }catch{return Response.json({error:'Email could not be sent. Please sign in and retry.'},{status:403,headers:{'Cache-Control':'private, no-store'}})}
 }

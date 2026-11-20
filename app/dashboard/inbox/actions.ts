@@ -1,7 +1,8 @@
 'use server'
 import {readInboxPage,readInboxEmail} from '@/lib/inbox/server'
-export async function loadInboxPage(after?:string){return readInboxPage(after)}
-export async function loadInboxEmail(id:string){try{return {email:await readInboxEmail(id)}}catch{return {error:'This email could not be opened. Please retry.'}}}
+import type {InboxCursor,MailDirection} from '@/lib/inbox/types'
+export async function loadInboxPage(after?:InboxCursor|string){return readInboxPage(after)}
+export async function loadInboxEmail(id:string,direction:MailDirection='inbound'){try{return {email:await readInboxEmail(id,true,direction)}}catch{return {error:'This email could not be opened. Please retry.'}}}
 
 import {z} from 'zod'
 import {founderClient} from '@/lib/supabase/admin'
