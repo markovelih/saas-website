@@ -122,7 +122,7 @@ create function public.koryx_business_statistics(p_days integer default 30) retu
  'recurring_cents',(select round(coalesce(sum(case when interval='year' then amount_cents::numeric/12 else amount_cents end),0)) from public.care_services where status='active' and not cancel_at_period_end),
  'subscriptions',(select count(*) from public.care_services where status='active' and not cancel_at_period_end),'past_due',(select count(*) from public.care_services where status='past_due'),
  'projects',(select count(*) from public.orders),'needs_review',(select count(*) from public.orders where status in('pending','in_review')),'in_progress',(select count(*) from public.orders where status='in_progress'),'completed',(select count(*) from public.orders where status='completed'),
- 'customers',(select count(*) from public.profiles where role::text='user'),'daily',(select coalesce(jsonb_agg(to_jsonb(daily)),'[]') from daily),
+ 'customers',(select count(*) from public.profiles where role::text='user' and id<>'2f0a1860-cb7a-4104-967d-86ccc9166cdc'::uuid),'daily',(select coalesce(jsonb_agg(to_jsonb(daily)),'[]') from daily),
  'source_attention',(select count(*) from public.project_source_jobs j where status in('failed','blocked') and not exists(select 1 from public.project_source_jobs newer where newer.order_id=j.order_id and newer.created_at>j.created_at)),
  'updated_at',now());
 $$;
