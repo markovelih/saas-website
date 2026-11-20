@@ -166,3 +166,29 @@ Object.assign(ukrainian,{
  'View receipt':'Переглянути чек',
  'Download PDF':'Скачати PDF'
 })
+
+Object.assign(ukrainian,{
+ 'Read, reply and send emails with images and files.':'Читай листи, відповідай і надсилай повідомлення із зображеннями та файлами.',
+ 'New email':'Новий лист','Reply to email':'Відповідь на лист','Close draft':'Закрити чернетку',
+ 'Attach images or files':'Додати зображення або файли','Remove attachment':'Прибрати вкладення',
+ 'Up to 10 files · 4 MB total':'До 10 файлів · разом до 4 МБ','Sending…':'Надсилаю…',
+ 'Send email':'Надіслати лист','Retry same email':'Повторити цей лист',
+ 'Email sent from support@koryx.ca.':'Лист надіслано від support@koryx.ca.',
+ 'Attached image':'Зображення у вкладенні','View attachment':'Переглянути','Download':'Завантажити',
+ 'Show external images':'Показати зовнішні зображення','Hide external images':'Сховати зовнішні зображення','Email image':'Зображення з листа',
+ 'Sending email is not configured.':'Надсилання пошти ще не налаштовано.',
+ 'Enter a valid recipient, subject and message.':'Вкажи правильну адресу одержувача, тему й повідомлення.',
+ 'This draft has expired. Check your mail before starting a new message.':'Термін цієї чернетки минув. Перевір пошту, перш ніж створювати новий лист.',
+ 'Choose up to 10 files, 4 MB in total.':'Обери до 10 файлів загальним розміром до 4 МБ.',
+ 'Write a message or attach a file.':'Напиши повідомлення або додай файл.',
+ 'Empty files cannot be attached.':'Не можна прикріпити порожній файл.',
+ 'This message has no valid reply address.':'У цьому листі немає правильної адреси для відповіді.',
+ 'Email is busy. Wait a moment and retry.':'Пошта зайнята. Зачекай трохи й повтори.',
+ 'The email connection does not allow sending.':'Поточне підключення пошти не дозволяє надсилання.',
+ 'The email provider rejected the address or an attachment.':'Поштовий сервіс відхилив адресу або вкладення.',
+ 'Email could not be sent. Please retry.':'Не вдалося надіслати лист. Спробуй ще раз.',
+ 'Delivery was not confirmed. Retry this same message.':'Надсилання не підтверджено. Повтори цей самий лист.',
+ 'Keep this draft open and retry the same email to avoid duplicates.':'Залиш чернетку відкритою й повтори цей самий лист, щоб уникнути дублікатів.',
+ 'Email could not be sent. Please sign in and retry.':'Не вдалося надіслати лист. Увійди в акаунт і повтори.',
+ 'This request is not allowed.':'Цей запит не дозволено.'
+})
