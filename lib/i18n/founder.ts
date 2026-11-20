@@ -192,3 +192,20 @@ Object.assign(ukrainian,{
  'Email could not be sent. Please sign in and retry.':'Не вдалося надіслати лист. Увійди в акаунт і повтори.',
  'This request is not allowed.':'Цей запит не дозволено.'
 })
+
+Object.assign(ukrainian,{
+ 'Your incoming messages, replies and files. One conversation per person.':'Вхідні листи, твої відповіді та файли — в одній переписці з кожною людиною.',
+ 'Email conversation':'Переписка','messages':'повідомлень','You':'Ти','You replied':'Твоя відповідь',
+ 'Open message and files':'Відкрити повідомлення та файли','Retry loading':'Завантажити ще раз',
+ 'Attachments could not be loaded. Please retry.':'Не вдалося завантажити вкладення. Спробуй ще раз.',
+ 'Sent history could not be loaded. Please retry.':'Не вдалося завантажити надіслані листи. Спробуй ще раз.',
+ 'Saved mail could not be loaded. Please retry.':'Не вдалося завантажити збережену переписку. Спробуй ще раз.',
+ 'The message could not be archived. Refresh to retry.':'Не вдалося зберегти лист і вкладення в архіві. Онови пошту, щоб повторити.',
+ 'Private mail storage could not be created.':'Не вдалося підготувати приватне сховище пошти.',
+ 'Mail attachments require private storage.':'Для вкладень потрібне приватне сховище.',
+ 'Mail attachments could not be saved. Please retry.':'Не вдалося зберегти вкладення. Спробуй ще раз.',
+ 'This attachment is too large to archive.':'Це вкладення завелике для збереження.',
+ 'The email could not be saved. Please retry.':'Не вдалося зберегти лист. Спробуй ще раз.',
+ 'Saved attachments could not be loaded. Please retry.':'Не вдалося відкрити збережені вкладення. Спробуй ще раз.',
+ 'Email accepted; refresh and check Resend before retrying.':'Лист прийнято до надсилання. Онови пошту й перевір стан перед повторним надсиланням.'
+})

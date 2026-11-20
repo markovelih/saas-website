@@ -65,7 +65,7 @@ export interface Database {
       order_domains: {Relationships: [];Row:ManagedDomain;Insert:Omit<ManagedDomain,'id'|'created_at'>;Update:Partial<ManagedDomain>}
       domain_renewals: {Relationships: [];Row:Renewal;Insert:Omit<Renewal,'id'|'created_at'>;Update:Partial<Renewal>}
       project_invoices: {Relationships: [];Row:ProjectInvoice;Insert:Omit<ProjectInvoice,'id'|'created_at'>;Update:Partial<ProjectInvoice>}
-      billing_mail: {Relationships: [];Row:MailJob;Insert:Omit<MailJob,'id'|'created_at'>;Update:Partial<MailJob>}
+      billing_mail: {Relationships: [];Row:MailJob;Insert:Omit<MailJob,'id'|'created_at'>&{created_at?:string};Update:Partial<MailJob>}
       billing_settings: {Relationships: []; Row: BillingSettings; Insert: BillingSettings; Update: Partial<BillingSettings>}
       project_payments: {Relationships: []; Row: Payment; Insert: Omit<Payment,'id'|'created_at'>; Update: Partial<Pick<Payment,'email_status'|'email_id'|'email_error'|'attempted_at'>>}
       profiles: {

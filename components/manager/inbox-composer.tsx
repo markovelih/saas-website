@@ -23,9 +23,9 @@ function DraftFile({upload,disabled,onRemove}:{upload:Upload;disabled:boolean;on
  </li>
 }
 
-export function InboxComposer({reply,onClose,onSent}:{reply?:InboxEmail;onClose:()=>void;onSent:()=>void}){
+export function InboxComposer({reply,onClose,onSent}:{reply?:InboxEmail;onClose:()=>void;onSent:(email:InboxEmail)=>void}){
  const {t}=useFounderLanguage()
- const target=reply?.reply_to?.[0]||reply?.from||''
+ const target=reply?.direction==='outbound'?reply.to[0]||'':reply?.reply_to?.[0]||reply?.from||''
  const [to,setTo]=useState(target.match(/<([^<>]+)>/)?.[1]||target)
  const [subject,setSubject]=useState(reply?(/^re:/i.test(reply.subject)?reply.subject:'Re: '+reply.subject).slice(0,200):'')
  const [text,setText]=useState(''),[uploads,setUploads]=useState<Upload[]>([])
@@ -46,12 +46,12 @@ export function InboxComposer({reply,onClose,onSent}:{reply?:InboxEmail;onClose:
   if(!text.trim()&&!uploads.length){setError('Write a message or attach a file.');return}
   inFlight.current=true;setSending(true);setError('')
   const form=new FormData()
-  for(const [key,value] of Object.entries({to,subject,text,requestId:draft.id,startedAt:String(draft.startedAt),replyId:reply?.id||''}))form.set(key,value)
+  for(const [key,value] of Object.entries({to,subject,text,requestId:draft.id,startedAt:String(draft.startedAt),replyId:reply?.id||'',replyDirection:reply?.direction||'inbound'}))form.set(key,value)
   for(const upload of uploads)form.append('files',upload.file)
   try{
    const response=await fetch('/api/inbox/send',{method:'POST',body:form})
    const result=await response.json().catch(()=>({error:response.status===413?'Choose up to 10 files, 4 MB in total.':'Delivery was not confirmed. Retry this same message.',uncertain:response.status!==413}))
-   if(result.success){onSent();return}
+   if(result.success&&result.email){onSent(result.email);return}
    setError(result.error||'Email could not be sent. Please retry.');setUncertain(Boolean(result.uncertain))
   }catch{setError('Delivery was not confirmed. Retry this same message.');setUncertain(true)}
   finally{inFlight.current=false;setSending(false)}
