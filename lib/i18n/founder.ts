@@ -194,6 +194,12 @@ Object.assign(ukrainian,{
 })
 
 Object.assign(ukrainian,{
+ 'Price breakdown':'Розрахунок ціни',
+ 'Original project price':'Початкова ціна проєкту',
+ 'After service discounts':'Після знижок на послуги'
+})
+
+Object.assign(ukrainian,{
  'Your incoming messages, replies and files. One conversation per person.':'Вхідні листи, твої відповіді та файли — в одній переписці з кожною людиною.',
  'Email conversation':'Переписка','messages':'повідомлень','You':'Ти','You replied':'Твоя відповідь',
  'Open message and files':'Відкрити повідомлення та файли','Retry loading':'Завантажити ще раз',
