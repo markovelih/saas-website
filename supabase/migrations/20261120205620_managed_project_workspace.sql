@@ -1,7 +1,7 @@
 begin;
 alter table public.orders add column if not exists purchase_mode text not null default 'buyout' check(purchase_mode in ('buyout','managed'));
 grant select(purchase_mode) on public.orders to authenticated;
-create or replace function public.koryx_lock_purchase_mode() returns trigger language plpgsql as $$
+create or replace function public.koryx_lock_purchase_mode() returns trigger language plpgsql set search_path=public,pg_temp as $$
 begin
  if new.purchase_mode is distinct from old.purchase_mode and (exists(select 1 from public.payment_requests where order_id=old.id) or exists(select 1 from public.project_payments where order_id=old.id) or exists(select 1 from public.care_services where order_id=old.id)) then raise exception 'Purchase model is locked after a payment offer';end if;
  return new;
