@@ -5,6 +5,7 @@ import {readFile} from 'node:fs/promises'
 import path from 'node:path'
 import type {BillingSnapshot} from './types'
 import {paymentMethods} from './types'
+import {documentPriceStages} from './document-prices'
 export const formatAmount=(n:number)=>new Intl.NumberFormat('en-CA',{style:'currency',currency:'CAD'}).format(n)
 export const formatDate=(date:string)=>new Date(date).toLocaleDateString('en-CA',{year:'numeric',month:'long',day:'numeric',timeZone:'UTC'})
 function lines(value:string,font:PDFFont,size:number,width:number){const result:string[]=[];for(const paragraph of value.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,'').split('\n')){let line='';for(const word of paragraph.split(/\s+/)){if(font.widthOfTextAtSize((line?line+' ':'')+word,size)>width){if(line)result.push(line);line='';for(const char of word){if(font.widthOfTextAtSize(line+char,size)>width){result.push(line);line=''}line+=char}}else line+=(line?' ':'')+word}result.push(line)}return result}
@@ -45,14 +46,24 @@ export async function billingPdf(snapshot:BillingSnapshot,kind:'invoice'|'receip
   }
   y=start+height;line(y-3.5);
  }
- const totalRows:[string,string,boolean][]=[['Subtotal',formatAmount(snapshot.subtotal),false],...(snapshot.service_discount_amount?[["Service discounts",'-'+formatAmount(snapshot.service_discount_amount),false] as [string,string,boolean],...(snapshot.order_discount_amount?[[`Order discount${snapshot.discount?.type==='percent'?' ('+snapshot.discount.value+'%)':''}`,'-'+formatAmount(snapshot.order_discount_amount),false] as [string,string,boolean]]:[])]:snapshot.discount_amount?[[`Discount${snapshot.discount?.type==='percent'?' ('+snapshot.discount.value+'%)':''}`, '-'+formatAmount(snapshot.discount_amount),false] as [string,string,boolean]]:[]),[snapshot.installment?'Project total':'Total',formatAmount(snapshot.project_total??snapshot.total)+' CAD',true],...(snapshot.installment?[['Previously received',formatAmount(snapshot.previous_paid||0)+' CAD',false],['Remaining after payment',formatAmount(snapshot.remaining_balance||0)+' CAD',false]] as [string,string,boolean][]:[]),...(paid?[['Amount paid',formatAmount(snapshot.total)+' CAD',true]] as [string,string,boolean][]:[]),...(kind==='invoice'?[['Amount due',paid?'CAD $0.00':formatAmount(snapshot.total)+' CAD',true]] as [string,string,boolean][]:[])];
- const rowGap=14;room(totalRows.length*rowGap+5);y+=5;
+ const prices=documentPriceStages(snapshot)
+ const totalRows:[string,string,boolean][]=[
+  ['Original price',formatAmount(prices.original),false],
+  ...(prices.serviceDiscount?[['Service discounts','-'+formatAmount(prices.serviceDiscount),false] as [string,string,boolean]]:[]),
+  ['After service discounts',formatAmount(prices.afterServices),false],
+  ...(prices.orderDiscount?[[`Order discount${snapshot.discount?.type==='percent'?' ('+snapshot.discount.value+'%)':''}`,'-'+formatAmount(prices.orderDiscount),false] as [string,string,boolean]]:[]),
+  ['Final price',formatAmount(prices.final)+' CAD',true],
+  ...(snapshot.installment?[['Previously received',formatAmount(snapshot.previous_paid||0)+' CAD',false],['Remaining after payment',formatAmount(snapshot.remaining_balance||0)+' CAD',false]] as [string,string,boolean][]:[]),
+  ...(paid?[['Amount paid',formatAmount(snapshot.total)+' CAD',true]] as [string,string,boolean][]:[]),
+  ...(kind==='invoice'?[['Amount due',paid?'CAD $0.00':formatAmount(snapshot.total)+' CAD',true]] as [string,string,boolean][]:[]),
+ ];
+ const rowGap=totalRows.length>6?12:14;room(totalRows.length*rowGap+4);y+=4;
  for(const [label,value,strong] of totalRows){text(label,300,y,9,strong);text(value,547-(strong?bold:regular).widthOfTextAtSize(value,9),y,9,strong);y+=rowGap}
  if(kind==='receipt'){
   const reference=snapshot.reference?'Payment reference: '+snapshot.reference:'';
-  room(59+(snapshot.crypto_amount?14:0)+(reference?lines(reference,regular,9,W).length*11+4:0));
-  y+=6;text('Payment history',48,y,12,true);y+=19;text('Payment method',48,y,8.5,false,muted);text('Date paid',220,y,8.5,false,muted);text('Amount paid',410,y,8.5,false,muted);y+=13;line(y);y+=5;
-  text(paymentMethods[snapshot.method],48,y,9.5);text(formatDate(snapshot.paid_at),220,y,8.5);text(formatAmount(snapshot.total)+' CAD',410,y,9.5);y+=16;
+  room(54+(snapshot.crypto_amount?14:0)+(reference?lines(reference,regular,9,W).length*11+4:0));
+  y+=4;text('Payment history',48,y,12,true);y+=18;text('Payment method',48,y,8.5,false,muted);text('Date paid',220,y,8.5,false,muted);text('Amount paid',410,y,8.5,false,muted);y+=13;line(y);y+=4;
+  text(paymentMethods[snapshot.method],48,y,9.5);text(formatDate(snapshot.paid_at),220,y,8.5);text(formatAmount(snapshot.total)+' CAD',410,y,9.5);y+=15;
   if(snapshot.crypto_amount){text('Cryptocurrency received: '+snapshot.crypto_amount+' '+(snapshot.method==='btc'?'BTC':'USDT'),48,y,9);y+=14}
   if(reference)y+=block(reference,48,y,W,9)+4;
  }

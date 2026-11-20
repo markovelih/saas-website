@@ -42,3 +42,9 @@ next-env.d.ts
 
 # Private database snapshots
 /.private-backups/
+
+# Local Supabase CLI state
+/supabase/.temp/
+
+# Generated local test artifacts
+/output/

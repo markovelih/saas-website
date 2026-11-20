@@ -1,0 +1,3 @@
+import {founderClient} from '@/lib/supabase/admin'
+import {BusinessStatisticsPanel} from '@/components/projects/business-statistics'
+export default async function Statistics({searchParams}:{searchParams:Promise<{days?:string}>}){const {supabase}=await founderClient(),query=await searchParams,days=[7,30,90].includes(Number(query.days))?Number(query.days):30,{data,error}=await supabase.rpc('koryx_business_statistics',{p_days:days});if(error||!data)return <div role="alert">Business statistics could not be loaded. Please refresh or contact Koryx support.</div>;return <BusinessStatisticsPanel statistics={data} days={days}/>}

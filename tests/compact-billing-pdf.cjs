@@ -21,6 +21,7 @@ const {billingPdf} = load('lib/billing/pdf.ts')
 const {estimatePdf} = load('lib/billing/estimate-pdf.ts')
 const {defaultBilling} = load('lib/billing/types.ts')
 const {itemTotals, totals, discountBreakdown} = load('lib/billing/pricing.ts')
+const {documentPriceStages}=load('lib/billing/document-prices.ts')
 const services = [
   ['Website pages', 4, 75, 30], ['Catalog', 1, 150, 30],
   ['Design & animation', 1, 500, 70], ['Admin panel', 1, 600, 70],
@@ -54,6 +55,25 @@ async function verify(name, snapshot, kind, expectedPages = 1) {
 }
 
 ;(async () => {
+  const discountedItem={description:'Payment integration',quantity:1,unit_price:400,discount:{type:'amount',value:150},gross_amount:400,discount_amount:150,amount:250}
+  const orderDiscount={type:'percent',value:60}
+  const stagedExample={...snapshot,items:[discountedItem],discount:orderDiscount,...totals([discountedItem],orderDiscount),...discountBreakdown([discountedItem],orderDiscount)}
+  const expected={original:400,serviceDiscount:150,afterServices:250,orderDiscount:150,final:100}
+  assert.deepEqual(documentPriceStages(stagedExample),expected)
+  const legacy={...stagedExample,subtotal:250,service_discount_amount:undefined,order_discount_amount:undefined}
+  assert.deepEqual(documentPriceStages(legacy),expected,'Recover the original price from frozen line items in older documents')
+  assert.deepEqual(documentPriceStages({...legacy,service_discount_amount:0,order_discount_amount:0}),expected)
+  assert.deepEqual(documentPriceStages({...stagedExample,installment:'deposit',project_total:100,total:50}),expected,'Use the project price, not the current installment amount')
+  const serviceOnly={...stagedExample,discount:{type:'percent',value:0},discount_amount:150,order_discount_amount:0,total:250}
+  assert.deepEqual(documentPriceStages(serviceOnly),{...expected,orderDiscount:0,final:250})
+  const domain={description:'Domain — example.ca',service_code:'domain',quantity:1,unit_price:25,gross_amount:25,discount_amount:0,amount:25}
+  const withDomain={...stagedExample,items:[discountedItem,domain],subtotal:425,total:125}
+  assert.deepEqual(documentPriceStages(withDomain),{...expected,original:425,afterServices:275,final:125})
+  for(const kind of ['invoice','receipt','estimate']){
+    await verify('discount-stages-'+kind,stagedExample,kind)
+    await verify('legacy-discount-stages-'+kind,legacy,kind)
+    await verify('deposit-discount-stages-'+kind,{...stagedExample,installment:'deposit',project_total:100,total:50,previous_paid:0,remaining_balance:50},kind)
+  }
   // The seven services in the reported receipt, including five service discounts.
   for (const kind of ['invoice', 'receipt', 'estimate']) {
     await verify('seven-services-' + kind, snapshot, kind)
@@ -76,6 +96,10 @@ async function verify(name, snapshot, kind, expectedPages = 1) {
     const staged={...dense,installment,project_total:dense.total,total:dense.total/2,previous_paid:0,remaining_balance:dense.total/2,request_id:'00000000-0000-4000-8000-000000000002'}
     await verify('twelve-'+installment+'-invoice',{...staged,settled:false},'invoice')
     await verify('twelve-'+installment+'-receipt',staged,'receipt')
+    const discounted={...dense,discount:{type:'percent',value:20},...totals(twelve,{type:'percent',value:20}),...discountBreakdown(twelve,{type:'percent',value:20})}
+    const doubleDiscounted={...discounted,installment,project_total:discounted.total,total:discounted.total/2,previous_paid:0,remaining_balance:discounted.total/2,request_id:staged.request_id}
+    await verify('twelve-two-discounts-'+installment+'-invoice',{...doubleDiscounted,settled:false},'invoice')
+    await verify('twelve-two-discounts-'+installment+'-receipt',doubleDiscounted,'receipt')
   }
   const sixteen=Array.from({length:16},(_,i)=>({...ten[0],description:'Website service '+(i+1)}))
   for(const kind of ['invoice','receipt','estimate'])await verify('sixteen-services-'+kind,{...snapshot,items:sixteen,...totals(sixteen),...discountBreakdown(sixteen)},kind)

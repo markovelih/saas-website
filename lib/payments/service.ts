@@ -9,7 +9,7 @@ import type {BillingSnapshot,DocumentSelection} from '@/lib/billing/types'
 import type {Installment,PaymentRequest,Transaction} from './types'
 import {TERMS_VERSION} from './policy'
 export async function issueInstallment(orderId:string,kind:Installment){
- const db=paymentDb(),{data:o,error}=await db.from('orders').select('*').eq('id',orderId).single();if(error||!o)throw new Error('Project not found.')
+ const db=paymentDb(),{data:o,error}=await db.from('orders').select('*').eq('id',orderId).single();if(error||!o)throw new Error('Project not found.');if(o.purchase_mode==='managed')throw new Error('Use a monthly service offer for this project.')
  const {data:a}=await db.auth.admin.getUserById(o.user_id);if(!a.user?.email)throw new Error('Client account not found.')
  const snapshot=paymentSnapshot(o,{email:a.user.email,full_name:a.user.user_metadata?.full_name||''},await billingSettings(db),'other',new Date().toISOString());snapshot.settled=false
  const {data:r,error:failure}=await db.rpc('koryx_issue_installment',{p_order_id:orderId,p_kind:kind,p_snapshot:snapshot});if(failure||!r)throw new Error(failure?.message||'Invoice could not be created.');return r

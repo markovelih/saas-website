@@ -1,3 +1,4 @@
+import type {ProjectMaterial,ProjectConnection,MetricBucket,SourceRelease,SourceFile,PurchaseMode,SourceLink,SourceJob} from '@/lib/projects/types'
 import type {ChatThread,ChatMessage,ChatPage} from '@/lib/project-chat/types'
 import type {PaymentRequest,Transaction,BillingState,CareService,CheckoutAttempt} from '@/lib/payments/types'
 import type {MailJob} from '@/lib/billing/mail'
@@ -21,6 +22,7 @@ export type Profile = {
 }
 
 export type Order = {
+  purchase_mode?:PurchaseMode
   id: string
   parent_order_id?:string|null
   work_kind?:'project'|'addition'|'repair'|'diagnostic'
@@ -50,6 +52,17 @@ export type Order = {
 export interface Database {
   public: {
     Tables: {
+      project_source_webhook_events:{Relationships:[];Row:{id:string;created_at:string};Insert:{id:string};Update:never}
+      project_source_links:{Relationships:[];Row:SourceLink;Insert:Omit<SourceLink,'created_at'>;Update:Partial<SourceLink>}
+      project_source_jobs:{Relationships:[];Row:SourceJob;Insert:never;Update:Partial<SourceJob>}
+      project_country_buckets:{Relationships:[];Row:{order_id:string;hour:string;country:string;page_views:number};Insert:never;Update:never}
+
+      project_materials:{Relationships:[];Row:ProjectMaterial;Insert:Omit<ProjectMaterial,'created_at'>;Update:{order_id?:string|null}}
+      project_connections:{Relationships:[];Row:ProjectConnection&{key_hash:string|null};Insert:Partial<ProjectConnection>&{order_id:string;key_hash?:string|null};Update:Partial<ProjectConnection>&{key_hash?:string|null}}
+      project_metric_buckets:{Relationships:[];Row:MetricBucket;Insert:never;Update:never}
+      project_source_releases:{Relationships:[];Row:SourceRelease;Insert:{order_id:string;title:string;origin?:'manual'|'automatic';deployment_id?:string;commit_sha?:string;policy_version?:string};Update:{published_at:string|null}}
+      project_source_files:{Relationships:[];Row:SourceFile;Insert:never;Update:never}
+
       project_push_subscriptions: {Relationships: [];Row:{id:string;user_id:string;endpoint:string;p256dh:string;auth:string;language:string;created_at:string;updated_at:string};Insert:{user_id:string;endpoint:string;p256dh:string;auth:string;language:string;updated_at:string};Update:{language?:string;updated_at?:string}}
       project_push_outbox: {Relationships: [];Row:{id:string;message_id:string;order_id:string;user_id:string;created_at:string;attempts:number;next_attempt_at:string;lease_until:string|null;lease_token:string|null;sent_at:string|null;sent_subscriptions:string[]};Insert:never;Update:{sent_subscriptions?:string[];sent_at?:string;next_attempt_at?:string;lease_until?:string|null;lease_token?:string|null}}
       project_chat_threads: {Relationships: [];Row:{order_id:string;project_order_id:string|null;direct_client_id:string|null;developer_id:string|null;created_at:string;updated_at:string};Insert:{order_id:string;developer_id?:string|null};Update:{developer_id?:string|null;updated_at?:string}}
@@ -95,6 +108,22 @@ export interface Database {
     }
     Views: Record<string, never>
     Functions: {
+      koryx_restart_managed:{Args:{p_id:string;p_user:string};Returns:CareService};
+      koryx_business_statistics:{Args:{p_days?:number};Returns:import('@/lib/projects/business-types').BusinessStatistics};
+      koryx_country_statistics:{Args:{p_order:string;p_since:string};Returns:{country:string;page_views:number}[]};
+      koryx_queue_source_sync:{Args:{p_order:string};Returns:string|null};
+      koryx_claim_source_job:{Args:{p_id?:string};Returns:SourceJob[]};
+      koryx_finish_source_sync:{Args:{p_job:string;p_lease:string;p_release:string};Returns:boolean};
+
+      koryx_remove_source_file:{Args:{p_release:string;p_file:string};Returns:string};
+      koryx_add_project_material:{Args:{p_file:Record<string,unknown>};Returns:ProjectMaterial};
+      koryx_create_project_request:{Args:{p_id:string;p_order:Record<string,unknown>;p_files:string[]};Returns:string};
+      koryx_ingest_metric:{Args:{p_hash:string;p_id:string;p_kind:string;p_status:number;p_duration:number;p_country?:string};Returns:boolean};
+      koryx_source_entitled:{Args:{p_order_id:string};Returns:boolean};
+      koryx_add_source_file:{Args:{p_release:string;p_file:Record<string,unknown>};Returns:string};
+      koryx_publish_source:{Args:{p_release:string};Returns:undefined};
+      koryx_project_cleanup:{Args:Record<string,never>;Returns:undefined};
+
       koryx_chat_start_direct:{Args:{p_client_id:string};Returns:ChatPage};
       koryx_chat_push_recipient:{Args:{p_order_id:string};Returns:{user_id:string;developer_id:string;direct:boolean}|null};
       koryx_chat_paid:{Args:{p_order_id:string};Returns:boolean};

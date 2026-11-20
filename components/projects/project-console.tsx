@@ -1,0 +1,9 @@
+'use client'
+import {useState} from 'react'
+import {useFounderLanguage} from '@/components/manager/language'
+import {ProjectActivityPanel} from './project-activity'
+import {ReferenceContent} from './reference-content'
+import {ProjectMaterials} from './materials'
+import {SourceBrowser} from './source-browser'
+import s from './projects.module.css'
+export function ProjectConsole({orderId,websiteUrl,mode,references}:{orderId:string;websiteUrl?:string;mode?:string;references?:string|null}){const {t}=useFounderLanguage(),[tab,setTab]=useState('activity');return <div className="my-8"><div className={s.tabs} role="tablist" aria-label={t('Project workspace')}>{[['activity','Activity'],['materials','Files & references'],['source','Source']].map(([id,label])=><button key={id} id={'project-tab-'+id} aria-controls={'project-panel-'+id} type="button" role="tab" aria-selected={tab===id} tabIndex={tab===id?0:-1} onClick={()=>setTab(id)} onKeyDown={e=>{const ids=['activity','materials','source'],index=ids.indexOf(tab),next=e.key==='ArrowRight'?ids[(index+1)%3]:e.key==='ArrowLeft'?ids[(index+2)%3]:e.key==='Home'?ids[0]:e.key==='End'?ids[2]:null;if(next){e.preventDefault();setTab(next);document.getElementById('project-tab-'+next)?.focus()}}}>{t(label)}</button>)}</div><p className={s.muted}>{t(mode==='managed'?'Monthly managed service · operations handled by Koryx':'Project buyout · source handover after full payment')}</p><div role="tabpanel" id={'project-panel-'+tab} aria-labelledby={'project-tab-'+tab}>{tab==='activity'?<ProjectActivityPanel orderId={orderId} websiteUrl={websiteUrl}/>:tab==='materials'?<><ProjectMaterials orderId={orderId}/>{references&&<section className={s.section}><h2>{t('References & notes')}</h2><ReferenceContent text={references}/></section>}</>:<SourceBrowser orderId={orderId}/>}</div></div>}
