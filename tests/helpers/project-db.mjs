@@ -15,5 +15,7 @@ create table storage.buckets(id text primary key,name text,public boolean,file_s
 grant all on all tables in schema public to service_role;grant usage on schema public to anon,authenticated,service_role;`)
 await db.exec(await fs.readFile(new URL('../../supabase/migrations/20261120205620_managed_project_workspace.sql',import.meta.url),'utf8'))
 await db.exec(await fs.readFile(new URL('../../supabase/migrations/20261120214254_source_sync_and_workspace_audit.sql',import.meta.url),'utf8'))
+await db.exec(await fs.readFile(new URL('../../supabase/migrations/20261121010303_legacy_source_imports.sql',import.meta.url),'utf8'))
+await db.exec(await fs.readFile(new URL('../../supabase/migrations/20261121035745_project_source_relays.sql',import.meta.url),'utf8'))
 return db
 }

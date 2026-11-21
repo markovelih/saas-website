@@ -1,4 +1,4 @@
-import type {ProjectMaterial,ProjectConnection,MetricBucket,SourceRelease,SourceFile,PurchaseMode,SourceLink,SourceJob} from '@/lib/projects/types'
+import type {ProjectMaterial,ProjectConnection,MetricBucket,SourceRelease,SourceFile,PurchaseMode,SourceLink,SourceJob,SourceRelay} from '@/lib/projects/types'
 import type {ChatThread,ChatMessage,ChatPage} from '@/lib/project-chat/types'
 import type {PaymentRequest,Transaction,BillingState,CareService,CheckoutAttempt} from '@/lib/payments/types'
 import type {MailJob} from '@/lib/billing/mail'
@@ -54,13 +54,14 @@ export interface Database {
     Tables: {
       project_source_webhook_events:{Relationships:[];Row:{id:string;created_at:string};Insert:{id:string};Update:never}
       project_source_links:{Relationships:[];Row:SourceLink;Insert:Omit<SourceLink,'created_at'>;Update:Partial<SourceLink>}
+      project_source_relays:{Relationships:[];Row:SourceRelay;Insert:never;Update:Partial<SourceRelay>}
       project_source_jobs:{Relationships:[];Row:SourceJob;Insert:never;Update:Partial<SourceJob>}
       project_country_buckets:{Relationships:[];Row:{order_id:string;hour:string;country:string;page_views:number};Insert:never;Update:never}
 
       project_materials:{Relationships:[];Row:ProjectMaterial;Insert:Omit<ProjectMaterial,'created_at'>;Update:{order_id?:string|null}}
       project_connections:{Relationships:[];Row:ProjectConnection&{key_hash:string|null};Insert:Partial<ProjectConnection>&{order_id:string;key_hash?:string|null};Update:Partial<ProjectConnection>&{key_hash?:string|null}}
       project_metric_buckets:{Relationships:[];Row:MetricBucket;Insert:never;Update:never}
-      project_source_releases:{Relationships:[];Row:SourceRelease;Insert:{order_id:string;title:string;origin?:'manual'|'automatic';deployment_id?:string;commit_sha?:string;policy_version?:string};Update:{published_at:string|null}}
+      project_source_releases:{Relationships:[];Row:SourceRelease;Insert:{order_id:string;title:string;origin?:'manual'|'automatic'|'relay';deployment_id?:string;commit_sha?:string;policy_version?:string};Update:{published_at:string|null}}
       project_source_files:{Relationships:[];Row:SourceFile&{content_base64:string|null};Insert:never;Update:never}
 
       project_push_subscriptions: {Relationships: [];Row:{id:string;user_id:string;endpoint:string;p256dh:string;auth:string;language:string;created_at:string;updated_at:string};Insert:{user_id:string;endpoint:string;p256dh:string;auth:string;language:string;updated_at:string};Update:{language?:string;updated_at?:string}}
@@ -108,6 +109,10 @@ export interface Database {
     }
     Views: Record<string, never>
     Functions: {
+      koryx_claim_source_relay:{Args:{p_order?:string};Returns:SourceRelay[]};
+      koryx_begin_source_relay:{Args:{p_order:string;p_lease:string;p_version:string;p_commit:string|null};Returns:string};
+      koryx_add_source_relay_files:{Args:{p_order:string;p_lease:string;p_release:string;p_files:Record<string,unknown>[]};Returns:number};
+      koryx_finish_source_relay:{Args:{p_order:string;p_lease:string;p_release:string;p_manifest:Record<string,unknown>[];p_excluded:number};Returns:boolean};
       koryx_restart_managed:{Args:{p_id:string;p_user:string};Returns:CareService};
       koryx_business_statistics:{Args:{p_days?:number};Returns:import('@/lib/projects/business-types').BusinessStatistics};
       koryx_country_statistics:{Args:{p_order:string;p_since:string};Returns:{country:string;page_views:number}[]};
