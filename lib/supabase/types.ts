@@ -61,7 +61,7 @@ export interface Database {
       project_connections:{Relationships:[];Row:ProjectConnection&{key_hash:string|null};Insert:Partial<ProjectConnection>&{order_id:string;key_hash?:string|null};Update:Partial<ProjectConnection>&{key_hash?:string|null}}
       project_metric_buckets:{Relationships:[];Row:MetricBucket;Insert:never;Update:never}
       project_source_releases:{Relationships:[];Row:SourceRelease;Insert:{order_id:string;title:string;origin?:'manual'|'automatic';deployment_id?:string;commit_sha?:string;policy_version?:string};Update:{published_at:string|null}}
-      project_source_files:{Relationships:[];Row:SourceFile;Insert:never;Update:never}
+      project_source_files:{Relationships:[];Row:SourceFile&{content_base64:string|null};Insert:never;Update:never}
 
       project_push_subscriptions: {Relationships: [];Row:{id:string;user_id:string;endpoint:string;p256dh:string;auth:string;language:string;created_at:string;updated_at:string};Insert:{user_id:string;endpoint:string;p256dh:string;auth:string;language:string;updated_at:string};Update:{language?:string;updated_at?:string}}
       project_push_outbox: {Relationships: [];Row:{id:string;message_id:string;order_id:string;user_id:string;created_at:string;attempts:number;next_attempt_at:string;lease_until:string|null;lease_token:string|null;sent_at:string|null;sent_subscriptions:string[]};Insert:never;Update:{sent_subscriptions?:string[];sent_at?:string;next_attempt_at?:string;lease_until?:string|null;lease_token?:string|null}}
