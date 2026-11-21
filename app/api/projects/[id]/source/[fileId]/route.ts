@@ -6,6 +6,7 @@ export async function GET(request:Request,{params}:{params:Promise<{id:string;fi
  const {data:file}=await db.from('project_source_files').select('*').eq('id',fileId).single();if(!file)throw new ProjectError('File not found.',404)
  const {data:release}=await db.from('project_source_releases').select('*').eq('id',file.release_id).eq('order_id',id).single();if(!release||(!founder&&!release.published_at))throw new ProjectError('File not found.',404)
  if(!founder&&release.origin==='automatic'){const {data:link}=await db.from('project_source_links').select('policy_version').eq('order_id',id).maybeSingle();if(link?.policy_version!==release.policy_version)throw new ProjectError('Source version is no longer shared.',404)}
+ if(!founder&&release.origin==='relay'){const {data:link}=await db.from('project_source_relays').select('enabled,policy_version').eq('order_id',id).maybeSingle();if(!link?.enabled||link.policy_version!==release.policy_version)throw new ProjectError('Source version is no longer shared.',404)}
  // Reviewed legacy imports can retain their bytes in the same private, service-only
  // row. Authorization and integrity checks are identical for both storage backends.
  let bytes:Buffer

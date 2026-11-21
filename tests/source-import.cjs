@@ -4,7 +4,7 @@ async function main(){
  const {projectTestDb}=await import('./helpers/project-db.mjs'),pg=await projectTestDb(),db=adapter(pg)
  const [founder,owner,other,order,another,release,fileId]=Array.from({length:7},()=>randomUUID());let identity={id:founder}
  try{
-  const migrations=(await fs.readdir('supabase/migrations')).filter(x=>x.endsWith('_legacy_source_imports.sql'));assert.equal(migrations.length,1);await pg.exec(await fs.readFile('supabase/migrations/'+migrations[0],'utf8'))
+  const migrations=(await fs.readdir('supabase/migrations')).filter(x=>x.endsWith('_legacy_source_imports.sql'));assert.equal(migrations.length,1)
   await pg.query('insert into profiles(id) values($1),($2),($3)',[founder,owner,other]);await pg.query("insert into orders(id,user_id,quote_price,purchase_mode) values($1,$2,100,'managed'),($3,$2,100,'buyout')",[order,owner,another]);await pg.query('insert into project_source_releases(id,order_id,title) values($1,$2,$3)',[release,order,'Reviewed import'])
   const text='export const title = "Client website"\n',bytes=Buffer.from(text),hash=createHash('sha256').update(bytes).digest('hex')
   await pg.query('insert into project_source_files(id,release_id,path,storage_path,size,sha256,mime,content_base64) values($1,$2,$3,$4,$5,$6,$7,$8)',[fileId,release,'app/page.tsx','database/'+fileId,bytes.length,hash,'text/plain',bytes.toString('base64')])
