@@ -13,7 +13,7 @@ const cardCopy = {
   landing: ['One idea. One great page.', 'A focused launch, campaign or new business.'],
   website: ['Your business, beautifully built.', 'A complete home for your brand and services.'],
   store: ['From discovery to checkout.', 'Products, a catalogue and a buying experience.'],
-  app: ['A product of your own.', 'Accounts, workflows and a core dashboard.'],
+  app: ['A product of your own.', 'A focused first version with accounts, one core workflow and a dashboard.'],
   feature: ['Make an existing product better.', 'One scoped feature or integration.'],
 }
 const questions = [

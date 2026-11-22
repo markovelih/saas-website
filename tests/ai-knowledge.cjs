@@ -6,7 +6,7 @@ function load(file, overrides = {}) {
   file = path.resolve(file)
   const module = { exports: {} }
   const code = ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS, esModuleInterop: true } }).outputText
-  new Function('require', 'module', 'exports', code)(name => Object.hasOwn(overrides, name) ? overrides[name] : name === 'server-only' ? {} : name.startsWith('@/') ? load(path.resolve(name.slice(2)) + '.ts', overrides) : name.startsWith('.') ? load(path.resolve(path.dirname(file), name) + '.ts', overrides) : require(name), module, module.exports)
+  new Function('require', 'module', 'exports', code)(name => Object.hasOwn(overrides, name) ? overrides[name] : name === 'server-only' ? {} : name.endsWith('.json') ? require(path.resolve(path.dirname(file),name)) : name.startsWith('@/') ? load(path.resolve(name.slice(2)) + '.ts', overrides) : name.startsWith('.') ? load(path.resolve(path.dirname(file), name) + '.ts', overrides) : require(name), module, module.exports)
   return module.exports
 }
 const knowledge = load('lib/ai/koryx-knowledge.ts')
