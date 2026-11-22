@@ -1,9 +1,9 @@
 import { z } from 'zod'
 import {materialIdsSchema,purchaseModeSchema} from '@/lib/projects/policy'
-import { projectTypes, featureCatalog } from './catalog'
+import { projectTypes, featureCatalog, MIN_PROJECT_BUDGET, MAX_PROJECT_BUDGET } from './catalog'
 export const plannerSchema=z.object({
  type:z.enum(projectTypes.map(p=>p.id) as ['landing','website','store','app','feature']),
- budget:z.number().int().min(500).max(50000),pages:z.number().int().min(1).max(30),
+ budget:z.number().int().min(MIN_PROJECT_BUDGET).max(MAX_PROJECT_BUDGET),pages:z.number().int().min(1).max(30),
  features:z.array(z.string().refine(id=>featureCatalog.some(f=>f.id===id))).max(10),
  brief:z.string().trim().min(20,'Describe your idea in at least 20 characters.').max(5000),
 })

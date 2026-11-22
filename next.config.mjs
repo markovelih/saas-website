@@ -6,6 +6,7 @@ const nextConfig = {
   outputFileTracingIncludes: { '/*': ['./lib/billing/fonts/*.ttf'], '/api/projects/*/preview': ['./node_modules/@sparticuz/chromium/bin/**'], '/api/website-preview': ['./node_modules/@sparticuz/chromium/bin/**'] },
   serverExternalPackages: ['@sparticuz/chromium','puppeteer-core','sharp'],
   images: { unoptimized: true },
+  async redirects(){return [{source:'/price',destination:'/pricing',permanent:true}]},
   async rewrites(){return {beforeFiles:[
     {source:'/invoice-:number([A-Za-z0-9-]+)',destination:'/documents/invoice-:number'},
     {source:'/receipt-:number([A-Za-z0-9-]+)',destination:'/documents/receipt-:number'},

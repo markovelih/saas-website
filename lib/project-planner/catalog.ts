@@ -1,8 +1,8 @@
 export const projectTypes = [
- {id:'landing',title:'Landing page',description:'One focused page that turns visitors into enquiries.',base:500,pages:1,weeks:1},
- {id:'website',title:'Business website',description:'A complete website built around your brand.',base:1500,pages:5,weeks:3},
- {id:'store',title:'Online store',description:'A storefront, catalogue and hosted checkout integration.',base:3000,pages:5,weeks:4},
- {id:'app',title:'Application / SaaS',description:'Your own product, portal or internal business tool.',base:5000,pages:5,weeks:6},
+ {id:'landing',title:'Landing page',description:'One focused page that turns visitors into enquiries.',base:399,pages:1,weeks:1},
+ {id:'website',title:'Business website',description:'A complete website built around your brand.',base:999,pages:5,weeks:3},
+ {id:'store',title:'Online store',description:'A storefront, catalogue and hosted checkout integration.',base:1999,pages:5,weeks:4},
+ {id:'app',title:'Application / SaaS',description:'A focused first version of your product, portal or internal business tool.',base:3499,pages:5,weeks:6},
  {id:'feature',title:'Feature / integration',description:'Improve the software you already have.',base:500,pages:1,weeks:1},
 ] as const
 export const featureCatalog = [
@@ -18,11 +18,14 @@ export const featureCatalog = [
  {id:'security',title:'Advanced security setup',description:'App-specific firewall rules, alerts and access review.',price:600,group:'Infrastructure'},
 ] as const
 export const includedEssentials = ['Custom responsive design','Contact form / core workflow','Technical SEO foundations','HTTPS & provider DDoS protection','Testing & launch setup']
-export const budgetPresets = [500,1500,3000,5000,10000]
+export const MIN_PROJECT_BUDGET = Math.min(...projectTypes.map(p=>p.base))
+export const DEFAULT_PROJECT_BUDGET = projectTypes.find(p=>p.id==='website')!.base
+export const MAX_PROJECT_BUDGET = 50000
+export const budgetPresets = [...new Set([...projectTypes.filter(p=>p.id!=='feature').map(p=>p.base),5000,10000])].sort((a,b)=>a-b)
 export type ProjectType = typeof projectTypes[number]['id']
 export interface PlannerInput {type:ProjectType;budget:number;pages:number;features:string[];brief:string}
 export interface Estimate {version:1;currency:'CAD';total:number;low:number;high:number;budget:number;withinBudget:boolean;weeks:[number,number];items:{label:string;amount:number}[];features:string[];complexity:'standard'|'complex';source:'calculator'|'ai';summary:string;questions:string[];deferred:string[]}
-export function money(value:number){return new Intl.NumberFormat('en-CA',{style:'currency',currency:'CAD',minimumFractionDigits:0,maximumFractionDigits:2}).format(value)}
+export function money(value:number){return new Intl.NumberFormat('en-CA',{style:'currency',currency:'CAD',minimumFractionDigits:Number.isInteger(value)?0:2,maximumFractionDigits:2}).format(value)}
 export function normalizeFeatures(type:ProjectType, ids:string[]){
  const result=new Set(ids.filter(id=>featureCatalog.some(f=>f.id===id)))
  if(type==='store')result.delete('payments') // Checkout is included in the store base.

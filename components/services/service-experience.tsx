@@ -1,11 +1,12 @@
 import Link from 'next/link'
 import {ArrowRight,Plus,RefreshCw,Search} from 'lucide-react'
 import {serviceBySlug,serviceCatalog} from './catalog'
+import {projectTypes} from '@/lib/project-planner/catalog'
 import {BrandMark,ReferenceScene} from './reference-scenes'
 import {SignatureChapters} from './signature-chapters'
 import s from './reference.module.css'
 
-function Actions({slug}:{slug:string}){const kind=serviceBySlug(slug)?.kind;const type=kind==='commerce'?'store':kind==='software'||kind==='dashboard'?'app':kind==='integrations'||kind==='security'||kind==='performance'?'feature':'website';const budget=type==='store'?3000:type==='app'?5000:type==='feature'?500:1500;return <div className={s.actions}><Link className={s.primary} href={`/dashboard/new-order?intent=build&type=${type}&budget=${budget}`}>Plan your project <ArrowRight size={14}/></Link><Link className={s.secondary} href="/pricing">Explore budgets</Link></div>}
+function Actions({slug}:{slug:string}){const kind=serviceBySlug(slug)?.kind;const type=kind==='commerce'?'store':kind==='software'||kind==='dashboard'?'app':kind==='integrations'||kind==='security'||kind==='performance'?'feature':'website';const budget=projectTypes.find(p=>p.id===type)!.base;return <div className={s.actions}><Link className={s.primary} href={`/dashboard/new-order?intent=build&type=${type}&budget=${budget}`}>Plan your project <ArrowRight size={14}/></Link><Link className={s.secondary} href="/pricing">Explore budgets</Link></div>}
 export function ServiceExperience({slug}:{slug:string}){
  const service=serviceBySlug(slug);if(!service)return null
  const related=serviceCatalog.filter(x=>x.slug!==slug).slice(0,3)
