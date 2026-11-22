@@ -1,8 +1,9 @@
 export type InboxAttachment={id:string;filename:string;content_type:string;size:number;content_id?:string|null;preview_url?:string}
 export type MailDirection='inbound'|'outbound'
-export type InboxEmail={id:string;from:string;to:string[];subject:string;created_at:string;attachments:InboxAttachment[];text?:string;reply_to?:string[];message_id?:string;references?:string;external_images?:string[];authentication?:Record<string,string>;direction?:MailDirection;loaded?:boolean;status?:string;archive_error?:string;attachment_error?:string;archive_id?:string}
+export type InboxEmail={id:string;from:string;to:string[];subject:string;created_at:string;attachments:InboxAttachment[];text?:string;html?:string;body_html?:string;inline_ids?:string[];rich_version?:number;reply_to?:string[];message_id?:string;references?:string;external_images?:string[];authentication?:Record<string,string>;direction?:MailDirection;loaded?:boolean;status?:string;archive_error?:string;attachment_error?:string;archive_id?:string}
 export type InboxCursor={received?:string;sent?:string;receivedDone?:boolean;sentDone?:boolean;archiveOffset?:number;archiveDone?:boolean}
-export type InboxPage={emails:InboxEmail[];cursor:string|null;hasMore:boolean;configured:boolean;canSend?:boolean;error?:string;next?:InboxCursor}
+export type InboxContactState={user_id:string;contact:string;pinned_at:string|null;archived_at:string|null;read_at:string|null;marked_unread:boolean;notify_since:string|null;updated_at:string}
+export type InboxPage={emails:InboxEmail[];cursor:string|null;hasMore:boolean;configured:boolean;canSend?:boolean;error?:string;next?:InboxCursor;contacts?:InboxContactState[];notificationEmail?:string}
 export type ArchivedMailFile=InboxAttachment&{path:string;sha256:string}
 export type SupportMailSnapshot={kind:'support_email';version:1;direction:MailDirection;email:InboxEmail;files:ArchivedMailFile[];idempotency_key?:string;headers?:Record<string,string>}
 export const isSupportSnapshot=(value:unknown):value is SupportMailSnapshot=>Boolean(value&&typeof value==='object'&&'kind' in value&&value.kind==='support_email'&&'email' in value&&'files' in value)

@@ -21,7 +21,7 @@ const oldKey=process.env.RESEND_INBOUND_API_KEY,oldSend=process.env.RESEND_API_K
   return {ok:true,json:async()=>({data:String(url).includes('/receiving')?[email,{...email,id:attachmentId,to:['private@other.test']}]:[],has_more:String(url).includes('/receiving')})}
  }
  const page=await m.readInboxPage();assert.equal(page.emails.length,1);assert.equal(page.cursor,attachmentId);assert(page.hasMore)
- const detail=await m.readInboxEmail(id);assert.equal(detail.text,'Hello\nNew pages & features');assert(!Object.hasOwn(detail,'html'))
+ const detail=await m.readInboxEmail(id);assert.equal(detail.text,'Hello\nNew pages & features');assert(!detail.html.includes('<script'));assert(!detail.body_html.includes('https://track.example.com'))
  assert.equal(detail.attachments[0].id,attachmentId,'List attachments must work when the email has no attachments field')
  const saved=await m.readInboxEmail(id);assert(saved.archive_id);assert.equal(db.objects.size,1)
  const bytes=await m.attachmentDetails(id,attachmentId);assert.deepEqual(bytes.bytes,new Uint8Array([1,2,3,4]))

@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "test:billing-pdf": "node tests/compact-billing-pdf.cjs",
-    "test:support-inbox": "node tests/inbox.cjs && node tests/support-mail.cjs",
+    "test:support-inbox": "node tests/inbox.cjs && node tests/support-mail.cjs && node tests/inbox-workspace.cjs && node tests/inbox-notifications.cjs && node tests/inbox-preferences-postgres.cjs",
     "test:truck-scanner": "node tests/truck-scanner.mjs",
     "test:project-chat": "node tests/project-chat.mjs",
     "test:workspace": "npm run test:project-chat && node tests/workspace-pricing-and-photos.mjs && node tests/chat-experience.mjs && node tests/chat-open-and-documents.mjs",
@@ -62,6 +62,7 @@
     "next": "16.4.6",
     "next-themes": "^0.4.6",
     "pdf-lib": "^1.17.1",
+    "prismjs": "1.30.0",
     "puppeteer-core": "^25.13.0",
     "react": "^19",
     "react-day-picker": "9.13.2",
@@ -69,28 +70,29 @@
     "react-hook-form": "^7.54.1",
     "react-resizable-panels": "^2.1.7",
     "recharts": "2.15.0",
+    "sanitize-html": "2.18.2",
     "sharp": "^0.34.5",
     "sonner": "^1.7.1",
     "stripe": "^23.0.0",
     "tailwind-merge": "^3.3.1",
     "vaul": "^1.1.2",
     "web-push": "3.6.7",
-    "zod": "^3.24.1",
-    "prismjs": "1.30.0"
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.9",
     "@tailwindcss/postcss": "^4.2.0",
     "@types/node": "^22",
+    "@types/prismjs": "1.26.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/sanitize-html": "2.16.2",
     "@types/web-push": "3.6.4",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
     "postcss": "^8.5",
     "tailwindcss": "^4.2.0",
     "tw-animate-css": "1.3.3",
-    "typescript": "5.7.3",
-    "@types/prismjs": "1.26.5"
+    "typescript": "5.7.3"
   }
 }

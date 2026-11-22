@@ -1,52 +1,73 @@
 'use client'
 import {useEffect,useRef,useState,type FormEvent} from 'react'
-import {FileText,Loader2,Paperclip,Send,X} from 'lucide-react'
+import {Bold,Italic,Underline,Strikethrough,List,ListOrdered,Link as LinkIcon,ImagePlus,Undo2,Redo2,FileText,Loader2,Paperclip,Send,X} from 'lucide-react'
 import {MAX_MAIL_BYTES,MAX_MAIL_FILES,isPreviewImage,type InboxEmail} from '@/lib/inbox/types'
 import {useFounderLanguage} from './language'
 import s from '@/components/workspace/workspace.module.css'
+import m from './inbox.module.css'
 
-type Upload={id:string;file:File}
-function DraftFile({upload,disabled,onRemove}:{upload:Upload;disabled:boolean;onRemove:()=>void}){
+type Upload={id:string;file:File;inline:boolean;url:string}
+export function InboxComposer({reply,seed,defaultTo='',onClose,onSent}:{reply?:InboxEmail;seed?:InboxEmail;defaultTo?:string;onClose:()=>void;onSent:(email:InboxEmail)=>void}){
  const {t}=useFounderLanguage()
- const [preview,setPreview]=useState('')
- useEffect(()=>{
-  if(!isPreviewImage(upload.file.type))return
-  const reader=new FileReader()
-  reader.onload=()=>setPreview(typeof reader.result==='string'?reader.result:'')
-  reader.readAsDataURL(upload.file)
-  return ()=>{reader.onload=null;if(reader.readyState===FileReader.LOADING)reader.abort()}
- },[upload.file])
- return <li className="flex items-center gap-3 rounded-lg border border-white/10 p-3 min-w-0">
-  {preview?<img src={preview} alt="" className="h-12 w-12 rounded object-cover shrink-0"/>:<FileText size={22} className="shrink-0 text-white/50"/>}
-  <span className="min-w-0 flex-1 text-xs [overflow-wrap:anywhere]">{upload.file.name}<small className="block text-white/40 mt-1">{Math.ceil(upload.file.size/1024)} KB</small></span>
-  <button type="button" disabled={disabled} onClick={onRemove} aria-label={t('Remove attachment')+': '+upload.file.name} className="p-2"><X size={16}/></button>
- </li>
-}
-
-export function InboxComposer({reply,onClose,onSent}:{reply?:InboxEmail;onClose:()=>void;onSent:(email:InboxEmail)=>void}){
- const {t}=useFounderLanguage()
- const target=reply?.direction==='outbound'?reply.to[0]||'':reply?.reply_to?.[0]||reply?.from||''
+ const target=reply?.direction==='outbound'?reply.to[0]||'':reply?.reply_to?.[0]||reply?.from||seed?.to[0]||defaultTo
  const [to,setTo]=useState(target.match(/<([^<>]+)>/)?.[1]||target)
- const [subject,setSubject]=useState(reply?(/^re:/i.test(reply.subject)?reply.subject:'Re: '+reply.subject).slice(0,200):'')
- const [text,setText]=useState(''),[uploads,setUploads]=useState<Upload[]>([])
- const [error,setError]=useState(''),[sending,setSending]=useState(false),[uncertain,setUncertain]=useState(false)
+ const [subject,setSubject]=useState(reply?(/^re:/i.test(reply.subject)?reply.subject:'Re: '+reply.subject).slice(0,200):seed?.subject||'')
+ const [text,setText]=useState(seed?.text||''),[uploads,setUploads]=useState<Upload[]>([])
+ const [error,setError]=useState(''),[sending,setSending]=useState(false),[uncertain,setUncertain]=useState(false),[preparing,setPreparing]=useState(Boolean(seed)),[link,setLink]=useState<string|null>(null)
  const [draft]=useState(()=>({id:crypto.randomUUID(),startedAt:Date.now()}))
- const first=useRef<HTMLInputElement>(null),body=useRef<HTMLTextAreaElement>(null),picker=useRef<HTMLInputElement>(null),inFlight=useRef(false)
- const locked=sending||uncertain
- useEffect(()=>{if(reply)body.current?.focus();else first.current?.focus()},[reply])
- function addFiles(files:FileList|null){
-  if(!files)return
-  const next=[...uploads,...Array.from(files).map(file=>({file,id:crypto.randomUUID()}))]
-  if(next.length>MAX_MAIL_FILES||next.reduce((size,value)=>size+value.file.size,0)>MAX_MAIL_BYTES){setError('Choose up to 10 files, 4 MB in total.');return}
-  if(next.some(value=>!value.file.size)){setError('Empty files cannot be attached.');return}
-  setError('');setUploads(next)
+ const first=useRef<HTMLInputElement>(null),body=useRef<HTMLDivElement>(null),picker=useRef<HTMLInputElement>(null),imagePicker=useRef<HTMLInputElement>(null),inFlight=useRef(false),urls=useRef<string[]>([]),range=useRef<Range|null>(null)
+ const locked=sending||uncertain||preparing
+ const title=reply?'Reply to email':seed?'Send again':'New email'
+ useEffect(()=>{
+  let cancelled=false
+  if(!seed){if(reply||defaultTo)body.current?.focus();else first.current?.focus();return}
+  async function prepare(){try{
+   const files:Upload[]=[],cidMap=new Map<string,string>()
+   for(const attachment of seed!.attachments){
+    const response=await fetch(`/api/inbox/${seed!.id}/attachments/${attachment.id}?direction=${seed!.direction||'outbound'}`)
+    if(!response.ok)throw Error('Original attachments could not be loaded. Close this draft and retry.')
+    const file=new File([await response.blob()],attachment.filename,{type:attachment.content_type}),url=URL.createObjectURL(file)
+    urls.current.push(url);const id=crypto.randomUUID();if(attachment.content_id)cidMap.set(attachment.content_id.replace(/^<|>$/g,''),id);files.push({id,file,url,inline:Boolean(attachment.content_id&&isPreviewImage(attachment.content_type))})
+   }
+   if(cancelled)return
+   setUploads(files)
+   if(body.current){
+    if(seed!.html){body.current.innerHTML=seed!.html;for(const img of body.current.querySelectorAll('img')){const cid=(img.getAttribute('src')||'').replace(/^cid:/i,'').replace(/^<|>$/g,'');const file=files.find(file=>file.id===cidMap.get(cid));if(file){img.src=file.url;img.dataset.inlineId=file.id}else img.remove()}}
+    else body.current.innerText=seed!.text||''
+    setText(body.current.innerText)
+   }
+  }catch(e){if(!cancelled)setError(e instanceof Error?e.message:'Original attachments could not be loaded.')}
+  finally{if(!cancelled)setPreparing(false)}}
+  void prepare()
+  return ()=>{cancelled=true}
+ },[seed,reply,defaultTo])
+ useEffect(()=>()=>{for(const url of urls.current)URL.revokeObjectURL(url)},[])
+ function saveSelection(){const selection=window.getSelection();if(selection?.rangeCount&&body.current?.contains(selection.anchorNode))range.current=selection.getRangeAt(0).cloneRange()}
+ function command(name:string,value?:string){
+  body.current?.focus();if(range.current){const selection=window.getSelection();selection?.removeAllRanges();selection?.addRange(range.current)}
+  document.execCommand(name,false,value);setText(body.current?.innerText||'');saveSelection()
  }
+ function addFiles(files:FileList|null,inline=false){
+  if(!files)return
+  const incoming=Array.from(files)
+  if(uploads.length+incoming.length>MAX_MAIL_FILES||[...uploads.map(v=>v.file),...incoming].reduce((n,f)=>n+f.size,0)>MAX_MAIL_BYTES){setError('Choose up to 10 files, 4 MB in total.');return}
+  if(incoming.some(file=>!file.size)){setError('Empty files cannot be attached.');return}
+  if(inline&&incoming.some(file=>!isPreviewImage(file.type))){setError('Choose a PNG, JPEG, GIF, WebP or AVIF image.');return}
+  const next=incoming.map(file=>{const url=URL.createObjectURL(file);urls.current.push(url);return {file,url,id:crypto.randomUUID(),inline}})
+  setUploads(values=>[...values,...next]);setError('')
+  if(inline)for(const upload of next){const img=document.createElement('img');img.src=upload.url;img.alt=upload.file.name;img.dataset.inlineId=upload.id;command('insertHTML',img.outerHTML+'<br>')}
+ }
+ function removeFile(upload:Upload){setUploads(values=>values.filter(value=>value.id!==upload.id));for(const img of body.current?.querySelectorAll('img')||[])if(img.dataset.inlineId===upload.id)img.remove()}
  async function send(event:FormEvent){
-  event.preventDefault();if(inFlight.current)return
-  if(!text.trim()&&!uploads.length){setError('Write a message or attach a file.');return}
+  event.preventDefault();if(inFlight.current||locked&&!uncertain)return
+  const plain=body.current?.innerText.trim()||''
+  if(!plain&&!uploads.length){setError('Write a message or attach a file.');return}
+  if(plain.length>20000){setError('The message is too long. Maximum 20,000 characters.');return}
+  const copy=body.current!.cloneNode(true) as HTMLElement
+  for(const img of copy.querySelectorAll('img')){const id=img.dataset.inlineId;if(id&&uploads.some(upload=>upload.id===id))img.setAttribute('src','cid:'+id);else img.remove()}
   inFlight.current=true;setSending(true);setError('')
   const form=new FormData()
-  for(const [key,value] of Object.entries({to,subject,text,requestId:draft.id,startedAt:String(draft.startedAt),replyId:reply?.id||'',replyDirection:reply?.direction||'inbound'}))form.set(key,value)
+  for(const [key,value] of Object.entries({to,subject,text:plain,html:copy.innerHTML,inlineIds:JSON.stringify(uploads.map(upload=>upload.inline?upload.id:'')),requestId:draft.id,startedAt:String(draft.startedAt),replyId:reply?.id||'',replyDirection:reply?.direction||'inbound'}))form.set(key,value)
   for(const upload of uploads)form.append('files',upload.file)
   try{
    const response=await fetch('/api/inbox/send',{method:'POST',body:form})
@@ -56,17 +77,36 @@ export function InboxComposer({reply,onClose,onSent}:{reply?:InboxEmail;onClose:
   }catch{setError('Delivery was not confirmed. Retry this same message.');setUncertain(true)}
   finally{inFlight.current=false;setSending(false)}
  }
- return <section className={`${s.panel} mb-6`} aria-label={t(reply?'Reply to email':'New email')}>
-  <div className="flex justify-between items-center gap-3 mb-5"><h2>{t(reply?'Reply to email':'New email')}</h2><button type="button" disabled={sending} onClick={onClose} className={s.secondary}><X size={15}/>{t('Close draft')}</button></div>
+ const tools=[['bold','Bold',Bold],['italic','Italic',Italic],['underline','Underline',Underline],['strikeThrough','Strikethrough',Strikethrough],['insertUnorderedList','Bulleted list',List],['insertOrderedList','Numbered list',ListOrdered],['undo','Undo',Undo2],['redo','Redo',Redo2]] as const
+ return <section className={`${s.panel} ${m.composer}`} aria-label={t(title)}>
+  <div className="flex justify-between items-center gap-3 mb-4"><h2>{t(title)}</h2><button type="button" disabled={sending||uncertain} onClick={onClose} className={s.secondary}><X size={15}/>{t('Close draft')}</button></div>
   <p className={`${s.notice} mb-5`}>{t('From')}: Koryx &lt;support@koryx.ca&gt;</p>
   <form onSubmit={send}>
    <div className="grid gap-4 sm:grid-cols-2"><label className={s.field}>{t('Recipient email')}<input ref={first} type="email" autoComplete="email" required maxLength={254} readOnly={Boolean(reply)||locked} value={to} onChange={event=>setTo(event.target.value)} placeholder="name@example.com"/></label>
     <label className={s.field}>{t('Subject')}<input required maxLength={200} readOnly={Boolean(reply)||locked} value={subject} onChange={event=>setSubject(event.target.value)}/></label></div>
-   <label className={`${s.field} mt-4`}>{t('Message')}<textarea ref={body} rows={7} maxLength={20000} readOnly={locked} value={text} onChange={event=>setText(event.target.value)} placeholder={t('Write a message…')}/></label>
-   {uploads.length>0&&<ul className="grid sm:grid-cols-2 gap-3 mt-4">{uploads.map(upload=><DraftFile key={upload.id} upload={upload} disabled={locked} onRemove={()=>setUploads(values=>values.filter(value=>value.id!==upload.id))}/>)}</ul>}
-   <div className="flex flex-wrap items-center gap-3 mt-5"><input ref={picker} type="file" multiple className="hidden" tabIndex={-1} onChange={event=>{addFiles(event.target.files);event.target.value=''}}/>
-    <button type="button" className={s.secondary} disabled={locked} onClick={()=>picker.current?.click()}><Paperclip size={15}/>{t('Attach images or files')}</button><p className={s.notice}>{t('Up to 10 files · 4 MB total')}</p>
-    <button type="submit" className={`${s.primary} sm:ml-auto`} disabled={sending||(!text.trim()&&!uploads.length)}>{sending?<Loader2 size={15} className={s.spin}/>:<Send size={15}/>} {t(sending?'Sending…':uncertain?'Retry same email':'Send email')}</button>
+   <div className={m.editorBox}>
+    <div role="toolbar" aria-label={t('Text formatting')} className={m.toolbar}>
+     {tools.map(([name,label,Icon])=><button key={name} type="button" title={t(label)} aria-label={t(label)} disabled={locked} onMouseDown={event=>event.preventDefault()} onClick={()=>command(name)}><Icon size={16}/></button>)}
+     <select aria-label={t('Font')} disabled={locked} defaultValue="Arial" onMouseDown={saveSelection} onChange={event=>command('fontName',event.target.value)}><option>Arial</option><option>Georgia</option><option value="Courier New">Monospace</option></select>
+     <button type="button" title={t('Insert link')} aria-label={t('Insert link')} disabled={locked} onMouseDown={event=>event.preventDefault()} onClick={()=>{saveSelection();setLink('https://')}}><LinkIcon size={16}/></button>
+     <button type="button" title={t('Clear formatting')} disabled={locked} onMouseDown={event=>event.preventDefault()} onClick={()=>command('removeFormat')}>Tx</button>
+    </div>
+    {link!==null&&<div className={m.linkBox}><input aria-label={t('Link URL')} type="url" value={link} onChange={event=>setLink(event.target.value)} placeholder="https://"/><button type="button" disabled={!/^https?:\/\//i.test(link)} onClick={()=>{command('createLink',link);setLink(null)}}>{t('Insert link')}</button><button type="button" onClick={()=>setLink(null)} aria-label={t('Cancel')}><X size={15}/></button></div>}
+    <div ref={body} role="textbox" aria-label={t('Message')} aria-multiline="true" contentEditable={!locked} suppressContentEditableWarning className={m.editor} data-placeholder={t('Write a message…')} onInput={()=>{setText(body.current?.innerText||'');saveSelection()}} onKeyUp={saveSelection} onMouseUp={saveSelection} onPaste={event=>{event.preventDefault();const images=Array.from(event.clipboardData.files).filter(file=>isPreviewImage(file.type));if(images.length){const transfer=new DataTransfer();images.forEach(file=>transfer.items.add(file));addFiles(transfer.files,true)}else command('insertText',event.clipboardData.getData('text/plain'))}}/>
+   </div>
+   {preparing&&<p role="status" className={s.notice}>{t('Preparing original message and files…')}</p>}
+   {uploads.length>0&&<ul className="grid sm:grid-cols-2 gap-3 mt-4">{uploads.map(upload=><li key={upload.id} className={m.draftFile}>
+    {isPreviewImage(upload.file.type)?<img src={upload.url} alt=""/>:<FileText size={22}/>}
+    <span>{upload.file.name}<small>{upload.inline?t('Inline image'):t('Attachment')} · {Math.ceil(upload.file.size/1024)} KB</small></span>
+    <button type="button" disabled={locked} onClick={()=>removeFile(upload)} aria-label={t('Remove attachment')+': '+upload.file.name}><X size={16}/></button>
+   </li>)}</ul>}
+   <div className="flex flex-wrap items-center gap-3 mt-5">
+    <input ref={picker} type="file" multiple hidden onChange={event=>{addFiles(event.target.files);event.target.value=''}}/>
+    <input ref={imagePicker} type="file" multiple accept="image/png,image/jpeg,image/gif,image/webp,image/avif" hidden onChange={event=>{addFiles(event.target.files,true);event.target.value=''}}/>
+    <button type="button" className={s.secondary} disabled={locked} onClick={()=>picker.current?.click()}><Paperclip size={15}/>{t('Attach files')}</button>
+    <button type="button" className={s.secondary} disabled={locked} onMouseDown={event=>event.preventDefault()} onClick={()=>{saveSelection();imagePicker.current?.click()}}><ImagePlus size={15}/>{t('Insert image')}</button>
+    <p className={s.notice}>{t('Up to 10 files · 4 MB total')}</p>
+    <button type="submit" className={`${s.primary} sm:ml-auto`} disabled={sending||preparing||(!text.trim()&&!uploads.length)}>{sending?<Loader2 size={15} className={s.spin}/>:<Send size={15}/>} {t(sending?'Sending…':uncertain?'Retry same email':'Send email')}</button>
    </div>
    {error&&<p role="alert" className={`${s.message} ${s.error} mt-4`}>{t(error)}</p>}
    {uncertain&&<p role="status" className={`${s.notice} mt-3`}>{t('Keep this draft open and retry the same email to avoid duplicates.')}</p>}

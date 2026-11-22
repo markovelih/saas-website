@@ -6,10 +6,11 @@ import {readInboxEmail} from './server'
 import {MAX_MAIL_BYTES,MAX_MAIL_FILES,isSupportSnapshot,type SupportMailSnapshot} from './types'
 import {archivedEmail,storeMailFiles} from './archive'
 import {queueMail,deliverMail} from '@/lib/billing/outbox'
+import {cleanMailHtml,mailBody} from './html'
 
 const fields=z.object({
  to:z.string().trim().email().max(254),subject:z.string().trim().min(1).max(200).regex(/^[^\r\n\x00-\x1f]+$/),
- text:z.string().trim().max(20000).refine(value=>!value.includes('\0')),
+ text:z.string().trim().max(20000).refine(value=>!value.includes('\0')),html:z.string().max(250000).default(''),inlineIds:z.string().max(1000).default('[]'),
  requestId:z.string().uuid(),startedAt:z.coerce.number().finite(),replyId:z.union([z.literal(''),z.string().uuid()]),replyDirection:z.enum(['inbound','outbound']).default('inbound'),
 })
 const mailbox=(value:string)=>(value.match(/<([^<>]+)>/)?.[1]||value).trim()
@@ -18,9 +19,11 @@ const messageId=(value:string|undefined)=>value&&/^<[^<>\s\x00-\x1f]{1,900}>$/.t
 export async function sendSupportEmail(form:FormData){
  const {user,supabase}=await founderClient()
  if(!process.env.RESEND_API_KEY)return {error:'Sending email is not configured.'}
- const parsed=fields.safeParse({...Object.fromEntries(['to','subject','text','requestId','startedAt','replyId'].map(key=>[key,form.get(key)??''])),replyDirection:form.get('replyDirection')||'inbound'})
+ const parsed=fields.safeParse({...Object.fromEntries(['to','subject','text','html','requestId','startedAt','replyId'].map(key=>[key,form.get(key)??''])),inlineIds:form.get('inlineIds')||'[]',replyDirection:form.get('replyDirection')||'inbound'})
  if(!parsed.success)return {error:'Enter a valid recipient, subject and message.'}
  const input=parsed.data,age=Date.now()-input.startedAt
+ let inlineIds:string[]
+ try{inlineIds=z.array(z.union([z.literal(''),z.string().uuid()])).max(MAX_MAIL_FILES).parse(JSON.parse(input.inlineIds))}catch{return {error:'Invalid inline images.'}}
  if(age>23*3600000||age< -300000)return {error:'This draft has expired. Check your mail before starting a new message.'}
  const files=form.getAll('files')
  if(files.length>MAX_MAIL_FILES||files.some(file=>typeof file==='string'))return {error:'Choose up to 10 files, 4 MB in total.'}
@@ -46,13 +49,14 @@ export async function sendSupportEmail(form:FormData){
    headers.References=references.join(' ')
   }
  }
- const prepared=await Promise.all(uploads.map(async file=>({
+ const prepared=await Promise.all(uploads.map(async (file,index)=>({
   id:randomUUID(),filename:file.name.replace(/[\x00-\x1f\x7f/\\]/g,'_').slice(0,180),
-  content_type:file.type||'application/octet-stream',bytes:new Uint8Array(await file.arrayBuffer()),
+  content_type:file.type||'application/octet-stream',content_id:inlineIds[index]||null,bytes:new Uint8Array(await file.arrayBuffer()),
  })))
- const attachments=prepared.map(file=>({filename:file.filename,content:Buffer.from(file.bytes).toString('base64')}))
+ const html=cleanMailHtml(input.html)
+ const attachments=prepared.map(file=>({filename:file.filename,content:Buffer.from(file.bytes).toString('base64'),content_type:file.content_type,...(file.content_id?{content_id:file.content_id}:{})}))
  const payload={from:'Koryx <support@koryx.ca>',to:[to],reply_to:'support@koryx.ca',subject,
-  text:input.text,attachments,...(Object.keys(headers).length?{headers}:{}),
+  text:input.text,...(html?{html}:{}),attachments,...(Object.keys(headers).length?{headers}:{}),
  }
  const body=JSON.stringify(payload)
  // Bind retries to the sender, draft and exact payload, including attachment bytes.
@@ -62,12 +66,13 @@ export async function sendSupportEmail(form:FormData){
   // Save immutable content and private files before contacting the mail provider.
   const savedFiles=await storeMailFiles(supabase,user.id,'outbound/'+input.requestId+'/'+digest,prepared)
   const snapshot:SupportMailSnapshot={kind:'support_email',version:1,direction:'outbound',idempotency_key:key,headers,
-   email:{id:input.requestId,from:payload.from,to:[to],subject,text:input.text,created_at:new Date().toISOString(),attachments:[],direction:'outbound',loaded:true},files:savedFiles}
+   email:{id:input.requestId,from:payload.from,to:[to],subject,text:input.text,html,rich_version:1,created_at:new Date().toISOString(),attachments:[],direction:'outbound',loaded:true},files:savedFiles}
   const job=await queueMail(supabase,{dedupe_key:'support-mail/outbound/'+user.id+'/'+input.requestId+'/'+digest,user_id:user.id,to_address:to,from_address:'support@koryx.ca',subject,html:'',snapshot,documents:'none'})
   const result=await deliverMail(supabase,job)
   if(result.error)return result
   const email=archivedEmail({...job,status:'sent',email_id:result.emailId||job.email_id})
   if(!email||!isSupportSnapshot(job.snapshot))return {error:'Email accepted; refresh and check Resend before retrying.',uncertain:true}
-  return {success:true,emailId:result.emailId,email}
+  const rendered=mailBody(email)
+  return {success:true,emailId:result.emailId,email:{...email,body_html:rendered.html,inline_ids:rendered.inlineIds}}
  }catch(error){return {error:error instanceof Error?error.message:'The email could not be saved. Please retry.',uncertain:false}}
 }
