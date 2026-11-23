@@ -391,3 +391,5 @@ Object.assign(ukrainian,{
  "The message is too long. Maximum 20,000 characters.": "Лист задовгий. Максимум 20 000 символів.",
  "Original attachments could not be loaded. Close this draft and retry.": "Не вдалося завантажити початкові вкладення. Закрий цю чернетку та спробуй ще раз."
 })
+
+Object.assign(ukrainian,{"New message":"Нове повідомлення","Formatting":"Форматування","Clear message":"Очистити","Send or clear this message before changing conversations.":"Надішли або очисти це повідомлення, перш ніж переходити до іншої розмови."})
