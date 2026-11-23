@@ -1,7 +1,6 @@
 'use client'
 
 import {monthlyEstimate,managedTerms,managedIncludes} from '@/lib/projects/monthly-pricing'
-import {useSearchParams} from 'next/navigation'
 import { useState } from 'react'
 import Link from 'next/link'
 import { ArrowDown, ArrowRight, Check, Plus, Minus, Globe, ShoppingBag, Code2, Layers, Workflow, ChevronDown } from 'lucide-react'
@@ -24,8 +23,8 @@ const questions = [
   ['How does cancellation work?', 'For buyout projects, our voluntary policy retains the initial 50% deposit; if paid in full upfront, the remaining 50% is refundable. Standard monthly services have no minimum term: stop future renewals before the next charge, with service through the paid period. Mandatory consumer rights and the agreed terms always apply. Read the terms before approving a project.'],
 ]
 
-export function PricingExperience() {
-  const query=useSearchParams();const [mode,setMode]=useState<'buyout'|'managed'>(query.get('mode')==='managed'?'managed':'buyout')
+export function PricingExperience({ initialMode = 'buyout' }: { initialMode?: 'buyout' | 'managed' }) {
+  const [mode,setMode]=useState<'buyout'|'managed'>(initialMode)
   const [type, setType] = useState<ProjectType>('website')
   const [pages, setPages] = useState(5)
   const [selected, setSelected] = useState<string[]>([])
