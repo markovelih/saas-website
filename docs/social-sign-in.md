@@ -23,3 +23,5 @@ The owner approved Google Cloud terms acceptance for the configuration. No billi
 5. Check session cookies on the actual production origin and sign out before testing another identity.
 
 Local checks: node tests/social-auth.cjs; node tests/auth-email.cjs; TypeScript and scoped ESLint.
+
+Production activation completed on 2026-11-22 in Google Cloud project heroic-bonbon-515606-e3 (Koryx). Google provider enabled; exact callback registered; external audience in production; only basic identity scopes configured; branding verified and published. Existing-account login and registration-entry return to the project planner were verified on koryx.ca. Google registration names come from the Google identity, with support for full_name, name and given_name/family_name; existing profile edits are preserved.

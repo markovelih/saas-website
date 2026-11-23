@@ -9,9 +9,16 @@ async function main() {
 
   let enabled = { google: true }, started = [], exchanged = [], fail = false
   let user = { id: 'client-id', user_metadata: { role: 'admin' } }
+  let profileName = '', profileWrites = []
   const client = { auth: {
     signInWithOAuth: async input => { started.push(input); return fail ? { data: {}, error: {} } : { data: { url: 'https://project.supabase.co/auth/v1/authorize?provider=' + input.provider } } },
     exchangeCodeForSession: async code => { exchanged.push(code); return fail ? { data: {}, error: {} } : { data: { user } } },
+  }, from: table => {
+    assert.equal(table, 'profiles')
+    return {
+      select: columns => { assert.equal(columns, 'full_name'); return { eq: (column,id) => { assert.equal(column,'id'); assert.equal(id,user.id); return { maybeSingle: async () => ({data:{full_name:profileName},error:null}) } } } },
+      update: values => ({ eq: async (column,id) => { assert.equal(column,'id'); assert.equal(id,user.id); profileWrites.push(values); profileName=values.full_name; return {error:null} } }),
+    }
   } }
   const load = loader({
     '@/lib/supabase/server': { createClient: async () => client },
@@ -58,6 +65,24 @@ async function main() {
   user = { id: '2f0a1860-cb7a-4104-967d-86ccc9166cdc' }
   response = await callback('code=founder')
   assert.equal(response.headers.get('location'), 'https://koryx.ca/dashboard/admin')
+  const { googleRegistrationName } = load('lib/auth/google-registration-name.ts')
+  const googleUser = identity => ({id:'google-new-client',app_metadata:{provider:'google'},identities:[{provider:'google',identity_data:identity}]})
+  assert.equal(googleRegistrationName(googleUser({full_name:'  Олена   Коваль  ',name:'Ignored'})), 'Олена Коваль')
+  assert.equal(googleRegistrationName(googleUser({name:'Jane Smith'})), 'Jane Smith')
+  assert.equal(googleRegistrationName(googleUser({given_name:'Jane',family_name:'Smith'})), 'Jane Smith')
+  assert.equal(googleRegistrationName(googleUser({email:'invented.name@example.invalid'})), null)
+  assert.equal(googleRegistrationName({...googleUser({name:'From linked Google'}),app_metadata:{provider:'email'}}), null)
+  user=googleUser({name:'Олена Коваль',email:'completely.different@example.invalid'})
+  response=await callback('code=new-google-signup')
+  assert.equal(response.headers.get('location'),'https://koryx.ca/dashboard')
+  assert.deepEqual(profileWrites,[{full_name:'Олена Коваль'}])
+  profileName='Name edited in account settings'
+  await callback('code=returning-google-user')
+  assert.equal(profileWrites.length,1)
+  user={...googleUser({name:'Linked Google name'}),app_metadata:{provider:'email'}}
+  profileName=''
+  await callback('code=existing-email-account')
+  assert.equal(profileWrites.length,1)
   fail = true
   response = await callback('code=expired-secret')
   assert.match(response.headers.get('location'), /auth_error=oauth/)
@@ -81,6 +106,6 @@ async function main() {
     if (oldUrl === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_URL; else process.env.NEXT_PUBLIC_SUPABASE_URL = oldUrl
     if (oldKey === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY; else process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = oldKey
   }
-  console.log('Social auth: provider validation, safe redirects, callback success/failure, founder access, and public availability passed.')
+  console.log('Social auth: provider validation, safe redirects, callback success/failure, founder access, Google registration names, and public availability passed.')
 }
 main().catch(error => { console.error(error); process.exitCode = 1 })
