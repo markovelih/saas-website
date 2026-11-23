@@ -2,7 +2,7 @@ import type {ProjectMaterial,ProjectConnection,MetricBucket,SourceRelease,Source
 import type {ChatThread,ChatMessage,ChatPage} from '@/lib/project-chat/types'
 import type {PaymentRequest,Transaction,BillingState,CareService,CheckoutAttempt} from '@/lib/payments/types'
 import type {MailJob} from '@/lib/billing/mail'
-import type {InboxContactState} from '@/lib/inbox/types'
+import type {InboxContactState,InboxThreadState,InboxHeaderRow} from '@/lib/inbox/types'
 import type {Delivery,BillingSettings,Payment,BillingSnapshot,ManagedDomain,Renewal,ProjectInvoice} from '@/lib/billing/types'
 export type OrderStatus = 
   | 'pending'
@@ -53,6 +53,8 @@ export type Order = {
 export interface Database {
   public: {
     Tables: {
+      support_inbox_threads:{Relationships:[];Row:InboxThreadState;Insert:Pick<InboxThreadState,'user_id'|'thread_key'>&Partial<InboxThreadState>;Update:Partial<InboxThreadState>}
+      support_mail_headers:{Relationships:[];Row:InboxHeaderRow;Insert:InboxHeaderRow;Update:Partial<InboxHeaderRow>}
       support_inbox_contacts:{Relationships:[];Row:InboxContactState;Insert:Pick<InboxContactState,'user_id'|'contact'>&Partial<InboxContactState>;Update:Partial<InboxContactState>}
       support_mail_index:{Relationships:[];Row:MailJob;Insert:never;Update:never}
       project_source_webhook_events:{Relationships:[];Row:{id:string;created_at:string};Insert:{id:string};Update:never}

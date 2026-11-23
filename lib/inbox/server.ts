@@ -3,8 +3,10 @@ import {z} from 'zod'
 import {founderClient} from '@/lib/supabase/admin'
 import {archivedEmail,archivedFileBytes,findArchivedMail,readArchivedPage,saveImportedMail,storeMailFiles} from './archive'
 import {cleanMailHtml,mailBody} from './html'
+import {headerValue,threadMetadata,withThreadIds} from './threading'
+import {readHeaderRows,saveHeaderRow,ensureThreadStates} from './thread-store'
 import {readContactStates} from './contacts'
-import {isPreviewImage,isSupportSnapshot,mailbox,mergeEmails,type InboxAttachment,type InboxCursor,type InboxEmail,type InboxPage,type MailDirection} from './types'
+import {isPreviewImage,isSupportSnapshot,mailbox,mergeEmails,messageKey,type InboxAttachment,type InboxCursor,type InboxEmail,type InboxPage,type MailDirection} from './types'
 const uuid=z.string().uuid()
 const cursorSchema=z.object({received:uuid.optional(),sent:uuid.optional(),receivedDone:z.boolean().optional(),sentDone:z.boolean().optional(),archiveOffset:z.number().int().min(0).max(100000).optional(),archiveDone:z.boolean().optional()})
 export function supportRecipient(value:{to?:string[];cc?:string[];received_for?:string[]}){return [...(value.to||[]),...(value.cc||[]),...(value.received_for||[])].some(v=>mailbox(v)==='support@koryx.ca')}
@@ -21,11 +23,11 @@ export function externalImages(html:unknown){
  return [...urls]
 }
 type ProviderEmail=InboxEmail&{html?:string|null;headers?:Record<string,string>;last_event?:string}
-function publicEmail(v:ProviderEmail,direction:MailDirection,detail=false):InboxEmail{
+function publicEmail(v:ProviderEmail,direction:MailDirection,detail=false,headersChecked=detail):InboxEmail{
  return {id:v.id,from:v.from,to:v.to||[],subject:v.subject||'(No subject)',created_at:new Date(v.created_at).toISOString(),direction,
   attachments:(v.attachments||[]).filter(a=>uuid.safeParse(a.id).success).map(a=>({id:a.id,filename:a.filename||'Attachment',content_type:a.content_type||'application/octet-stream',size:a.size||0,content_id:a.content_id})),
   ...(detail?{text:mailText(v.text,v.html),html:cleanMailHtml(v.html),rich_version:1,external_images:externalImages(v.html),loaded:true}:{}),
-  reply_to:v.reply_to||[],message_id:v.message_id,references:v.headers?.references||v.headers?.References,authentication:v.authentication,status:direction==='inbound'?'received':v.last_event||'sent'}
+  reply_to:v.reply_to||[],message_id:v.message_id||headerValue(v.headers,'message-id'),references:headerValue(v.headers,'references'),in_reply_to:headerValue(v.headers,'in-reply-to'),headers_checked:headersChecked||undefined,authentication:v.authentication,status:direction==='inbound'?'received':v.last_event||'sent'}
 }
 function supportedEmail(v:ProviderEmail,direction:MailDirection){return direction==='inbound'?supportRecipient(v):mailbox(v.from)==='support@koryx.ca'}
 function verifiedAttachmentUrl(value:string,direction:MailDirection){const url=new URL(value);if(url.protocol!=='https:'||url.username||url.password||url.hostname!==(direction==='inbound'?'inbound':'outbound')+'-cdn.resend.com')throw Error('Attachment link could not be verified.');return url.toString()}
@@ -38,7 +40,7 @@ async function provider(path:string,direction:MailDirection='inbound'){
   if(response.status!==429)break
   if(attempt<2)await new Promise(resolve=>setTimeout(resolve,1100*(attempt+1)))
  }
- if(!response?.ok)throw Error(response?.status===401||response?.status===403?'The receiving key needs access to received emails.':'Incoming mail could not be loaded. Please retry.')
+ if(!response?.ok)throw Object.assign(Error(response?.status===401||response?.status===403?'The receiving key needs access to received emails.':'Incoming mail could not be loaded. Please retry.'),{status:response?.status})
  return response.json()
 }
 function attachmentPreview(email:InboxEmail):InboxEmail{
@@ -70,7 +72,37 @@ export async function readInboxPage(after?:InboxCursor|string):Promise<InboxPage
  }
  let preferences={contacts:[] as import('./types').InboxContactState[],notificationEmail:''}
  try{preferences=await readContactStates()}catch{errors.push('Mailbox preferences could not be loaded.')}
- return {emails:mergeEmails(...groups),cursor:next.received||null,hasMore:!next.receivedDone||!next.sentDone||!next.archiveDone,configured,canSend,next,...preferences,...(errors.length?{error:errors.join(' ')}:{})}
+ let emails=mergeEmails(...groups),threads:import('./types').InboxThreadState[]=[]
+ try{
+  const index=await readHeaderRows(supabase,user.id),byKey=new Map(index.map(row=>[messageKey(row.email),row]))
+  for(const email of emails){
+   const key=messageKey(email),old=byKey.get(key),defined=Object.fromEntries(Object.entries(threadMetadata(email)).filter(([,value])=>value!=null))
+   let meta={...old?.email,...defined} as InboxEmail,checked=Boolean(old?.checked||email.headers_checked)
+   if(!checked){
+    try{
+     await new Promise(resolve=>setTimeout(resolve,600))
+     const result=await provider('/'+email.id+(email.direction==='outbound'?'':'?html_format=cid'),email.direction||'inbound')
+     if(!supportedEmail(result,email.direction||'inbound'))throw Error('This email is not in the support inbox.')
+     meta={...meta,...Object.fromEntries(Object.entries(threadMetadata(publicEmail(result,email.direction||'inbound',false,true))).filter(([,value])=>value!=null))} as InboxEmail;checked=true
+    }catch(error){if(error&&typeof error==='object'&&'status' in error&&[404,410].includes(Number(error.status)))checked=true;else errors.push('Some conversation links could not be loaded. Refresh to retry.')}
+   }
+   if(!old||!old.checked||JSON.stringify(old.email)!==JSON.stringify(meta))await saveHeaderRow(supabase,user.id,meta,checked)
+   byKey.set(key,{user_id:user.id,email_key:key,email:meta,checked,updated_at:new Date().toISOString()})
+  }
+  const metadata=[...byKey.values()].map(row=>row.email)
+  emails=withThreadIds(emails.map(email=>({...email,...byKey.get(messageKey(email))?.email})),metadata)
+  const visibleThreads=new Set(emails.map(email=>email.thread_id))
+  emails=mergeEmails(withThreadIds(metadata).filter(email=>visibleThreads.has(email.thread_id)),emails)
+  threads=await ensureThreadStates(supabase,user.id,metadata,preferences.contacts)
+ }catch{errors.push('Conversation preferences could not be loaded.')}
+ return {emails,cursor:next.received||null,hasMore:!next.receivedDone||!next.sentDone||!next.archiveDone,configured,canSend,next,...preferences,threads,...(errors.length?{error:[...new Set(errors)].join(' ')}:{})}
+}
+
+async function linkedEmail(db:import('@supabase/supabase-js').SupabaseClient<import('@/lib/supabase/types').Database>,userId:string,email:InboxEmail){
+ const index=await readHeaderRows(db,userId),old=index.find(row=>row.email_key===messageKey(email))
+ const meta={...old?.email,...Object.fromEntries(Object.entries(threadMetadata(email)).filter(([,value])=>value!=null))} as InboxEmail
+ await saveHeaderRow(db,userId,meta,Boolean(email.headers_checked||old?.checked))
+ return withThreadIds([{...email,...meta}],index.filter(row=>row.email_key!==messageKey(email)).map(row=>row.email).concat(meta))[0]
 }
 async function attachmentList(id:string,direction:MailDirection){
  const items:InboxAttachment[]=[]
@@ -96,12 +128,14 @@ async function downloadedBytes(url:string){
 export async function readInboxEmail(id:string,withAttachments=true,direction:MailDirection='inbound',refresh=false):Promise<InboxEmail>{
  const {supabase,user}=await founderClient();uuid.parse(id);z.enum(['inbound','outbound']).parse(direction)
  const saved=await findArchivedMail(supabase,user.id,id,direction)
- if(saved&&!refresh&&isSupportSnapshot(saved.snapshot)&&saved.snapshot.email.rich_version===1){const email=archivedEmail(saved)!;return attachmentPreview(email)}
+ if(saved&&!refresh&&isSupportSnapshot(saved.snapshot)&&saved.snapshot.email.rich_version===1){const email=archivedEmail(saved)!;return attachmentPreview(await linkedEmail(supabase,user.id,email))}
  let result:ProviderEmail
  try{result=await provider('/'+id+(direction==='inbound'?'?html_format=cid':''),direction)}
  catch(error){if(saved)return attachmentPreview(archivedEmail(saved)!);throw error}
  if(!supportedEmail(result,direction))throw Error('This email is not in the support inbox.')
- const email=publicEmail(result,direction,true)
+ let email=publicEmail(result,direction,true)
+ if(saved){const original=archivedEmail(saved)!;email={...email,reply_key:original.reply_key,draft_key:original.draft_key,thread_id:original.thread_id,in_reply_to:email.in_reply_to||original.in_reply_to,references:email.references||original.references}}
+ email=await linkedEmail(supabase,user.id,email)
  if(!withAttachments)return email
  let listed:(InboxAttachment&{download_url?:string})[]
  try{

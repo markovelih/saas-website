@@ -19,3 +19,5 @@ export async function testInboxConnection(requestId:string){
  const result=await deliverMail(supabase,job)
  return result.error?{error:result.error}:{success:true}
 }
+
+export async function saveInboxThread(emailId:string,direction:MailDirection,input:unknown){const {updateThreadState}=await import('@/lib/inbox/thread-store');return updateThreadState(emailId,direction,input)}

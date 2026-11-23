@@ -3,6 +3,7 @@ import {createHash} from 'node:crypto'
 import type {SupabaseClient} from '@supabase/supabase-js'
 import type {Database} from '@/lib/supabase/types'
 import type {MailJob} from '@/lib/billing/mail'
+import {headerValue} from './threading'
 import {isSupportSnapshot,type ArchivedMailFile,type InboxEmail,type MailDirection,type SupportMailSnapshot} from './types'
 
 const bucket='support-mail'
@@ -34,7 +35,7 @@ export async function storeMailFiles(db:Db,owner:string,folder:string,files:{id:
 export function archivedEmail(job:MailJob,detail=true):InboxEmail|null{
  if(!isSupportSnapshot(job.snapshot))return null
  const snapshot=job.snapshot
- return {...snapshot.email,id:job.email_id||job.id,direction:snapshot.direction,archive_id:job.id,
+ return {...snapshot.email,in_reply_to:snapshot.email.in_reply_to||headerValue(snapshot.headers,'in-reply-to'),references:snapshot.email.references||headerValue(snapshot.headers,'references'),id:job.email_id||job.id,direction:snapshot.direction,archive_id:job.id,
   loaded:detail,status:snapshot.direction==='inbound'?'received':job.status,
   text:detail?snapshot.email.text:undefined,
   html:detail?snapshot.email.html:undefined,

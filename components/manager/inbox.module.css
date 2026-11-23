@@ -8,3 +8,5 @@
 
 .quickComposer{padding:16px!important;margin-bottom:0}.quickComposer .editor{min-height:86px;max-height:260px}.quickComposer .editorBox{margin-top:0}.quickComposer h2{margin-right:auto}.quickComposer :global(button){white-space:nowrap}
 @media(max-width:640px){.quickComposer>div:first-child{flex-wrap:wrap}.quickComposer>div:first-child h2{flex-basis:100%}}
+
+.messageSubject{display:grid;grid-template-columns:64px minmax(0,1fr);align-items:baseline;gap:10px;margin-top:16px}.messageSubject>span{font-size:11px;color:#777}.messageSubject h3{font-size:16px;font-weight:600;line-height:1.5;overflow-wrap:anywhere}.messageDivider{height:1px;background:#242424;margin-top:18px}

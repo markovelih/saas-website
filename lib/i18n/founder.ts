@@ -393,3 +393,7 @@ Object.assign(ukrainian,{
 })
 
 Object.assign(ukrainian,{"New message":"Нове повідомлення","Formatting":"Форматування","Clear message":"Очистити","Send or clear this message before changing conversations.":"Надішли або очисти це повідомлення, перш ніж переходити до іншої розмови."})
+
+Object.assign(ukrainian,{"New emails start separate conversations. Replies stay with their original email.":"Нові листи — окремі розмови. Відповіді залишаються у своїх гілках.","Some conversation links could not be loaded. Refresh to retry.":"Не всі зв’язки листів завантажилися. Онови пошту, щоб повторити.","Conversation preferences could not be loaded.":"Не вдалося завантажити налаштування розмов.","Conversation preference could not be saved.":"Не вдалося зберегти налаштування розмови.","Invalid conversation preference.":"Некоректне налаштування розмови.","Open this conversation before changing its preferences.":"Спочатку відкрий цю розмову."})
+
+Object.assign(ukrainian,{"Loading email conversations…":"Завантажую листи та їхні розмови…"})
