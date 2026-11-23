@@ -1,5 +1,5 @@
 import {messageKey,type InboxEmail} from './types'
-export const mailIds=(value?:string)=>[...new Set((value||'').slice(0,32000).match(/<[^<>\s\x00-\x1f]{1,998}>/g)||[])].slice(0,32)
+export const mailIds=(value?:string)=>[...new Set((value||'').slice(0,32000).match(/<[^<>\s\x00-\x1f]{1,998}>/g)||[])].filter(id=>new TextEncoder().encode(id).byteLength<=1000).slice(0,32)
 export function headerValue(headers:Record<string,string>|undefined,name:string){return Object.entries(headers||{}).find(([key])=>key.toLowerCase()===name.toLowerCase())?.[1]}
 export function threadMetadata(email:InboxEmail):InboxEmail{
  return {id:email.id,direction:email.direction||'inbound',from:email.from,to:email.to,subject:email.subject,created_at:email.created_at,attachments:(email.attachments||[]).map(({id,filename,content_type,size,content_id})=>({id,filename,content_type,size,content_id})),reply_to:email.reply_to,

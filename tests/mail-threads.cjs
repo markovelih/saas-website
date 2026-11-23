@@ -16,6 +16,7 @@ const email=(n,extra={})=>({id:uuid(n),direction:'inbound',from:'client@example.
  assert.equal(links.withThreadIds([reply],[a,b,reply])[0].thread_id,'rfc:'+a.message_id,'Parent outside current page still determines thread')
  assert.equal(links.resolveMailThreads([reply])[0].id,links.resolveMailThreads([reply,a])[0].id,'Missing root arriving later must keep RFC identity')
  assert.equal(links.headerValue({'iN-RePlY-To':a.message_id},'in-reply-to'),a.message_id)
+ assert.deepEqual(links.mailIds('<'+'я'.repeat(800)+'@example.com>'),[],'Oversized UTF-8 identifiers must not become database index keys')
  assert.deepEqual(links.mailIds('<valid@x>\r\nBcc: evil@example.com'),['<valid@x>'])
  const meta=links.threadMetadata({...a,text:'PRIVATE BODY',html:'PRIVATE HTML',body_html:'PRIVATE RENDER'});assert(!JSON.stringify(meta).includes('PRIVATE'))
  const legacy={user_id:owner,contact:'client@example.com',pinned_at:a.created_at,archived_at:b.created_at,read_at:a.created_at,marked_unread:false,notify_since:a.created_at,updated_at:b.created_at,thread_state_cutover_at:b.created_at}
@@ -30,6 +31,7 @@ const email=(n,extra={})=>({id:uuid(n),direction:'inbound',from:'client@example.
  const aliasEmail=email(8),canonical='rfc:'+aliasEmail.message_id,alias='mail:inbound:'+aliasEmail.id
  db.threads.push({user_id:owner,thread_key:canonical,pinned_at:null,archived_at:null,read_at:null,marked_unread:false,updated_at:aliasEmail.created_at})
  db.threads.push({user_id:owner,thread_key:alias,pinned_at:new Date().toISOString(),archived_at:null,read_at:null,marked_unread:false,updated_at:new Date().toISOString()})
+ assert(mailConversations([aliasEmail],db.threads)[0].state.pinned_at,'Late metadata must preserve alias state before the next index refresh')
  states=await store.ensureThreadStates(db,owner,[aliasEmail],[]);assert(states.find(s=>s.thread_key===canonical).pinned_at,'Pin survives a late header/link resolution')
  const prior=JSON.stringify(await store.readThreadStates(db,owner));authorized=false;await assert.rejects(()=>store.updateThreadState(a.id,'inbound',{action:'pin',value:true}),/Unauthorized/);authorized=true;assert.equal(JSON.stringify(await store.readThreadStates(db,owner)),prior)
  assert((await store.updateThreadState(uuid(111),'inbound',{action:'pin',value:true})).error,'Unknown email cannot create preferences')

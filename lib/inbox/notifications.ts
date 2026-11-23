@@ -4,7 +4,7 @@ import {paymentDb} from '@/lib/payments/server'
 import {queueMail,deliverMail} from '@/lib/billing/outbox'
 import {brandedEmail} from '@/lib/billing/email'
 import {readHeaderRows,readThreadStates} from './thread-store'
-import {withThreadIds} from './threading'
+import {mailConversations} from './conversations'
 import {contactForEmail,type InboxEmail,type InboxContactState,type InboxThreadState,messageKey,mailbox} from './types'
 import {supportRecipient} from './server'
 
@@ -22,8 +22,8 @@ export async function deliverInboxNotifications(){
  const {data:account,error:accountError}=await db.auth.admin.getUserById(owner)
  const recipient=z.string().email().safeParse(account.user?.email)
  if(accountError||!recipient.success||!account.user?.email_confirmed_at||mailbox(recipient.data)==='support@koryx.ca')throw Error('Notification address unavailable.')
- const [index,threadStates]=await Promise.all([readHeaderRows(db,owner),readThreadStates(db,owner)]),threads=new Map(threadStates.map(state=>[state.thread_key,state]))
- const indexed=new Map(withThreadIds(index.map(row=>row.email)).map(email=>[messageKey(email),email.thread_id]))
+ const [index,threadStates]=await Promise.all([readHeaderRows(db,owner),readThreadStates(db,owner)])
+ const readStates=new Map(mailConversations(index.map(row=>row.email),threadStates).flatMap(thread=>thread.messages.map(email=>[messageKey(email),thread.state] as const)))
  const since=Math.min(...preferences.map(p=>Date.parse(p.notify_since!))),contacts=new Map(preferences.map(p=>[p.contact,p]))
  let after:string|undefined,sent=0,checked=0,complete=false
  for(let page=0;page<10;page++){
@@ -34,7 +34,7 @@ export async function deliverInboxNotifications(){
   for(const item of result.data){
    if(!z.string().uuid().safeParse(item.id).success||!supportRecipient(item))continue
    const email={...item,direction:'inbound'} as InboxEmail,state=contacts.get(contactForEmail(email))
-   const thread=threads.get(indexed.get(messageKey(email))||'')
+   const thread=readStates.get(messageKey(email))
    if(!state||!shouldNotify(state,email,thread))continue
    // Re-read consent immediately before queueing/delivery. Opting out takes effect on the next check.
    const current=await db.from('support_inbox_contacts').select('*').eq('user_id',owner).eq('contact',state.contact).single()
