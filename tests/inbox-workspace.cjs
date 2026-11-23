@@ -8,6 +8,7 @@ const email={id,from:'client@example.com',to:['support@koryx.ca'],direction:'inb
  const clean=html.cleanMailHtml(email.html)
  for(const danger of ['<script','<iframe','onclick','javascript:','background-image','position:'])assert(!clean.includes(danger),danger)
  for(const markup of ['<strong>bold</strong>','<em>italic</em>','<s>old</s>','cid:photo@client'])assert(clean.includes(markup),markup)
+ assert(!html.mailBody({...email,html:'<p style="color:rgb(0,0,0);font-weight:bold">Visible</p>'}).html.includes('color:rgb(0,0,0)'))
  let body=html.mailBody(email)
  assert(body.html.indexOf('Before')<body.html.indexOf('/api/inbox/'));assert(body.html.indexOf('/api/inbox/')<body.html.indexOf('After'))
  assert(body.html.includes('direction=inbound'));assert.deepEqual(body.inlineIds,[fileId]);assert(!body.html.includes('tracker.example'))
