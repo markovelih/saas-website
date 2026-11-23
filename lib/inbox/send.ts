@@ -6,6 +6,8 @@ import {readInboxEmail} from './server'
 import {MAX_MAIL_BYTES,MAX_MAIL_FILES,isSupportSnapshot,type SupportMailSnapshot} from './types'
 import {archivedEmail,storeMailFiles} from './archive'
 import {queueMail,deliverMail} from '@/lib/billing/outbox'
+import {saveHeaderRow} from './thread-store'
+import {messageKey} from './types'
 import {cleanMailHtml,mailBody} from './html'
 
 const fields=z.object({
@@ -31,11 +33,12 @@ export async function sendSupportEmail(form:FormData){
  if(uploads.reduce((size,file)=>size+file.size,0)>MAX_MAIL_BYTES)return {error:'Choose up to 10 files, 4 MB in total.'}
  if(!input.text&&!uploads.length)return {error:'Write a message or attach a file.'}
  if(uploads.some(file=>!file.size||!file.name.trim()))return {error:'Empty files cannot be attached.'}
- let to=input.to,subject=input.subject
+ let to=input.to,subject=input.subject,threadId='mail:outbound:'+input.requestId,replyKey:string|undefined
  const headers:Record<string,string>={}
  if(input.replyId){
   let original=await readInboxEmail(input.replyId,false,input.replyDirection)
   if(input.replyDirection==='outbound'&&!original.message_id){try{original=await readInboxEmail(input.replyId,false,'outbound',true)}catch{}}
+  threadId=original.thread_id||'mail:'+messageKey(original);replyKey=messageKey(original)
   const recipient=z.string().email().safeParse(mailbox(original.direction==='outbound'?original.to[0]:original.reply_to?.[0]||original.from))
   if(!recipient.success)return {error:'This message has no valid reply address.'}
   to=recipient.data;subject=/^re:/i.test(original.subject)?original.subject:'Re: '+original.subject
@@ -66,12 +69,13 @@ export async function sendSupportEmail(form:FormData){
   // Save immutable content and private files before contacting the mail provider.
   const savedFiles=await storeMailFiles(supabase,user.id,'outbound/'+input.requestId+'/'+digest,prepared)
   const snapshot:SupportMailSnapshot={kind:'support_email',version:1,direction:'outbound',idempotency_key:key,headers,
-   email:{id:input.requestId,from:payload.from,to:[to],subject,text:input.text,html,rich_version:1,created_at:new Date().toISOString(),attachments:[],direction:'outbound',loaded:true},files:savedFiles}
+   email:{id:input.requestId,from:payload.from,to:[to],subject,text:input.text,html,thread_id:threadId,reply_key:replyKey,draft_key:'outbound:'+input.requestId,in_reply_to:headers['In-Reply-To'],references:headers.References,rich_version:1,created_at:new Date().toISOString(),attachments:[],direction:'outbound',loaded:true},files:savedFiles}
   const job=await queueMail(supabase,{dedupe_key:'support-mail/outbound/'+user.id+'/'+input.requestId+'/'+digest,user_id:user.id,to_address:to,from_address:'support@koryx.ca',subject,html:'',snapshot,documents:'none'})
   const result=await deliverMail(supabase,job)
   if(result.error)return result
   const email=archivedEmail({...job,status:'sent',email_id:result.emailId||job.email_id})
   if(!email||!isSupportSnapshot(job.snapshot))return {error:'Email accepted; refresh and check Resend before retrying.',uncertain:true}
+  try{await saveHeaderRow(supabase,user.id,email,false)}catch{/* The immutable archive retains these links; list refresh rebuilds the index. */}
   const rendered=mailBody(email)
   return {success:true,emailId:result.emailId,email:{...email,body_html:rendered.html,inline_ids:rendered.inlineIds}}
  }catch(error){return {error:error instanceof Error?error.message:'The email could not be saved. Please retry.',uncertain:false}}

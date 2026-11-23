@@ -26,6 +26,11 @@ global.fetch=async(url,options)=>{
  db.contacts[0]={...pref,read_at:new Date(now).toISOString()};await notify.deliverInboxNotifications();assert.equal(sends.length,1,'Already read messages should not notify')
  db.contacts[0]={...pref,notify_since:new Date(now).toISOString()};await notify.deliverInboxNotifications();assert.equal(sends.length,1,'Enabling notifications does not send old history')
  db.contacts[0]={...pref};email.id='00000000-0000-4000-8000-000000000006';status=500;await assert.rejects(()=>notify.deliverInboxNotifications(),/retry/);status=200;await notify.deliverInboxNotifications();assert.equal(sends.at(-1).key,sends.at(-2).key)
+ const mutedId='00000000-0000-4000-8000-000000000007';email.id=mutedId;email.message_id='<read-thread@example.com>'
+ db.headers.push({user_id:owner,email_key:'inbound:'+mutedId,email:{...email,direction:'inbound',text:undefined,attachments:[]},checked:true})
+ db.threads.push({user_id:owner,thread_key:'rfc:<read-thread@example.com>',read_at:new Date(now).toISOString()})
+ const beforeRead=sends.length;await notify.deliverInboxNotifications();assert.equal(sends.length,beforeRead,'Read state suppresses only its own conversation')
+ email.id='00000000-0000-4000-8000-000000000008';email.message_id='<another-thread@example.com>';await notify.deliverInboxNotifications();assert.equal(sends.length,beforeRead+1,'Another unread conversation from the same person still notifies')
  const route=loader({'@/lib/inbox/notifications':{deliverInboxNotifications:async()=>({sent:0})}})('app/api/cron/inbox-notifications/route.ts'),prior=process.env.CRON_SECRET;process.env.CRON_SECRET='mock-cron'
  assert.equal((await route.GET(new Request('https://koryx.ca/api/cron/inbox-notifications'))).status,401);assert.equal((await route.GET(new Request('https://koryx.ca/api/cron/inbox-notifications',{headers:{authorization:'Bearer mock-cron'}}))).status,200)
  if(prior===undefined)delete process.env.CRON_SECRET;else process.env.CRON_SECRET=prior
