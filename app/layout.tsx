@@ -24,6 +24,7 @@ export const metadata: Metadata = {
   description: publicSearchPages['/'].description,
   authors: [{ name: 'Koryx' }],
   metadataBase: new URL(siteUrl),
+  verification: { google: 'HqyPNrhbt-asXvr_pn_3Gr-oKibXtO8sRIBXy3GqOPA' },
   applicationName:'Koryx',
   appleWebApp:{capable:true,title:'Koryx',statusBarStyle:'default'},
   icons: {
