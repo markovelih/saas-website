@@ -32,6 +32,8 @@ function mock(status=200,providerId=sentId){global.fetch=async(url,options)=>{re
  assert.deepEqual(payload.to,['prior-recipient@example.com'],'Replying to your own message must target the other person')
  original.message_id='<unsafe@example.com>\r\nBcc: other@example.com'
  await sendSupportEmail(form({replyId:id,text:'Safe headers'}));assert(!JSON.parse(requests.at(-1).options.body).headers)
+ const rich=await sendSupportEmail(form({text:'Formatted photo',html:'<p><b>Formatted photo</b></p><img src="cid:'+fileId+'"><script>bad()</script>',inlineIds:JSON.stringify([fileId])},[upload]));assert(rich.success)
+ payload=JSON.parse(requests.at(-1).options.body);assert(payload.html.includes('<b>Formatted photo</b>'));assert(!payload.html.includes('<script'));assert.equal(payload.attachments[0].content_id,fileId);assert.equal(rich.email.attachments[0].content_id,fileId);assert(rich.email.body_html.includes('/api/inbox/'));assert.deepEqual(rich.email.inline_ids,[rich.email.attachments[0].id])
  const count=requests.length,stored=db.rows.length
  for(const invalid of [form({to:'bad'}),form({subject:'Header\r\ninjection'}),form({text:''}),form({startedAt:String(Date.now()-24*3600000)}),form({startedAt:String(Date.now()+3600000)}),form({},[new File([''],'empty.txt')]),form({},[new File([new Uint8Array(4*1024*1024+1)],'large.zip')]),form({},Array.from({length:11},()=>upload))])assert((await sendSupportEmail(invalid)).error)
  assert.equal(requests.length,count);assert.equal(db.rows.length,stored)

@@ -3,6 +3,8 @@ import {readInboxPage,readInboxEmail} from '@/lib/inbox/server'
 import type {InboxCursor,MailDirection} from '@/lib/inbox/types'
 export async function loadInboxPage(after?:InboxCursor|string){return readInboxPage(after)}
 export async function loadInboxEmail(id:string,direction:MailDirection='inbound'){try{return {email:await readInboxEmail(id,true,direction)}}catch{return {error:'This email could not be opened. Please retry.'}}}
+export async function saveInboxContact(contact:string,input:unknown){const {updateContactState}=await import('@/lib/inbox/contacts');return updateContactState(contact,input)}
+export async function loadMailBody(emailId:string,direction:MailDirection,external=false){const {mailBody}=await import('@/lib/inbox/html');return mailBody(await readInboxEmail(emailId,true,direction),external)}
 
 import {z} from 'zod'
 import {founderClient} from '@/lib/supabase/admin'

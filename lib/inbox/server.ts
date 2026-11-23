@@ -2,6 +2,8 @@ import 'server-only'
 import {z} from 'zod'
 import {founderClient} from '@/lib/supabase/admin'
 import {archivedEmail,archivedFileBytes,findArchivedMail,readArchivedPage,saveImportedMail,storeMailFiles} from './archive'
+import {cleanMailHtml,mailBody} from './html'
+import {readContactStates} from './contacts'
 import {isPreviewImage,isSupportSnapshot,mailbox,mergeEmails,type InboxAttachment,type InboxCursor,type InboxEmail,type InboxPage,type MailDirection} from './types'
 const uuid=z.string().uuid()
 const cursorSchema=z.object({received:uuid.optional(),sent:uuid.optional(),receivedDone:z.boolean().optional(),sentDone:z.boolean().optional(),archiveOffset:z.number().int().min(0).max(100000).optional(),archiveDone:z.boolean().optional()})
@@ -22,7 +24,7 @@ type ProviderEmail=InboxEmail&{html?:string|null;headers?:Record<string,string>;
 function publicEmail(v:ProviderEmail,direction:MailDirection,detail=false):InboxEmail{
  return {id:v.id,from:v.from,to:v.to||[],subject:v.subject||'(No subject)',created_at:new Date(v.created_at).toISOString(),direction,
   attachments:(v.attachments||[]).filter(a=>uuid.safeParse(a.id).success).map(a=>({id:a.id,filename:a.filename||'Attachment',content_type:a.content_type||'application/octet-stream',size:a.size||0,content_id:a.content_id})),
-  ...(detail?{text:mailText(v.text,v.html),external_images:externalImages(v.html),loaded:true}:{}),
+  ...(detail?{text:mailText(v.text,v.html),html:cleanMailHtml(v.html),rich_version:1,external_images:externalImages(v.html),loaded:true}:{}),
   reply_to:v.reply_to||[],message_id:v.message_id,references:v.headers?.references||v.headers?.References,authentication:v.authentication,status:direction==='inbound'?'received':v.last_event||'sent'}
 }
 function supportedEmail(v:ProviderEmail,direction:MailDirection){return direction==='inbound'?supportRecipient(v):mailbox(v.from)==='support@koryx.ca'}
@@ -40,7 +42,8 @@ async function provider(path:string,direction:MailDirection='inbound'){
  return response.json()
 }
 function attachmentPreview(email:InboxEmail):InboxEmail{
- return {...email,attachments:email.attachments.map(a=>({...a,...(isPreviewImage(a.content_type)?{preview_url:'/api/inbox/'+email.id+'/attachments/'+a.id+'?preview=1&direction='+(email.direction||'inbound')}:{})}))}
+ const body=mailBody(email)
+ return {...email,body_html:body.html,inline_ids:body.inlineIds,attachments:email.attachments.map(a=>({...a,...(isPreviewImage(a.content_type)?{preview_url:'/api/inbox/'+email.id+'/attachments/'+a.id+'?preview=1&direction='+(email.direction||'inbound')}:{})}))}
 }
 export async function readInboxPage(after?:InboxCursor|string):Promise<InboxPage>{
  const {supabase,user}=await founderClient()
@@ -65,7 +68,9 @@ export async function readInboxPage(after?:InboxCursor|string):Promise<InboxPage
   try{const saved=await readArchivedPage(supabase,user.id,cursor.archiveOffset||0);groups.push(saved.emails);next.archiveOffset=(cursor.archiveOffset||0)+40;next.archiveDone=!saved.hasMore}
   catch{errors.push('Saved mail could not be loaded. Please retry.')}
  }
- return {emails:mergeEmails(...groups),cursor:next.received||null,hasMore:!next.receivedDone||!next.sentDone||!next.archiveDone,configured,canSend,next,...(errors.length?{error:errors.join(' ')}:{})}
+ let preferences={contacts:[] as import('./types').InboxContactState[],notificationEmail:''}
+ try{preferences=await readContactStates()}catch{errors.push('Mailbox preferences could not be loaded.')}
+ return {emails:mergeEmails(...groups),cursor:next.received||null,hasMore:!next.receivedDone||!next.sentDone||!next.archiveDone,configured,canSend,next,...preferences,...(errors.length?{error:errors.join(' ')}:{})}
 }
 async function attachmentList(id:string,direction:MailDirection){
  const items:InboxAttachment[]=[]
@@ -91,8 +96,10 @@ async function downloadedBytes(url:string){
 export async function readInboxEmail(id:string,withAttachments=true,direction:MailDirection='inbound',refresh=false):Promise<InboxEmail>{
  const {supabase,user}=await founderClient();uuid.parse(id);z.enum(['inbound','outbound']).parse(direction)
  const saved=await findArchivedMail(supabase,user.id,id,direction)
- if(saved&&!refresh){const email=archivedEmail(saved)!;return attachmentPreview(email)}
- const result=await provider('/'+id+(direction==='inbound'?'?html_format=cid':''),direction)
+ if(saved&&!refresh&&isSupportSnapshot(saved.snapshot)&&saved.snapshot.email.rich_version===1){const email=archivedEmail(saved)!;return attachmentPreview(email)}
+ let result:ProviderEmail
+ try{result=await provider('/'+id+(direction==='inbound'?'?html_format=cid':''),direction)}
+ catch(error){if(saved)return attachmentPreview(archivedEmail(saved)!);throw error}
  if(!supportedEmail(result,direction))throw Error('This email is not in the support inbox.')
  const email=publicEmail(result,direction,true)
  if(!withAttachments)return email
@@ -109,12 +116,12 @@ export async function readInboxEmail(id:string,withAttachments=true,direction:Ma
   for(const attachment of email.attachments){
    const found=listed.find(a=>a.id===attachment.id)
    const info=found?.download_url?found:await provider('/'+id+'/attachments/'+attachment.id,direction)
-   files.push({id:attachment.id,filename:attachment.filename,content_type:attachment.content_type,bytes:await downloadedBytes(verifiedAttachmentUrl(info.download_url,direction))})
+   files.push({id:attachment.id,filename:attachment.filename,content_type:attachment.content_type,content_id:attachment.content_id,bytes:await downloadedBytes(verifiedAttachmentUrl(info.download_url,direction))})
   }
   const stored=await storeMailFiles(supabase,user.id,direction+'/'+id,files)
   await saveImportedMail(supabase,user.id,email,stored)
  }catch{email.archive_error='The message could not be archived. Refresh to retry.'}
- return email
+ return attachmentPreview(email)
 }
 export async function attachmentDetails(emailId:string,attachmentId:string,direction:MailDirection='inbound'){
  const {supabase,user}=await founderClient();uuid.parse(emailId);uuid.parse(attachmentId);z.enum(['inbound','outbound']).parse(direction)

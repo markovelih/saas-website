@@ -1,8 +1,8 @@
 const {randomUUID}=require('node:crypto')
 module.exports=function mailDatabase(){
- const rows=[],objects=new Map(),events=[]
+ const rows=[],contacts=[],objects=new Map(),events=[]
  let bucket=null
- const db={rows,objects,events,
+ const db={rows,contacts,objects,events,
   storage:{
    async getBucket(){return {data:bucket,error:bucket?null:{statusCode:'404'}}},
    async createBucket(id,options){events.push('create-private-bucket');if(options.public)throw Error('Mail bucket must be private');bucket={id,public:false};return {data:bucket,error:null}},
@@ -12,22 +12,24 @@ module.exports=function mailDatabase(){
    }},
   },
   from(table){
-   if(table!=='billing_mail')throw Error('Unexpected table: '+table)
+   if(!['billing_mail','support_mail_index','support_inbox_contacts'].includes(table))throw Error('Unexpected table: '+table)
+   const records=table==='support_inbox_contacts'?contacts:rows
    let action='read',input,options={},filters=[],sort=[],offset=0,count=Infinity,promise
    const q={select(){return q},insert(value){action='insert';input=value;return q},upsert(value,valueOptions){action='upsert';input=value;options=valueOptions;return q},update(value){action='update';input=value;return q},
     eq(key,value){filters.push(row=>row[key]===value);return q},
+    not(key,operator,value){if(operator!=='is'||value!==null)throw Error('Unsupported test filter');filters.push(row=>row[key]!=null);return q},
     like(key,value){const prefix=value.replace(/%$/,'');filters.push(row=>String(row[key]).startsWith(prefix));return q},
     order(key,value){sort.push([key,value?.ascending!==false]);return q},
     range(start,end){offset=start;count=end-start+1;return q},limit(value){count=value;return q},
     single(){return run(true)},maybeSingle(){return run(true)},then(resolve,reject){return run(false).then(resolve,reject)}}
    function run(one){
     if(!promise)promise=Promise.resolve().then(()=>{
-     let matches=rows.filter(row=>filters.every(test=>test(row)))
+     let matches=records.filter(row=>filters.every(test=>test(row)))
      if(action==='insert'||action==='upsert'){
-      const old=rows.find(row=>row.dedupe_key===input.dedupe_key)
+      const old=records.find(row=>table==='support_inbox_contacts'?row.user_id===input.user_id&&row.contact===input.contact:row.dedupe_key===input.dedupe_key)
       if(old&&action==='insert')return {data:null,error:{code:'23505'}}
       if(old){if(!options.ignoreDuplicates)Object.assign(old,input);matches=[old]}
-      else{const row={id:randomUUID(),created_at:new Date().toISOString(),...input};rows.push(row);matches=[row]}
+      else{const row={id:randomUUID(),created_at:new Date().toISOString(),...(table==='support_inbox_contacts'?{pinned_at:null,archived_at:null,read_at:null,marked_unread:false,notify_since:null,updated_at:new Date().toISOString()}:{}),...input};records.push(row);matches=[row]}
       events.push('save-mail')
      }
      if(action==='update'){matches.forEach(row=>Object.assign(row,input));events.push('update-mail')}
