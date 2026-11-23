@@ -101,7 +101,7 @@
 .answers summary{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:20px;font-size:12px;padding:21px 0;cursor:pointer}
 .answers summary::-webkit-details-marker{display:none}
 .answers summary svg{color:var(--muted);flex-shrink:0;transition:transform .3s}
-.answers details[open] summary svg{transform:rotate(45deg)}
+.answers details[data-expanded=true] summary svg{transform:rotate(45deg)}
 .answers p{font-size:11px;line-height:1.9;color:var(--muted);margin:0 0 22px}
 .answers p a{text-decoration:underline;text-underline-offset:3px}
 .start{display:grid;grid-template-columns:1fr 1.25fr;gap:80px;padding:75px 64px;border-bottom:1px solid var(--line);scroll-margin-top:64px}

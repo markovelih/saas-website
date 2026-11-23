@@ -11,7 +11,7 @@ export function ExperienceLab() {
     <header className={s.intro}>
       <div className={s.introTop}><span className={s.eyebrow}>KORYX / THE WAY WE BUILD</span><span className={s.edition}>DESIGN. LOGIC. CONNECTION.</span></div>
       <div className={s.introBody}><h2 id="experience-title">Good design gets noticed.<br/><span>Great experiences get used.</span></h2><p>Your brand on the surface. Your business at the centre. We bring the details together to make something people want to use.</p></div>
-      <div className={s.introRail}><span><i/>Thoughtful by design</span><span>Purpose in every interaction</span><Link href="/pricing">A clear scope from the start <ArrowUpRight size={13}/></Link></div>
+      <div className={s.introRail}><span><i/>Thoughtful by design</span><span>Purpose in every interaction</span><Link href="/catalog">Explore the website catalog <ArrowUpRight size={13}/></Link></div>
     </header>
     <div className={s.grid}>
       <article className={s.card}>

@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label'
 import { AuthBackdrop } from '@/components/auth-backdrop'
 import { register,verifyRegistration } from '../actions'
 import { toast } from 'sonner'
+import { SocialSignIn } from '@/components/auth/social-sign-in'
 
 const countries = [
   { flag: '🇨🇦', code: '+1', name: 'Canada' },
@@ -293,6 +294,7 @@ export default function RegisterPage() {
               <p className="mt-2 text-sm leading-6 text-white/45">Enter your details and we’ll set up your client dashboard.</p>
             </div>
 
+
             {pendingEmail?<form action={async data=>{setIsLoading(true);setVerifyError('');data.set('email',pendingEmail);data.set('redirect',new URLSearchParams(window.location.search).get('redirect')||'/dashboard/new-order');try{const result=await verifyRegistration(data);if(result?.error)setVerifyError(result.error)}catch(error){if(error instanceof Error&&error.message==='NEXT_REDIRECT')throw error;setVerifyError('Connection interrupted. Please try again.')}finally{setIsLoading(false)}}} className="space-y-5"><h3 className="text-xl">Check your email.</h3><p className="text-sm text-white/50 break-words">We sent a confirmation code to {pendingEmail}. Enter it to finish registration.</p><label className="block text-sm text-white/70">Confirmation code<Input name="token" autoComplete="one-time-code" inputMode="numeric" pattern="[0-9]{6,8}" minLength={6} maxLength={8} required autoFocus className="h-14 text-xl tracking-[.25em] mt-3"/></label><Button disabled={isLoading} className="w-full h-12 bg-white text-black">{isLoading?'Confirming…':'Confirm email & continue'}</Button>{verifyError&&<p role="alert" className="text-sm text-red-300">{verifyError}</p>}<button type="button" className="text-sm text-white/50 hover:text-white" disabled={isLoading} onClick={()=>{if(lastForm.current)void handleSubmit(lastForm.current)}}>Resend confirmation code</button></form>:<form action={handleSubmit} className="space-y-5">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-white/85">Email address</Label>
@@ -373,6 +375,7 @@ export default function RegisterPage() {
                 )}
               </Button>
             </form>}
+            {!pendingEmail && <SocialSignIn registration />}
 
             <div className="mt-8 border-t border-white/[0.1] pt-6">
               <p className="text-sm text-white/40">
