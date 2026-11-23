@@ -1,6 +1,7 @@
+import { pageMetadata, publicSearchPages } from '@/lib/seo'
 import Link from 'next/link'
 import {LegalPage} from '@/components/legal/legal-page'
-export const metadata={title:'Privacy policy | Koryx'}
+export const metadata = pageMetadata('/privacy', publicSearchPages['/privacy'])
 export default function Privacy(){return <LegalPage title="Privacy policy">
 <section><h2>Who is responsible</h2><p>Artem Pasieka operates Koryx and is responsible for the personal information used to provide its website and development services. For privacy requests, contact the privacy contact at <a href="mailto:support@koryx.ca">support@koryx.ca</a>.</p></section>
 <section><h2>Information we collect and why</h2><ul><li>Account details: your name, email and optional phone or country, to authenticate you, secure your account and communicate about your services.</li><li>Project information: briefs, references, selected services, budget, feedback and files you provide, to estimate and deliver the work you request.</li><li>Billing information: name, billing address, invoice items, discounts, amounts, payment identifiers, status and renewal dates, to process payments, maintain records and resolve disputes.</li><li>Technical information: necessary session cookies, security logs and limited request information for abuse prevention and service operation.</li></ul><p>Please provide only information needed for your project. Do not send passwords, full card details or sensitive personal information in briefs or chat.</p></section>

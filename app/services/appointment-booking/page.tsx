@@ -1,4 +1,5 @@
 import { ServiceExperience } from '@/components/services/service-experience'
-import {serviceBySlug} from '@/components/services/catalog'
-export const metadata = {title: 'Booking systems | Koryx',description:serviceBySlug('appointment-booking')?.summary}
-export default function Page(){return <ServiceExperience slug='appointment-booking'/>}
+import { serviceMetadata } from '@/lib/seo'
+import { ServiceData } from '@/components/seo/structured-data'
+export const metadata = serviceMetadata('appointment-booking')
+export default function Page(){return <><ServiceData slug="appointment-booking"/><ServiceExperience slug='appointment-booking'/></>}

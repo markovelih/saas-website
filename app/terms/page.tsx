@@ -1,7 +1,8 @@
+import { pageMetadata, publicSearchPages } from '@/lib/seo'
 import Link from 'next/link'
 import {LegalPage} from '@/components/legal/legal-page'
 import {paymentPolicy,cancellationPolicy} from '@/lib/payments/policy'
-export const metadata={title:'Terms of service | Koryx'}
+export const metadata = pageMetadata('/terms', publicSearchPages['/terms'])
 export default function Terms(){return <LegalPage title="Terms of service">
 <section><h2>Your agreement with Koryx</h2><p>Koryx is the business brand of Artem Pasieka. We provide custom website design, development, applications, integrations and related services. These terms apply together with your written project agreement and invoice. You must have authority to order the work for yourself or your business.</p><p>Before paying, review the itemized scope, agreed price, any discounts, intended start and completion dates, delivery arrangements and payment schedule. Ask us to clarify or correct anything that is missing. Planner estimates and design concepts are illustrative; they do not guarantee a final price, business result or delivery date.</p></section>
 <section><h2>Scope, review and delivery</h2><p>The written project scope defines included pages, features, revisions and deliverables. Additional features or scope changes require agreement in writing. Please supply content and feedback in time; delays or third-party limitations may require a revised schedule agreed with you.</p><p>We provide working previews for review. Report issues against the agreed scope before approving the finished work. Delivery, source-code handover, licensing, ongoing support and any third-party charges must be specified in the project agreement. Third-party assets and software remain subject to their own licences.</p></section>

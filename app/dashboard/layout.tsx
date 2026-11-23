@@ -1,3 +1,5 @@
+import type { Metadata } from 'next'
+export const metadata: Metadata = { robots: { index: false, follow: false } }
 import {workspaceSession,isFounder} from '@/lib/workspace'
 import {cookies} from 'next/headers'
 import {FounderLanguageProvider} from '@/components/manager/language'
