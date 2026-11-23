@@ -34,6 +34,14 @@ function tags(html, tag) {
     if (path.startsWith('/services/')) assert(schemas.some(s => s['@type'] === 'Service' && s.url === url), path)
     console.log(`200 + canonical + indexable HTML: ${path}`)
   }
+  for (const mode of ['buyout', 'managed']) {
+    const res = await fetch(`${base}/pricing?mode=${mode}`, { headers: { 'user-agent': 'Googlebot' } })
+    assert.equal(res.status, 200)
+    const html = await res.text()
+    assert(html.includes('<h1>'), `Pricing must render without JavaScript: ${mode}`)
+    assert(html.includes(mode === 'managed' ? 'CAD / month · preliminary service estimate' : 'CAD · indicative development cost'), `Server-rendered pricing mode: ${mode}`)
+    assert.equal(new URL(tags(html, 'link').find(l => l.rel === 'canonical').href).href, 'https://koryx.ca/pricing')
+  }
   const robots = await fetch(`${base}/robots.txt`)
   assert.equal(robots.status, 200)
   assert((await robots.text()).includes('Sitemap: https://koryx.ca/sitemap.xml'))
