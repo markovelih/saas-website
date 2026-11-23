@@ -50,7 +50,7 @@ function DesignScene() {
 function JourneyScene() {
   return <div className={s.journeyCanvas} aria-hidden="true">
     <span className={s.routeLabel}>THE CUSTOMER JOURNEY</span>
-    <svg viewBox="0 0 600 310" preserveAspectRatio="none"><SignalPath d="M116 144H286" tone="blue" duration={6.6}/><SignalPath d="M314 144H484" tone="cyan" duration={6.6} delay={-3.3}/><path d="M496 184V203Q496 224 474 224H126Q104 224 104 203V184" className={s.returnPath}/><SignalPath d="M496 184V203Q496 224 474 224H126Q104 224 104 203V184" tone="violet" duration={11} delay={-2} wire={false}/></svg>
+    <svg viewBox="0 0 600 310" preserveAspectRatio="none"><SignalPath d="M116 144H286" tone="blue" duration={6.6}/><SignalPath d="M314 144H484" tone="cyan" duration={6.6}/><path d="M496 184V203Q496 224 474 224H126Q104 224 104 203V184" className={s.returnPath}/><SignalPath d="M496 184V203Q496 224 474 224H126Q104 224 104 203V184" tone="violet" duration={6.6} wire={false}/></svg>
     <div className={`${s.journeyNode} ${s.discover}`}><span><MousePointer2 size={22} strokeWidth={1.2}/></span><strong>Discover</strong><small>A reason to stay</small></div>
     <div className={`${s.journeyNode} ${s.decide}`}><span><FileText size={22} strokeWidth={1.2}/></span><strong>Understand</strong><small>A clear next step</small></div>
     <div className={`${s.journeyNode} ${s.act}`}><span><Check size={23} strokeWidth={1.4}/></span><strong>Take action</strong><small>A useful outcome</small></div>

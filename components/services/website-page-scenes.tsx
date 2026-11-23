@@ -44,6 +44,6 @@ export function FoundationScene(){return <MotionSurface className={s.foundationS
 </MotionSurface>}
 
 export function LaunchScene(){return <MotionSurface className={s.launchScene} label="An illustrated launch window for your next website">
- <svg viewBox="0 0 600 110" fill="none" aria-hidden="true"><path d="M70 0V40Q70 76 106 76H494Q530 76 530 40V0" stroke="#282828"/><SignalPath d="M70 0V40Q70 76 106 76H300" tone="violet" duration={4}/><SignalPath d="M530 0V40Q530 76 494 76H300" tone="cyan" duration={4} delay={-2}/></svg>
+ <svg viewBox="0 0 600 110" fill="none" aria-hidden="true"><path d="M70 0V40Q70 76 106 76H494Q530 76 530 40V0" stroke="#282828"/><SignalPath d="M70 0V40Q70 76 106 76H300" tone="violet" duration={4}/><SignalPath d="M530 0V40Q530 76 494 76H300" tone="cyan" duration={4}/></svg>
  <div className={s.launchAddress}><KoryxMark/><span>YOUR NEXT CHAPTER</span><ArrowUpRight size={19}/></div>
 </MotionSurface>}

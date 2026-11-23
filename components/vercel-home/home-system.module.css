@@ -7,3 +7,5 @@
 .blueprint{--motion-line:var(--home-line);--motion-blue:#329cff;--motion-cyan:#30a8a6;--motion-violet:#9683d1;--motion-amber:#c9a356}.blueprintCanvas>svg{stroke:none}.foundationVisual>svg{stroke:var(--home-strong)}
 :global([data-workspace-theme=light]) .blueprint{--motion-blue:#237ac5;--motion-cyan:#238383;--motion-violet:#7560a8;--motion-amber:#9d782d}
 @media(prefers-reduced-motion:reduce){.blueprint *,.foundationVisual *{animation:none!important;transition:none!important}}
+
+.catalogEntry{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:24px 52px;border-top:1px solid var(--home-line)}.catalogEntry p{font-size:12px;line-height:1.7;color:var(--home-muted)}.catalogEntry a{display:inline-flex;align-items:center;gap:10px;font-size:12px;white-space:nowrap}.frame .catalogEntry{padding-inline:52px}@media(max-width:700px){.frame .catalogEntry{padding:22px 24px;align-items:flex-start;flex-direction:column;gap:14px}}

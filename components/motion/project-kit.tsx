@@ -7,7 +7,7 @@ import {MotionSurface,KoryxMark} from './motion-primitives'
 import s from './project-kit.module.css'
 
 export function ProjectKit(){const [open,setOpen]=useState(false);const id=useId();return <section className={s.kitSection} id="handover">
- <div className={s.kitCopy}><span>THE FINISH IS PART OF THE EXPERIENCE</span><h2>Your next chapter.<br/>Ready to open.</h2><p>A website is more than a link. The agreed project, review notes and practical handover should feel like one considered whole.</p><Link href="/process">Explore how we work <ArrowRight size={15}/></Link><small>Interactive handover concept · explore the details.</small></div>
+ <div className={s.kitCopy}><span>FROM BRIEF TO HANDOVER</span><h2>Your project.<br/>Ready to use.</h2><p>Your project brief, review notes and launch details, together in your workspace.</p><Link href="/process">Explore how we work <ArrowRight size={15}/></Link><small>Interactive project kit.</small></div>
  <MotionSurface className={s.kitStage} interactive label="Interactive Koryx project handover kit"><div className={s.stageLabel}><span>KORYX / PROJECT EDITION</span><span>MOVE / OPEN / EXPLORE</span></div>
   <div className={s.kitPerspective} data-open={open}><div className={s.book}>
    <div className={s.pageEdges}/>

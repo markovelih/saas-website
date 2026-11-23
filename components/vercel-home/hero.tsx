@@ -34,16 +34,14 @@ export function Hero() {
           </div>
 
           <h1 id="home-hero-title" className={`site-hero-heading ${s.heading}`}>
-            Websites. Apps.
+            Websites &amp; software.
             <br />
-            Custom software.
-            <br />
-            Built for you.
+            Built for your business.
           </h1>
 
           <p className={s.description}>
             Custom website design and software development for businesses in Canada
-            and the United States. From your first idea to launch, built around you.
+            and the United States. Design, development and launch, handled by one team.
           </p>
 
           <div className={s.actions}>
