@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "test:upload-security": "node tests/upload-security.cjs && node tests/project-api.cjs && node tests/internal-trigger-security.mjs",
     "test:billing-pdf": "node tests/compact-billing-pdf.cjs",
     "test:support-inbox": "node tests/inbox.cjs && node tests/support-mail.cjs && node tests/inbox-workspace.cjs && node tests/inbox-notifications.cjs && node tests/inbox-preferences-postgres.cjs && node tests/mail-threads.cjs && node tests/mail-thread-index.cjs",
     "test:truck-scanner": "node tests/truck-scanner.mjs",

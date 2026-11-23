@@ -51,8 +51,8 @@ export function Hero() {
               </svg>
               Start Your Project
             </Link>
-            <Link href="#services" className={s.secondary}>
-              View Services
+            <Link href="/catalog" className={s.secondary}>
+              Explore our work
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
