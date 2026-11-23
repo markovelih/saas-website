@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { SmoothDetails } from '@/components/ui/smooth-details'
 import {ArrowRight,Plus,RefreshCw,Search} from 'lucide-react'
 import {serviceBySlug,serviceCatalog} from './catalog'
 import {projectTypes} from '@/lib/project-planner/catalog'
@@ -14,7 +15,7 @@ export function ServiceExperience({slug}:{slug:string}){
  return <div className={s.page} data-service={service.kind}><div className={s.frame}>
   <SignatureChapters service={service} actions={<><Link href={`/dashboard/new-order?intent=build&type=${service.kind==='commerce'?'store':service.kind==='software'||service.kind==='dashboard'?'app':service.kind==='website'||service.kind==='booking'?'website':'feature'}`}>Plan your project <ArrowRight size={13}/></Link><Link href="/pricing">Explore budgets</Link></>}/>
   <section className={s.process}><div className={s.sectionHeading}><span className={s.eyebrow}>Working together</span><h2>A clear scope. A considered process.</h2></div><div className={s.processGrid}>{[['01','Agree & begin.','Review your quote and scope. Pay 50% to begin, or choose full payment upfront.'],['02','Explore & refine.','Try the working preview. Review the agreed milestones and share your feedback.'],['03','Approve & launch.','Approve the finished work and pay the remaining 50% yourself before final handover.']].map(([n,title,body])=><div key={n}><span>{n}</span><h3>{title}</h3><p>{body}</p></div>)}</div><p className={s.terms}>For voluntary cancellation, the 50% deposit is retained; if paid in full, the remaining 50% is refundable, subject to mandatory legal rights. <Link href="/terms">Payment & cancellation terms</Link>. Domains, hosting and provider fees are separate unless quoted.</p></section>
-  <section className={s.faq} id="questions"><div><span className={s.eyebrow}>Before we start</span><h2>Useful answers.<br/>Clear expectations.</h2></div><div>{questions.map(([q,a])=><details key={q}><summary>{q}<Plus size={16}/></summary><p>{a}</p></details>)}</div></section>
+  <section className={s.faq} id="questions"><div><span className={s.eyebrow}>Before we start</span><h2>Useful answers.<br/>Clear expectations.</h2></div><div>{questions.map(([q,a])=><SmoothDetails key={q}><summary>{q}<Plus size={16}/></summary><p>{a}</p></SmoothDetails>)}</div></section>
   <section className={s.closing}><BrandMark/><h2>Let’s build your next chapter.</h2><p>{service.brief}</p><Actions slug={slug}/></section>
   <div className={s.related}>{related.map(item=><Link href={`/services/${item.slug}`} key={item.slug}>{item.label}<ArrowRight size={14}/></Link>)}</div>
  </div></div>

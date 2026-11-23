@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { SmoothDetails } from '@/components/ui/smooth-details'
 import { motion, useReducedMotion } from 'framer-motion'
 import { ArrowRight, Check, Globe, Layers, ShoppingBag, CalendarCheck, Workflow, ShieldCheck, Code2, Search } from 'lucide-react'
 import type { ReactNode } from 'react'
@@ -80,7 +81,7 @@ export function ProcessSection() {
 }
 
 export function FAQSection() {
-  return <section id="faq" className={s.section}><div className={s.wrap}><Reveal><p className={`${s.eyebrow} text-center`}>Before we start</p><h2 className={`${s.heading} text-center mb-12`}>Good questions.<br /><span className="text-white/40">Clear answers.</span></h2><div className={s.faq}>{faqs.map(([q,a])=><details key={q}><summary>{q}</summary><p>{a}</p></details>)}</div></Reveal></div></section>
+  return <section id="faq" className={s.section}><div className={s.wrap}><Reveal><p className={`${s.eyebrow} text-center`}>Before we start</p><h2 className={`${s.heading} text-center mb-12`}>Good questions.<br /><span className="text-white/40">Clear answers.</span></h2><div className={s.faq}>{faqs.map(([q,a])=><SmoothDetails key={q}><summary>{q}</summary><p>{a}</p></SmoothDetails>)}</div></Reveal></div></section>
 }
 
 export function PricingContent() { return <BudgetPricing/> }

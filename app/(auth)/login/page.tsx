@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label'
 import { AuthBackdrop } from '@/components/auth-backdrop'
 import { login } from '../actions'
 import { toast } from 'sonner'
+import { SocialSignIn } from '@/components/auth/social-sign-in'
 
 export default function LoginPage() {
   const router=useRouter()
@@ -126,6 +127,7 @@ export default function LoginPage() {
                 )}
               </Button>
             </form>
+            <SocialSignIn />
 
             {/* Footer */}
             <p className="text-center text-sm text-muted-foreground mt-6">

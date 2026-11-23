@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react'
 const groups={
  Services:[['Websites','/services/business-websites'],['Apps & software','/services/custom-software'],['E-commerce','/services/e-commerce'],['Booking systems','/services/appointment-booking']],
  Capabilities:[['Dashboards & portals','/services/client-dashboards'],['Integrations & features','/services/integrations'],['Performance & SEO','/services/seo-speed'],['Security & launch','/services/security']],
- Koryx:[['Design concepts','/work'],['Our process','/process'],['Project pricing','/pricing'],['FAQ','/faq']],
+ Koryx:[['Website catalog','/catalog'],['Design concepts','/work'],['Our process','/process'],['Project pricing','/pricing'],['FAQ','/faq']],
  Legal:[['Privacy policy','/privacy'],['Terms of service','/terms'],['Cancellation & refunds','/refunds'],['Cookies & preferences','/cookies'],['Contact & support','/contact']],
  Clients:[['Start a project','/dashboard/new-order'],['Client login','/login'],['Create an account','/register'],['Your projects','/dashboard/orders']],
 }

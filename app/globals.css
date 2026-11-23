@@ -388,3 +388,12 @@ input:focus, textarea:focus, select:focus {
 
 /* Keep route and section scroll targets clear of the public fixed header. */
 html:has([data-site-header]) { scroll-padding-top: 80px; }
+
+/* Disclosure icons follow the target state while native content animates shut. */
+[data-smooth-details] { box-sizing: border-box; display: flow-root; }
+[data-smooth-details] > summary::-webkit-details-marker { display: none; }
+[data-smooth-details] > summary::marker { content: ''; }
+[data-smooth-details] > summary svg { transition: transform .48s cubic-bezier(.22,1,.36,1), color .3s; }
+@media (prefers-reduced-motion: reduce) {
+  [data-smooth-details] > summary svg, [data-smooth-details] > summary::after { transition: none !important; }
+}
