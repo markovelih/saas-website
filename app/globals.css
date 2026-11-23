@@ -367,7 +367,24 @@ input:focus, textarea:focus, select:focus {
   border-color: var(--ws-strong-line, #777) !important;
 }
 
-:focus-visible { outline-color: var(--foreground) !important; }
+/* Quiet keyboard focus; pointer clicks and programmatic dialog focus do not
+   add a bright frame to an entire window or control. */
+:root :is(button, a, summary, [role="button"], [tabindex]):focus:not(:focus-visible) {
+  outline: none !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+}
+:root :is(button, a, summary, [role="button"], [tabindex]):focus-visible {
+  outline: 1px solid var(--ws-muted, #777) !important;
+  outline-offset: 3px;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+}
+:root [role="dialog"]:focus, :root [data-slot="dialog-content"]:focus {
+  outline: none !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+}
 
 /* Keep route and section scroll targets clear of the public fixed header. */
 html:has([data-site-header]) { scroll-padding-top: 80px; }
