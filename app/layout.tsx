@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from 'next'
+import { publicSearchPages, siteUrl } from '@/lib/seo'
+import { OrganizationData } from '@/components/seo/structured-data'
 import { Geist, Geist_Mono, Montserrat } from 'next/font/google'
 import {PrivacyControls} from '@/components/legal/cookie-preferences'
 import {ThemeProvider,SiteToaster} from '@/components/theme-provider'
@@ -18,11 +20,10 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Koryx | Custom Websites, Apps & Software',
-  description: 'Order a custom website, SaaS application, or software for your business. Koryx handles design, development, integrations, and launch.',
-  keywords: ['web development', 'web design', 'custom websites', 'e-commerce', 'digital agency'],
+  title: publicSearchPages['/'].title,
+  description: publicSearchPages['/'].description,
   authors: [{ name: 'Koryx' }],
-  metadataBase: new URL('https://koryx.ca'),
+  metadataBase: new URL(siteUrl),
   applicationName:'Koryx',
   appleWebApp:{capable:true,title:'Koryx',statusBarStyle:'default'},
   icons: {
@@ -31,8 +32,10 @@ export const metadata: Metadata = {
     apple: [{ url: '/brand/apple-touch-icon.png', type: 'image/png', sizes: '180x180' }],
   },
   openGraph: {
-    title: 'Koryx | Custom Websites, Apps & Software',
-    description: 'Custom websites, applications, and software built for your business.',
+    title: publicSearchPages['/'].title,
+    description: publicSearchPages['/'].description,
+    siteName: 'Koryx',
+    locale: 'en_CA',
     type: 'website',
   },
 }
@@ -56,7 +59,7 @@ export default function RootLayout({
       <body className="font-sans antialiased min-h-screen">
         <ThemeProvider attribute="data-workspace-theme" defaultTheme="system" enableSystem enableColorScheme storageKey="koryx-theme" disableTransitionOnChange><SiteTypography>{children}</SiteTypography>
         <SiteToaster/>
-        <PrivacyControls/></ThemeProvider>
+        <PrivacyControls/><OrganizationData/></ThemeProvider>
       </body>
     </html>
   )

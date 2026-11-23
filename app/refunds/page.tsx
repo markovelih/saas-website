@@ -1,7 +1,8 @@
+import { pageMetadata, publicSearchPages } from '@/lib/seo'
 import Link from 'next/link'
 import {LegalPage} from '@/components/legal/legal-page'
 import {cancellationPolicy} from '@/lib/payments/policy'
-export const metadata={title:'Cancellation & refund policy | Koryx'}
+export const metadata = pageMetadata('/refunds', publicSearchPages['/refunds'])
 export default function Refunds(){return <LegalPage title="Cancellation & refunds">
 <section><h2>Custom projects</h2><p>{cancellationPolicy}</p><p>The 50% retention policy applies to voluntary cancellation of the agreed custom project, subject to applicable law and your written project agreement. It does not override rights arising from non-delivery, misleading representations, defective services or other legally protected circumstances.</p></section>
 <section><h2>How to request cancellation</h2><p>Email <a href="mailto:support@koryx.ca">support@koryx.ca</a> with your project or invoice number and the services you wish to cancel. Do not include card numbers or security codes. We review the work and payments already recorded, the written scope and applicable rights, then confirm the outcome in writing. You do not have to waive statutory rights to make a request.</p></section>

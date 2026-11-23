@@ -42,8 +42,8 @@ export function Hero() {
           </h1>
 
           <p className={s.description}>
-            Tell us what your business needs. Koryx designs, develops, and launches
-            your website or application — with every detail built around you.
+            Custom website design and software development for businesses in Canada
+            and the United States. From your first idea to launch, built around you.
           </p>
 
           <div className={s.actions}>
