@@ -1,6 +1,6 @@
 'use client'
 import {useEffect,useMemo,useRef,useState,useSyncExternalStore} from 'react'
-import {Mail,RefreshCw,Paperclip,ArrowLeft,Loader2,Reply,SquarePen,ArrowUpRight,Pin,PinOff,Archive,ArchiveRestore,MailOpen,Bell,Repeat2} from 'lucide-react'
+import {Mail,RefreshCw,Paperclip,ArrowLeft,Loader2,Reply,SquarePen,ArrowUpRight,Pin,PinOff,Archive,ArchiveRestore,MailOpen,Bell} from 'lucide-react'
 import {loadInboxPage,loadInboxEmail,saveInboxContact,loadMailBody} from '@/app/dashboard/inbox/actions'
 import {contactForEmail,mergeEmails,messageKey,type InboxEmail,type InboxPage,type InboxContactState} from '@/lib/inbox/types'
 import {mailConversations,matchesMailTab,type MailTab} from '@/lib/inbox/conversations'
@@ -22,7 +22,7 @@ function EmailContent({email}:{email:InboxEmail}){
  </>
 }
 
-type Draft={kind:'new';to?:string}|{kind:'reply'|'resend';email:InboxEmail}
+type Draft={kind:'new';to?:string}|{kind:'reply';email:InboxEmail}
 const subscribe=()=>()=>{}
 const tabs:[MailTab,string][]=[['inbox','Inbox'],['new','Awaiting reply'],['unread','Unread'],['pinned','Pinned'],['sent','Sent'],['archive','Archive'],['all','All mail']]
 export function SupportInbox({initial,initialEmail}:{initial:InboxPage;initialEmail?:InboxEmail}){
@@ -32,10 +32,10 @@ export function SupportInbox({initial,initialEmail}:{initial:InboxPage;initialEm
  const [states,setStates]=useState<InboxContactState[]>(initial.contacts||[]),[tab,setTab]=useState<MailTab>('inbox')
  const [selected,setSelected]=useState(initialEmail?contactForEmail(initialEmail):''),[search,setSearch]=useState(''),[messageSearch,setMessageSearch]=useState('')
  const [busy,setBusy]=useState(false),[loading,setLoading]=useState(false),[saving,setSaving]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('')
- const [compose,setCompose]=useState<Draft|null>(null)
+ const [compose,setCompose]=useState<Draft|null>(null),[quickVersion,setQuickVersion]=useState(0),[quickDirty,setQuickDirty]=useState(false)
  const [details,setDetails]=useState<Record<string,InboxEmail>>(()=>initialEmail?{[messageKey(initialEmail)]:{...initialEmail,loaded:true}}:{})
  const cache=useRef(details),[messageErrors,setMessageErrors]=useState<Record<string,string>>({})
- const sequence=useRef(0),log=useRef<HTMLDivElement>(null)
+ const sequence=useRef(0),log=useRef<HTMLDivElement>(null),quickBox=useRef<HTMLDivElement>(null)
  // Server and browser may have different Vancouver timezone data. Hydrate a shared UTC value first.
  const date=(value:string)=>new Intl.DateTimeFormat(language==='uk'?'uk-UA':'en-CA',{dateStyle:'medium',timeStyle:'short',timeZone:browserTime?'America/Vancouver':'UTC'}).format(new Date(value))+(browserTime?'':' UTC')
  const conversations=useMemo(()=>mailConversations(page.emails,states),[page.emails,states])
@@ -92,18 +92,18 @@ export function SupportInbox({initial,initialEmail}:{initial:InboxPage;initialEm
    if(selected)await open(selected,emails)
   }catch{setError('Incoming mail could not be loaded. Please retry.')}finally{setBusy(false)}
  }
- function sent(email:InboxEmail){remember(email);setCompose(null);setSelected(contactForEmail(email));setNotice('Email sent from support@koryx.ca.');requestAnimationFrame(()=>log.current?.scrollTo({top:log.current.scrollHeight,behavior:'smooth'}))}
- async function draftFor(kind:'reply'|'resend',meta:InboxEmail){
+ function sent(email:InboxEmail){remember(email);setCompose(null);setQuickDirty(false);setQuickVersion(value=>value+1);setSelected(contactForEmail(email));setNotice('Email sent from support@koryx.ca.');requestAnimationFrame(()=>log.current?.scrollTo({top:log.current.scrollHeight,behavior:'smooth'}))}
+ async function draftFor(kind:'reply',meta:InboxEmail){
   if(!await loadMessage(meta))return
   setNotice('');setCompose({kind,email:cache.current[messageKey(meta)]||meta})
  }
- const composer=compose&&<InboxComposer key={compose.kind+(compose.kind==='new'?compose.to||'':messageKey(compose.email))} reply={compose.kind==='reply'?compose.email:undefined} seed={compose.kind==='resend'?compose.email:undefined} defaultTo={compose.kind==='new'?compose.to:undefined} onClose={()=>setCompose(null)} onSent={sent}/>
+ const composer=compose&&<InboxComposer key={compose.kind+(compose.kind==='new'?compose.to||'':messageKey(compose.email))} reply={compose.kind==='reply'?compose.email:undefined} defaultTo={compose.kind==='new'?compose.to:undefined} onClose={()=>setCompose(null)} onSent={sent}/>
  return <div className={`${s.shell} ${m.mailbox}`}>
   <header className={s.header}>
    <div><p className={s.eyebrow}>Koryx / support@koryx.ca</p><h1 className={s.title}>{t('Support inbox')}</h1><p className={s.muted}>{t('Your incoming messages, replies and files. One conversation per person.')}</p></div>
    <div className="flex gap-3 flex-wrap">
-    <button type="button" className={s.primary} disabled={!page.canSend||Boolean(compose)} onClick={()=>{setNotice('');setCompose({kind:'new'})}}><SquarePen size={15}/>{t('New email')}</button>
-    <button type="button" className={s.secondary} disabled={busy||loading} onClick={()=>reload()}>{busy?<Loader2 size={15} className={s.spin}/>:<RefreshCw size={15}/>} {t('Refresh inbox')}</button>
+    <button type="button" className={s.primary} disabled={!page.canSend||Boolean(compose)||quickDirty} onClick={()=>{setNotice('');setCompose({kind:'new'})}}><SquarePen size={15}/>{t('New email')}</button>
+    <button type="button" className={s.secondary} disabled={busy||loading||quickDirty} onClick={()=>reload()}>{busy?<Loader2 size={15} className={s.spin}/>:<RefreshCw size={15}/>} {t('Refresh inbox')}</button>
    </div>
   </header>
   {notice&&<p role="status" className={s.message+' mb-5'}>{t(notice)}</p>}
@@ -115,26 +115,26 @@ export function SupportInbox({initial,initialEmail}:{initial:InboxPage;initialEm
   <div className={s.inboxGrid}>
    <section id="mail-thread-list" aria-label={t('Conversations')} className={s.panel+' '+(selected?'hidden lg:block':'')}>
     <label className={s.field+' mb-5'}><span className="sr-only">{t('Search mail')}</span><input value={search} placeholder={t('Search sender or subject…')} onChange={event=>setSearch(event.target.value)}/></label>
-    <div className={m.list}>{filtered.map(thread=><button type="button" key={thread.contact} disabled={Boolean(compose)} onClick={()=>open(thread.contact)} aria-pressed={selected===thread.contact} className={m.thread+' '+(thread.unread?m.unread:'')}>
+    <div className={m.list}>{filtered.map(thread=><button type="button" key={thread.contact} disabled={Boolean(compose)||quickDirty} onClick={()=>open(thread.contact)} aria-pressed={selected===thread.contact} className={m.thread+' '+(thread.unread?m.unread:'')}>
      <div className="flex items-center gap-2"><p className="text-xs text-white/65 truncate flex-1">{thread.contact}</p>{thread.state?.notify_since&&<Bell size={12} aria-label={t('Notifications enabled')}/>} {thread.state?.pinned_at&&<Pin size={13} aria-label={t('Pinned')}/>} {thread.unread&&<span className={m.dot} aria-label={t('Unread')}/>}</div>
      <h2>{thread.latest.subject}</h2><div className={m.threadMeta}><time>{date(thread.latest.created_at)}</time><span>· {thread.messages.length}</span>{thread.messages.some(email=>email.attachments.length>0)&&<Paperclip size={12}/>}</div>
      {thread.latest.direction==='outbound'&&<p className="text-[11px] text-white/45 mt-2 flex gap-1 items-center"><ArrowUpRight size={11}/>{t('You sent the last message')}</p>}
     </button>)}</div>
     {!filtered.length&&<div className={m.empty}><Mail size={26} className="mx-auto mb-4"/><p>{t('No messages in this view.')}</p></div>}
-    {page.hasMore&&<button type="button" className={s.secondary+' mt-5 w-full'} disabled={busy||Boolean(compose)} onClick={()=>reload(true)}>{t('Older messages')}</button>}
+    {page.hasMore&&<button type="button" className={s.secondary+' mt-5 w-full'} disabled={busy||Boolean(compose)||quickDirty} onClick={()=>reload(true)}>{t('Older messages')}</button>}
     <p className={m.footer}>{t('Counts and search cover loaded conversations. Load older messages for more history.')}</p>
    </section>
    <section className={s.panel+' '+(selected?'':'hidden lg:block')+' !min-w-0'}>
-    <button type="button" className={s.secondary+' lg:!hidden mb-5'} disabled={Boolean(compose)} onClick={()=>{sequence.current++;setSelected('');setLoading(false)}}><ArrowLeft size={14}/>{t('Back to messages')}</button>
+    <button type="button" className={s.secondary+' lg:!hidden mb-5'} disabled={Boolean(compose)||quickDirty} onClick={()=>{sequence.current++;setSelected('');setLoading(false)}}><ArrowLeft size={14}/>{t('Back to messages')}</button>
     {active?<>
      <div className="flex gap-4 items-start justify-between flex-wrap"><div className="min-w-0"><p className={s.eyebrow}>{t('Email conversation')}</p><h2 className="!text-xl [overflow-wrap:anywhere]">{active.contact}</h2><p className={s.notice+' mt-2'}>{active.messages.length} {t('messages')}</p></div>
-      <button type="button" className={s.primary} disabled={!page.canSend||Boolean(compose)} onClick={()=>setCompose({kind:'new',to:active.contact})}><SquarePen size={15}/>{t('Write to contact')}</button>
+      <button type="button" className={s.primary} disabled={!page.canSend||Boolean(compose)||loading} onClick={()=>quickBox.current?.querySelector<HTMLElement>('[role="textbox"]')?.focus()}><SquarePen size={15}/>{t('Write to contact')}</button>
      </div>
      <div className={m.contactActions}>
       <button type="button" className={s.secondary} disabled={saving} onClick={()=>preference(active.contact,{action:'pin',value:!active.state?.pinned_at})}>{active.state?.pinned_at?<PinOff size={14}/>:<Pin size={14}/>} {t(active.state?.pinned_at?'Unpin':'Pin')}</button>
       <button type="button" className={s.secondary} disabled={saving} onClick={()=>preference(active.contact,{action:'archive',value:!active.archived})}>{active.archived?<ArchiveRestore size={14}/>:<Archive size={14}/>} {t(active.archived?'Move to inbox':'Archive')}</button>
       <button type="button" className={s.secondary} disabled={saving} onClick={()=>preference(active.contact,{action:'unread',value:!active.unread,through:active.incoming?.created_at})}><MailOpen size={14}/>{t(active.unread?'Mark as read':'Mark as unread')}</button>
-      {replyTarget&&<button type="button" className={s.secondary} disabled={!page.canSend||Boolean(compose)||loading} onClick={()=>draftFor('reply',replyTarget)}><Reply size={14}/>{t('Reply')}</button>}
+      {replyTarget&&<button type="button" className={s.secondary} disabled={!page.canSend||Boolean(compose)||quickDirty||loading} onClick={()=>draftFor('reply',replyTarget)}><Reply size={14}/>{t('Reply')}</button>}
      </div>
      <label className={m.notify}><input type="checkbox" disabled={saving||!page.notificationEmail} checked={Boolean(active.state?.notify_since)} onChange={event=>preference(active.contact,{action:'notify',value:event.target.checked})}/><span>{t('Notify me about new messages from this person')}<small className="block text-white/40 mt-1">{t('Only a notification, never the message or files.')} {page.notificationEmail&&t('To')+': '+page.notificationEmail} · {t('Checked every 5 minutes.')}</small></span></label>
      <label className={s.field+' my-5'}><span className="sr-only">{t('Find in conversation')}</span><input value={messageSearch} onChange={event=>setMessageSearch(event.target.value)} placeholder={t('Find in conversation')}/></label>
@@ -147,11 +147,13 @@ export function SupportInbox({initial,initialEmail}:{initial:InboxPage;initialEm
         <h3 className="text-sm font-medium mt-3 [overflow-wrap:anywhere]">{email.subject}</h3>
         {email.loaded?<><EmailContent key={key+(email.body_html||email.text||'')} email={email}/>{email.archive_error&&<p role="alert" className={s.notice+' mt-3'}>{t(email.archive_error)}</p>}{email.attachment_error&&<p role="alert" className={s.notice+' mt-3'}>{t(email.attachment_error)}</p>}{(email.archive_error||email.attachment_error)&&<button type="button" className={s.secondary+' mt-3'} onClick={()=>loadMessage(meta)}>{t('Retry loading')}</button>}</>:<button type="button" className={s.secondary+' mt-4'} onClick={()=>loadMessage(meta)}>{t('Open message and files')}</button>}
         {messageErrors[key]&&<p role="alert" className={s.notice+' mt-3'}>{t(messageErrors[key])}</p>}
-        <div className={m.messageActions}><button type="button" disabled={!page.canSend||Boolean(compose)} onClick={()=>draftFor('reply',email)}><Reply size={13}/>{t('Reply')}</button>{outbound&&<button type="button" disabled={!page.canSend||Boolean(compose)||!email.loaded} onClick={()=>draftFor('resend',email)}><Repeat2 size={13}/>{t('Send again')}</button>}{outbound&&<span className="ml-auto">{t(email.status==='failed'?'Failed':email.status==='uncertain'?'Uncertain':email.status==='pending'?'Pending':email.status==='sending'?'Sending':'Sent')}</span>}</div>
+        <div className={m.messageActions}><button type="button" disabled={!page.canSend||Boolean(compose)||quickDirty} onClick={()=>draftFor('reply',email)}><Reply size={13}/>{t('Reply')}</button>{outbound&&<span className="ml-auto">{t(email.status==='failed'?'Failed':email.status==='uncertain'?'Uncertain':email.status==='pending'?'Pending':email.status==='sending'?'Sending':'Sent')}</span>}</div>
        </article>
       })}
      </div>
      {compose&&compose.kind!=='new'&&composer}
+     {!compose&&replyTarget&&page.canSend&&!loading&&<div ref={quickBox}><InboxComposer key={'conversation/'+active.contact+'/'+quickVersion} compact reply={replyTarget} onDraftChange={setQuickDirty} onClose={()=>{setQuickDirty(false);setQuickVersion(value=>value+1)}} onSent={sent}/></div>}
+     {quickDirty&&<p className={s.notice+' mt-3'}>{t('Send or clear this message before changing conversations.')}</p>}
     </>:<div className={m.empty}><Mail size={30} className="mx-auto mb-5"/><h2>{t('Select a message to read it.')}</h2><p className={s.notice+' mt-4'}>{t('Only your Founder account can access this inbox.')}</p></div>}
    </section>
   </div>
