@@ -12,7 +12,7 @@ function TechTrace({d,tone,duration=5,delay=0}:{d:string;tone:TraceTone;duration
 }
 export function WebsiteSignature(){return <MotionSurface className={s.signature}>
  <div className={s.signatureMark}><KoryxMark/><span>ONE WEBSITE.<br/>EVERYTHING CONNECTED.</span></div>
- <svg viewBox="0 0 760 100" aria-hidden="true">{[95,285,475,665].map((x,i)=><g key={x}><TechTrace d={`M0 49H${x-40}Q${x} 49 ${x} 19`} tone={(['amber','violet','cyan','blue'] as const)[i]} duration={5.8} delay={-i*1.2}/><circle cx={x} cy="19" r="3" className={s.signatureDot}/><text x={x} y="82" textAnchor="middle">{['STORY','INTERACTION','CONNECTION','RELEASE'][i]}</text></g>)}</svg>
+ <svg viewBox="0 0 760 100" aria-hidden="true">{[95,285,475,665].map((x,i)=><g key={x}><TechTrace d={`M0 49H${x-40}Q${x} 49 ${x} 19`} tone={(['amber','violet','cyan','blue'] as const)[i]} duration={5.8}/><circle cx={x} cy="19" r="3" className={s.signatureDot}/><text x={x} y="82" textAnchor="middle">{['STORY','INTERACTION','CONNECTION','RELEASE'][i]}</text></g>)}</svg>
  </MotionSurface>}
 
 function WindowDots(){return <span className={s.windowDots} aria-hidden="true"><i/><i/><i/></span>}
@@ -63,7 +63,7 @@ function ABTesting(){
    <svg className={s.fork} viewBox="0 0 548 124" fill="none" aria-hidden="true">
     <defs><linearGradient id={id+'-gradient'} gradientUnits="userSpaceOnUse" x1="138" y1="0" x2="410" y2="0"><stop stopColor="#a640d9"/><stop offset=".48" stopColor="#d84878"/><stop offset="1" stopColor="#00ad9c"/></linearGradient></defs>
     <path className={s.forkBase} d="M138 108V57Q138 18 177 18H262M286 18H371Q410 18 410 57V108" stroke={`url(#${id}-gradient)`}/>
-    <SignalPath d="M262 18H177Q138 18 138 57V108" tone="violet" duration={3.8} delay={-.7} wire={false}/><SignalPath d="M286 18H371Q410 18 410 57V108" tone="cyan" duration={3.8} delay={-1.4} wire={false}/>
+    <SignalPath d="M262 18H177Q138 18 138 57V108" tone="violet" duration={3.8} wire={false}/><SignalPath d="M286 18H371Q410 18 410 57V108" tone="cyan" duration={3.8} wire={false}/>
     <path className={s.forkPulse} d="M260 18H265L269 10L274 27L279 9L284 18H289"/><path d="M131 102L138 116L145 102Z" fill="#a640d9"/><path d="M403 102L410 116L417 102Z" fill="#00ad9c"/>
    </svg>
    <VariantWindow variant="A" selected={variant==='A'} onSelect={()=>setVariant(current=>current==='A'?null:'A')}/><VariantWindow variant="B" selected={variant==='B'} onSelect={()=>setVariant(current=>current==='B'?null:'B')}/>

@@ -1,6 +1,25 @@
 import Link from 'next/link'
-import {ArrowRight,Check,Activity,Code2,Layers} from 'lucide-react'
-import {projectTypes,buildEstimate,money} from '@/lib/project-planner/catalog'
-import {monthlyEstimate} from '@/lib/projects/monthly-pricing'
+import { ArrowRight, Check, Code2, Layers } from 'lucide-react'
+import { projectTypes, buildEstimate, money } from '@/lib/project-planner/catalog'
+import { monthlyEstimate } from '@/lib/projects/monthly-pricing'
 import s from './service-models.module.css'
-export function ServiceModels(){const examples=projectTypes.filter(p=>['landing','website','app'].includes(p.id));return <section className={s.section} id="service-models"><header><span className={s.eyebrow}>YOUR PRODUCT. YOUR WAY.</span><h2>Built for your business.<br/><span>Designed to keep working.</span></h2><p>Own your product outright, or let Koryx build and operate it as a monthly service. A clear scope, a dedicated workspace and one team to talk to.</p></header><div className={s.models}><article><Code2 size={25} strokeWidth={1.2}/><span className={s.eyebrow}>01 / PROJECT BUYOUT</span><h3>Make it yours.</h3><p>A defined development price. Pay upfront or in two agreed stages. Source files are handed over after full payment.</p><ul>{['Agreed design and development scope','Working preview and approval','Reviewed source-code handover','Optional hosting and ongoing care'].map(x=><li key={x}><Check size={13}/>{x}</li>)}</ul><Link href="/pricing?mode=buyout">Explore project pricing <ArrowRight size={14}/></Link></article><article className={s.managed}><Layers size={25} strokeWidth={1.2}/><span className={s.eyebrow}>02 / MONTHLY MANAGED SERVICE</span><h3>Leave the operation to us.</h3><p>The agreed build, hosting and maintenance in one monthly offer. Follow your product in Koryx while we handle its technical operation.</p><ul>{['Development and launch in the agreed scope','Managed hosting within your plan limits','Connected activity reports in your workspace','Monthly access; source code stays with Koryx'].map(x=><li key={x}><Check size={13}/>{x}</li>)}</ul><Link href="/pricing?mode=managed">Estimate your monthly service <ArrowRight size={14}/></Link></article></div><div className={s.examples}>{examples.map(p=>{const quote=monthlyEstimate(p.id,buildEstimate({type:p.id,budget:50000,pages:p.pages,features:[],brief:''}));return <Link key={p.id} href={`/dashboard/new-order?intent=build&mode=managed&type=${p.id}`}><small>{p.title}</small><strong>{money(quote.total)}<span> CAD / month</span></strong><p>Indicative starting estimate<ArrowRight size={13}/></p></Link>})}</div><p className={s.note}>Monthly prices are preliminary CAD estimates, not binding offers. Final scope, usage limits, update allowance and price are agreed before payment. No source transfer on monthly plans. Domains, paid APIs, new features and applicable taxes are separate unless included. Cancel future renewals before the next charge; service continues through the paid period.</p><div className={s.workspace}><div><Activity size={22}/><h3>Your product.<br/>A clearer view.</h3><p>See your project stage, reported activity, files, conversations and payments in one workspace. Source handover appears for fully paid buyout projects.</p><Link href="/dashboard/orders">Open your workspace <ArrowRight size={14}/></Link></div><ol>{[['01','Project overview','Your product, domain, progress and next step.'],['02','Activity, connected','Traffic and application reports after setup.'],['03','Everything in context','Your briefs, reference files and project conversation.']].map(([n,title,copy])=><li key={n}><span>{n}</span><div><strong>{title}</strong><p>{copy}</p></div></li>)}</ol></div></section>}
+
+export function ServiceModels() {
+  const landing = projectTypes[0]
+  const estimate = buildEstimate({ type: landing.id, budget: 50000, pages: landing.pages, features: [], brief: '' })
+  const monthly = monthlyEstimate(landing.id, estimate)
+  const plans = [
+    { title: 'Own your product.', label: 'ONE-TIME PROJECT', icon: Code2, price: estimate.total, period: 'CAD / project', href: '/pricing?mode=buyout', action: 'Explore project pricing', items: ['Design and development for an agreed scope', 'Pay upfront or in two agreed stages', 'Source-code handover after full payment'] },
+    { title: 'Pay monthly.', label: 'MANAGED SERVICE', icon: Layers, price: monthly.total, period: 'CAD / month', href: '/pricing?mode=managed', action: 'Explore monthly pricing', items: ['The agreed build, hosting and maintenance', 'Ongoing service within your plan limits', 'Monthly access; source code stays with Koryx'] },
+  ]
+  return <section className={s.section} id="service-models" aria-labelledby="service-models-title">
+    <header><span className={s.eyebrow}>TWO WAYS TO WORK WITH US</span><h2 id="service-models-title">Choose what works for you.</h2><p>Buy your product outright or have Koryx build and operate it as a monthly service.</p></header>
+    <div className={s.models}>{plans.map(plan => <article key={plan.label}>
+      <div className={s.planLabel}><plan.icon size={20} strokeWidth={1.3} aria-hidden="true"/><span>{plan.label}</span></div>
+      <h3>{plan.title}</h3><p className={s.price}><small>From</small> {money(plan.price)} <span>{plan.period}</span></p>
+      <ul>{plan.items.map(item => <li key={item}><Check size={14} aria-hidden="true"/>{item}</li>)}</ul>
+      <Link href={plan.href}>{plan.action}<ArrowRight size={15} aria-hidden="true"/></Link>
+    </article>)}</div>
+    <p className={s.note}>Indicative starting prices in CAD. Final scope, usage limits and price are agreed before payment. Domains, paid tools and applicable taxes are separate unless included. Cancel monthly renewals before the next charge; service continues through the paid period.</p>
+  </section>
+}

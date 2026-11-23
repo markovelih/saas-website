@@ -1,10 +1,9 @@
-import { MarketSection } from '@/components/seo/market-section'
 import { pageMetadata, publicSearchPages } from '@/lib/seo'
 import {ServiceModels} from '@/components/projects/service-models'
 import { Navbar } from '@/components/vercel-home/navbar'
 import { Hero } from '@/components/vercel-home/hero'
-import { WorkShowcase, ProcessSection, FAQSection } from '@/components/vercel-home/features'
-import {HomeFoundations,HomeServices,ProjectBlueprint} from '@/components/vercel-home/home-system'
+import { ProcessSection, FAQSection } from '@/components/vercel-home/features'
+import {HomeServices} from '@/components/vercel-home/home-system'
 import {ProjectKit} from '@/components/motion/project-kit'
 import home from '@/components/vercel-home/home-system.module.css'
 import { Footer } from '@/components/vercel-home/footer'
@@ -12,5 +11,5 @@ import { Footer } from '@/components/vercel-home/footer'
 export const metadata = pageMetadata('/', publicSearchPages['/'])
 
 export default function HomePage() {
-  return <div className="bg-black text-white min-h-screen overflow-x-clip"><Navbar/><main><Hero/><div className={home.frame}><WorkShowcase/><HomeServices/><ServiceModels/><ProjectBlueprint/><HomeFoundations/><ProjectKit/><ProcessSection/><FAQSection/><MarketSection/></div></main><Footer/></div>
+  return <div className="bg-black text-white min-h-screen overflow-x-clip"><Navbar/><main><Hero/><div className={home.frame}><HomeServices/><ServiceModels/><ProjectKit/><ProcessSection compact/><FAQSection compact/></div></main><Footer/></div>
 }
