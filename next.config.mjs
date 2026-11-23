@@ -11,7 +11,7 @@ const nextConfig = {
     {source:'/invoice-:number([A-Za-z0-9-]+)',destination:'/documents/invoice-:number'},
     {source:'/receipt-:number([A-Za-z0-9-]+)',destination:'/documents/receipt-:number'},
   ]}},
-  async headers(){return [...['/dashboard/:path*','/admin/:path*','/api/:path*','/pay/:path*','/documents/:path*','/invoice-:number','/receipt-:number','/login','/register','/ai'].map(source=>({source,headers:[{key:'X-Robots-Tag',value:'noindex, nofollow'}]})),{source:'/sw.js',headers:[{key:'Cache-Control',value:'no-store, max-age=0'},{key:'X-Content-Type-Options',value:'nosniff'},{key:'Content-Security-Policy',value:"default-src 'self'; script-src 'self'"}]}]},
+  async headers(){return [{source:'/:path*',headers:[{key:'X-Content-Type-Options',value:'nosniff'},{key:'Referrer-Policy',value:'strict-origin-when-cross-origin'},{key:'X-Frame-Options',value:'SAMEORIGIN'},{key:'Permissions-Policy',value:'camera=(), microphone=(), geolocation=()'}]},...['/dashboard/:path*','/admin/:path*','/api/:path*','/pay/:path*','/documents/:path*','/invoice-:number','/receipt-:number','/login','/register','/ai'].map(source=>({source,headers:[{key:'X-Robots-Tag',value:'noindex, nofollow'}]})),{source:'/sw.js',headers:[{key:'Cache-Control',value:'no-store, max-age=0'},{key:'X-Content-Type-Options',value:'nosniff'},{key:'Content-Security-Policy',value:"default-src 'self'; script-src 'self'"}]}]},
   // Only public Supabase connection values belong here. The service role key
   // remains a server environment variable and must never be mapped into env.
   env: {

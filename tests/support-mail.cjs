@@ -80,7 +80,7 @@ function mock(status=200,providerId=sentId){global.fetch=async(url,options)=>{re
  authorized=false;assert.equal((await download.GET(new Request('https://koryx.ca/api/inbox/'+id+'/attachments/'+fileId),context)).status,403);authorized=true
 
  let routeCalls=0
- const route=loader({'@/lib/inbox/send':{sendSupportEmail:async data=>{routeCalls++;assert.equal(data.get('to'),'client@example.com');return {success:true,emailId:sentId}}}})('app/api/inbox/send/route.ts')
+ const route=loader({...auth,'@/lib/inbox/send':{sendSupportEmail:async data=>{routeCalls++;assert.equal(data.get('to'),'client@example.com');return {success:true,emailId:sentId}}}})('app/api/inbox/send/route.ts')
  assert.equal((await route.POST(new Request('https://koryx.ca/api/inbox/send',{method:'POST',headers:{origin:'https://other.example'},body:form()}))).status,403)
  assert.equal((await route.POST(new Request('https://koryx.ca/api/inbox/send',{method:'POST',headers:{origin:'https://koryx.ca','content-length':'5000000'},body:form()}))).status,413);assert.equal(routeCalls,0)
  assert.equal((await route.POST(new Request('https://koryx.ca/api/inbox/send',{method:'POST',headers:{origin:'https://koryx.ca'},body:form()}))).status,200)
