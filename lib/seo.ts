@@ -72,6 +72,10 @@ export const publicSearchPages = {
     title: 'Website Design Concepts & Software Solutions | Koryx',
     description: 'Explore Koryx design concepts for business websites, online stores and custom software. Find an approach that fits your next project.',
   },
+  '/catalog': {
+    title: 'Website Examples & Interactive Design Concepts | Koryx',
+    description: 'Explore interactive Koryx website concepts for your next project. Try the layouts, motion and details, then find a design direction for your business.',
+  },
   '/process': {
     title: 'Our Website & Software Development Process | Koryx',
     description: 'From project brief and written scope to working previews, feedback and launch. See how a website or software project with Koryx works.',
