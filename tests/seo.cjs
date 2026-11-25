@@ -7,7 +7,7 @@ const robots = load('app/robots.ts').default()
 const catalog = load('components/services/catalog.ts').serviceCatalog
 
 assert.deepEqual(Object.keys(seo.serviceSearch).sort(), catalog.map(s => s.slug).sort(), 'Every real service has metadata and a sitemap URL')
-assert.equal(new Set(sitemap.map(p => p.url)).size, 19)
+assert.equal(new Set(sitemap.map(p => p.url)).size, 20)
 assert(sitemap.every(p => p.url.startsWith('https://koryx.ca/') && !p.lastModified), 'Only production URLs; no fabricated modification dates')
 assert(!sitemap.some(p => /^\/(?:dashboard|admin|login|register|pay|documents|invoice-|receipt-|price$|api)(?:[/-]|$)/.test(new URL(p.url).pathname)))
 assert.equal(robots.sitemap, 'https://koryx.ca/sitemap.xml')
@@ -42,5 +42,5 @@ for (const slug of Object.keys(seo.serviceSearch)) {
   for (const source of ['/dashboard/:path*', '/admin/:path*', '/api/:path*', '/pay/:path*', '/documents/:path*', '/invoice-:number', '/receipt-:number', '/login', '/register']) {
     assert(headers.find(rule => rule.source === source)?.headers.some(h => h.key === 'X-Robots-Tag' && h.value.includes('noindex')), `Private route noindex missing: ${source}`)
   }
-  console.log('SEO: 19 unique public URLs, complete service coverage, canonical/social metadata, safe structured data and private-route noindex passed.')
+  console.log('SEO: 20 unique public URLs, complete service coverage, canonical/social metadata, safe structured data and private-route noindex passed.')
 })().catch(error => { console.error(error); process.exitCode = 1 })
