@@ -1,17 +1,9 @@
-export const HERO_WORDS = ['SAAS', 'PLATFORM', 'NOVA', 'Nova'] as const
-export const INTRO_SECONDS = 1.9
-export const FIRST_HOLD_SECONDS = 1.3
-export const WORD_SECONDS = 2.18
-export const TRANSITION_SECONDS = .94
-
+export const HERO_WORDS = ['Nova', 'SAAS', 'PLATFORM', 'NOVA'] as const
+export const SIMULATION_HZ = 110
+export const WORD_TICKS = 240
+export const WORD_SECONDS = WORD_TICKS / SIMULATION_HZ
 export type Point = {x: number; y: number}
-const clamp = (value: number) => Math.max(0, Math.min(1, value))
-export function smooth(start: number, end: number, value: number) {
-  const t = clamp((value - start) / (end - start))
-  return t * t * (3 - 2 * t)
-}
 
-/** Stable samples across resizing and reproducible visual QA. */
 export function randomStream(seed: number) {
   let state = seed >>> 0
   return () => {
@@ -22,48 +14,100 @@ export function randomStream(seed: number) {
   }
 }
 
-export function heroPose(seconds: number, reduced = false) {
-  if (reduced) return {from: 2, to: 2, elapsed: 1, mix: 1, phase: 'hold' as const, intro: false, field: 0}
-  const time = Math.max(0, seconds)
-  if (time < INTRO_SECONDS) return {from: 0, to: 0, elapsed: time, mix: smooth(.2, INTRO_SECONDS, time), phase: 'arrive' as const, intro: true, field: 1}
-  const running = time - INTRO_SECONDS - FIRST_HOLD_SECONDS
-  if (running < 0) return {from: 0, to: 0, elapsed: WORD_SECONDS + running, mix: 1, phase: 'hold' as const, intro: false, field: 1}
-  const step = Math.floor(running / WORD_SECONDS), elapsed = running - step * WORD_SECONDS
-  const from = step % HERO_WORDS.length, to = (from + 1) % HERO_WORDS.length
-  const mix = 1 - Math.pow(1 - clamp(elapsed / TRANSITION_SECONDS), 3)
-  const a = from < 2 ? 1 : .015, b = to < 2 ? 1 : .015
-  return {from, to, elapsed, mix, phase: elapsed < TRANSITION_SECONDS ? 'morph' as const : 'hold' as const, intro: false, field: a + (b - a) * smooth(.08, .85, elapsed)}
+export type LightPoint = {
+  id: number
+  x: number; y: number; vx: number; vy: number
+  targetX: number; targetY: number
+  speed: number; force: number; fadeRate: number
+  light: number; lightFrom: number; lightTo: number; blend: number
+  departing: boolean
 }
 
 /**
- * Points exchange glyph coordinates in the full-height word plane. Horizontal
- * velocity makes the luminous band; there is no rotation or Y-axis flattening.
+ * Arrival steering and persistence studied from the public LeLo reference:
+ * https://v0.app/templates/RjIZayM2Jjj (nikhilsbuilds).
+ * One persistent population owns every visible light, including the arrivals,
+ * letter strokes and departing waves. Retargeting never changes a position or
+ * velocity. A point steers and brakes itself into its next glyph coordinate.
  */
-export function textParticle(a: Point, b: Point, seed: number, time: number, pose: ReturnType<typeof heroPose>, scale = 1): Point {
-  if (pose.field === 0) return {x: b.x, y: b.y}
-  let mix = pose.mix
-  if (pose.phase === 'morph') {
-    const t = clamp((pose.elapsed - seed * .065) / (TRANSITION_SECONDS - .065))
-    mix = 1 - Math.pow(1 - t, 3)
-  }
-  let x = a.x + (b.x - a.x) * mix, y = a.y + (b.y - a.y) * mix
-  if (pose.intro) {
-    const angle = seed * Math.PI * 26, travel = (1 - pose.mix) * (360 + seed * 660) * scale
-    x += Math.cos(angle) * travel; y += Math.sin(angle) * travel * .65
-  }
-  const turbulence = pose.phase === 'morph' ? Math.sin(Math.PI * mix) : 0
-  x += (Math.sin(time * 1.7 + seed * 171) * .55 + Math.sin(seed * 91 + time * 19) * turbulence * 2.2) * scale
-  y += (Math.cos(time * 1.4 + seed * 83) * .48 + Math.cos(seed * 57 + time * 17) * turbulence * 2.4) * scale
-  return {x, y}
-}
+export class GlyphFlow {
+  readonly points: LightPoint[] = []
+  tick = 0
+  word = 0
+  private nextId = 0
+  private readonly random: () => number
 
-/** Dotted waves sweep inward separately from the core's motion trails. */
-export function fieldEnvelope(radius: number, seconds: number, pose: ReturnType<typeof heroPose>, extent: number) {
-  if (pose.field === 0) return 0
-  const local = pose.intro ? seconds : pose.elapsed
-  const sweep = pose.intro ? smooth(0, 1.2, local) : smooth(.82, WORD_SECONDS, local)
-  const front = extent * Math.exp(-sweep * 3.3)
-  const shell = Math.exp(-Math.pow(Math.log(Math.max(radius, 1) / front) / .9, 2))
-  const birth = Math.exp(-Math.pow((local - .3) / .36, 2)) * Math.exp(-radius / (extent * .24))
-  return Math.min(1, shell * pose.field + birth * .55)
+  constructor(readonly width: number, readonly height: number, readonly glyphs: readonly Point[][], initialTick = 0, seed = 71023) {
+    this.random = randomStream(seed)
+    this.tick = initialTick
+    this.retarget(Math.floor(initialTick / WORD_TICKS) % glyphs.length)
+  }
+
+  private perimeter(): Point {
+    const angle = this.random() * Math.PI * 2, radius = (this.width + this.height) / 2
+    return {x: this.width / 2 + Math.cos(angle) * radius, y: this.height / 2 + Math.sin(angle) * radius}
+  }
+
+  private tint(point: LightPoint, destination: number) {
+    point.lightFrom = point.light
+    point.lightTo = destination
+    point.blend = 0
+  }
+
+  retarget(word: number) {
+    this.word = word
+    const coordinates = [...this.glyphs[word]]
+    for (let i = coordinates.length - 1; i > 0; i--) {
+      const j = Math.floor(this.random() * (i + 1)); [coordinates[i], coordinates[j]] = [coordinates[j], coordinates[i]]
+    }
+    // New glyph area fills progressively from outside. Existing lights are reused
+    // first, including those still returning from an earlier departure.
+    const required = coordinates.length
+    const admitted = required > this.points.length ? this.points.length + Math.ceil((required - this.points.length) / 2) : required
+    for (let i = 0; i < admitted; i++) {
+      let point = this.points[i]
+      if (!point) {
+        const start = this.perimeter(), speed = 4 + this.random() * 6
+        point = {id: this.nextId++, x: start.x, y: start.y, vx: 0, vy: 0,
+          targetX: 0, targetY: 0, speed, force: speed * .05,
+          fadeRate: .0025 + this.random() * .0275,
+          light: 0, lightFrom: 0, lightTo: 1, blend: 0, departing: false}
+        this.points.push(point)
+      }
+      point.targetX = coordinates[i].x; point.targetY = coordinates[i].y
+      point.departing = false
+      this.tint(point, 1)
+    }
+    for (let i = admitted; i < this.points.length; i++) {
+      const point = this.points[i]
+      if (point.departing) continue
+      const exit = this.perimeter()
+      point.targetX = exit.x; point.targetY = exit.y
+      point.departing = true
+      this.tint(point, 0)
+    }
+  }
+
+  step() {
+    let retained = 0
+    for (const point of this.points) {
+      const dx = point.targetX - point.x, dy = point.targetY - point.y, distance = Math.hypot(dx, dy)
+      const desiredSpeed = point.speed * Math.min(1, distance / 100)
+      const k = distance > 1e-8 ? desiredSpeed / distance : 0
+      const steerX = dx * k - point.vx, steerY = dy * k - point.vy
+      const steering = Math.hypot(steerX, steerY)
+      if (steering > 1e-8) {
+        point.vx += steerX / steering * point.force
+        point.vy += steerY / steering * point.force
+      }
+      point.x += point.vx; point.y += point.vy
+      point.blend = Math.min(1, point.blend + point.fadeRate)
+      point.light = point.lightFrom + (point.lightTo - point.lightFrom) * point.blend
+      if (point.departing && (point.x < 0 || point.x > this.width || point.y < 0 || point.y > this.height)) continue
+      this.points[retained++] = point
+    }
+    this.points.length = retained
+    this.tick++
+    if (this.tick % WORD_TICKS === 0) this.retarget((this.word + 1) % this.glyphs.length)
+  }
 }
