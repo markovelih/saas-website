@@ -62,5 +62,5 @@ export function ParticleScene({variant='hero'}:{variant?:'hero'|'orbit'}) {
     document.addEventListener('visibilitychange',start);motion.addEventListener('change',start)
     return()=>{disposed=true;cancelAnimationFrame(frame);observer.disconnect();sizes.disconnect();document.removeEventListener('visibilitychange',start);motion.removeEventListener('change',start)}
   },[variant])
-  return <div className={variant==='hero'?s.scene:s.orbit} aria-hidden="true"><canvas ref={canvas} className={s.canvas}/>{variant==='hero'&&<span className={s.wordFallback}>NOVA</span>}</div>
+  return <div className={variant==='hero'?s.scene:s.orbit} aria-hidden="true"><canvas ref={canvas} className={s.canvas}/></div>
 }
