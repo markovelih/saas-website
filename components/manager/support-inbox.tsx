@@ -48,11 +48,13 @@ export function SupportInbox({initial,initialEmail,account='support'}:{initial:I
  useEffect(()=>{
   if(compose)return
   let cancelled=false,inFlight=false
-  const timer=setInterval(async()=>{
+  const refresh=async()=>{
    if(document.hidden||inFlight)return
    inFlight=true
    try{const next=await loadInboxPage(undefined,account);if(!cancelled){setPage(current=>({...next,emails:mergeEmails(current.emails,next.emails,Object.values(cache.current))}));if(next.threads)setStates(next.threads);if(next.contacts)setContacts(next.contacts)}}catch{/* Manual refresh exposes connection errors. */}finally{inFlight=false}
-  },45000)
+  }
+  void refresh()
+  const timer=setInterval(refresh,45000)
   return ()=>{cancelled=true;clearInterval(timer)}
  },[compose,account])
  function remember(email:InboxEmail){
