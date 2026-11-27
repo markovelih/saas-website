@@ -5,6 +5,7 @@ import { Geist, Geist_Mono, Montserrat } from 'next/font/google'
 import {PrivacyControls} from '@/components/legal/cookie-preferences'
 import {ThemeProvider,SiteToaster} from '@/components/theme-provider'
 import './globals.css'
+import {AssistantProvider} from '@/components/ai/assistant-provider'
 import {SiteTypography} from '@/components/site-typography'
 
 const roundedFont=Montserrat({subsets:['latin','cyrillic'],variable:'--font-koryx-rounded',display:'swap'})
@@ -58,7 +59,7 @@ export default function RootLayout({
   return (
     <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} ${roundedFont.variable} bg-background`}>
       <body className="font-sans antialiased min-h-screen">
-        <ThemeProvider attribute="data-workspace-theme" defaultTheme="system" enableSystem enableColorScheme storageKey="koryx-theme" disableTransitionOnChange><SiteTypography>{children}</SiteTypography>
+        <ThemeProvider attribute="data-workspace-theme" defaultTheme="system" enableSystem enableColorScheme storageKey="koryx-theme" disableTransitionOnChange><AssistantProvider><SiteTypography>{children}</SiteTypography></AssistantProvider>
         <SiteToaster/>
         <PrivacyControls/><OrganizationData/></ThemeProvider>
       </body>
