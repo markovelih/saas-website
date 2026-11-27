@@ -4,7 +4,7 @@ import {isPreviewImage} from '@/lib/inbox/types'
 export async function GET(request:Request,{params}:{params:Promise<{id:string;attachmentId:string}>}){
  try{
   const direction=new URL(request.url).searchParams.get('direction')==='outbound'?'outbound':'inbound'
-  const {id,attachmentId}=await params,attachment=await attachmentDetails(id,attachmentId,direction)
+  const {id,attachmentId}=await params,attachment=await attachmentDetails(id,attachmentId,direction,new URL(request.url).searchParams.get('account'))
   const preview=new URL(request.url).searchParams.get('preview')==='1'
   const inline=preview&&(isPreviewImage(attachment.content_type)||attachment.content_type==='application/pdf')
   const response='bytes' in attachment?new Response(new Uint8Array(attachment.bytes)):await fetch(attachment.url,{cache:'no-store',redirect:'error',signal:AbortSignal.timeout(20000)})

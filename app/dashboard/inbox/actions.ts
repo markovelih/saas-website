@@ -1,10 +1,10 @@
 'use server'
 import {readInboxPage,readInboxEmail} from '@/lib/inbox/server'
 import type {InboxCursor,MailDirection} from '@/lib/inbox/types'
-export async function loadInboxPage(after?:InboxCursor|string){return readInboxPage(after)}
-export async function loadInboxEmail(id:string,direction:MailDirection='inbound'){try{return {email:await readInboxEmail(id,true,direction)}}catch{return {error:'This email could not be opened. Please retry.'}}}
-export async function saveInboxContact(contact:string,input:unknown){const {updateContactState}=await import('@/lib/inbox/contacts');return updateContactState(contact,input)}
-export async function loadMailBody(emailId:string,direction:MailDirection,external=false){const {mailBody}=await import('@/lib/inbox/html');return mailBody(await readInboxEmail(emailId,true,direction),external)}
+export async function loadInboxPage(after?:InboxCursor|string,account:unknown='support'){return readInboxPage(after,account)}
+export async function loadInboxEmail(id:string,direction:MailDirection='inbound',account:unknown='support'){try{return {email:await readInboxEmail(id,true,direction,false,account)}}catch{return {error:'This email could not be opened. Please retry.'}}}
+export async function saveInboxContact(contact:string,input:unknown,account:unknown='support'){const {updateContactState}=await import('@/lib/inbox/contacts');return updateContactState(contact,input,account)}
+export async function loadMailBody(emailId:string,direction:MailDirection,external=false,account:unknown='support'){const {mailBody}=await import('@/lib/inbox/html');return mailBody(await readInboxEmail(emailId,true,direction,false,account),external)}
 
 import {z} from 'zod'
 import {founderClient} from '@/lib/supabase/admin'
@@ -20,4 +20,4 @@ export async function testInboxConnection(requestId:string){
  return result.error?{error:result.error}:{success:true}
 }
 
-export async function saveInboxThread(emailId:string,direction:MailDirection,input:unknown){const {updateThreadState}=await import('@/lib/inbox/thread-store');return updateThreadState(emailId,direction,input)}
+export async function saveInboxThread(emailId:string,direction:MailDirection,input:unknown,account:unknown='support'){const {updateThreadState}=await import('@/lib/inbox/thread-store');return updateThreadState(emailId,direction,input,account)}

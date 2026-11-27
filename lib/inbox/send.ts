@@ -1,4 +1,5 @@
 import 'server-only'
+import {mailAccount,mailAccounts} from './accounts'
 import {createHash,randomUUID} from 'node:crypto'
 import {z} from 'zod'
 import {founderClient} from '@/lib/supabase/admin'
@@ -19,6 +20,7 @@ const mailbox=(value:string)=>(value.match(/<([^<>]+)>/)?.[1]||value).trim()
 const messageId=(value:string|undefined)=>value&&/^<[^<>\s\x00-\x1f]{1,900}>$/.test(value)?value:undefined
 
 export async function sendSupportEmail(form:FormData){
+ const account=mailAccount(form.get('account')),sender=mailAccounts[account]
  const {user,supabase}=await founderClient()
  if(!process.env.RESEND_API_KEY)return {error:'Sending email is not configured.'}
  const parsed=fields.safeParse({...Object.fromEntries(['to','subject','text','html','requestId','startedAt','replyId'].map(key=>[key,form.get(key)??''])),inlineIds:form.get('inlineIds')||'[]',replyDirection:form.get('replyDirection')||'inbound'})
@@ -36,8 +38,8 @@ export async function sendSupportEmail(form:FormData){
  let to=input.to,subject=input.subject,threadId='mail:outbound:'+input.requestId,replyKey:string|undefined
  const headers:Record<string,string>={}
  if(input.replyId){
-  let original=await readInboxEmail(input.replyId,false,input.replyDirection)
-  if(input.replyDirection==='outbound'&&!original.message_id){try{original=await readInboxEmail(input.replyId,false,'outbound',true)}catch{}}
+  let original=await readInboxEmail(input.replyId,false,input.replyDirection,false,account)
+  if(input.replyDirection==='outbound'&&!original.message_id){try{original=await readInboxEmail(input.replyId,false,'outbound',true,account)}catch{}}
   threadId=original.thread_id||'mail:'+messageKey(original);replyKey=messageKey(original)
   const recipient=z.string().email().safeParse(mailbox(original.direction==='outbound'?original.to[0]:original.reply_to?.[0]||original.from))
   if(!recipient.success)return {error:'This message has no valid reply address.'}
@@ -58,7 +60,7 @@ export async function sendSupportEmail(form:FormData){
  })))
  const html=cleanMailHtml(input.html)
  const attachments=prepared.map(file=>({filename:file.filename,content:Buffer.from(file.bytes).toString('base64'),content_type:file.content_type,...(file.content_id?{content_id:file.content_id}:{})}))
- const payload={from:'Koryx <support@koryx.ca>',to:[to],reply_to:'support@koryx.ca',subject,
+ const payload={from:`${sender.name} <${sender.address}>`,to:[to],reply_to:sender.address,subject,
   text:input.text,...(html?{html}:{}),attachments,...(Object.keys(headers).length?{headers}:{}),
  }
  const body=JSON.stringify(payload)
@@ -69,8 +71,8 @@ export async function sendSupportEmail(form:FormData){
   // Save immutable content and private files before contacting the mail provider.
   const savedFiles=await storeMailFiles(supabase,user.id,'outbound/'+input.requestId+'/'+digest,prepared)
   const snapshot:SupportMailSnapshot={kind:'support_email',version:1,direction:'outbound',idempotency_key:key,headers,
-   email:{id:input.requestId,from:payload.from,to:[to],subject,text:input.text,html,thread_id:threadId,reply_key:replyKey,draft_key:'outbound:'+input.requestId,in_reply_to:headers['In-Reply-To'],references:headers.References,rich_version:1,created_at:new Date().toISOString(),attachments:[],direction:'outbound',loaded:true},files:savedFiles}
-  const job=await queueMail(supabase,{dedupe_key:'support-mail/outbound/'+user.id+'/'+input.requestId+'/'+digest,user_id:user.id,to_address:to,from_address:'support@koryx.ca',subject,html:'',snapshot,documents:'none'})
+   email:{mail_account:account,id:input.requestId,from:payload.from,to:[to],subject,text:input.text,html,thread_id:threadId,reply_key:replyKey,draft_key:'outbound:'+input.requestId,in_reply_to:headers['In-Reply-To'],references:headers.References,rich_version:1,created_at:new Date().toISOString(),attachments:[],direction:'outbound',loaded:true},files:savedFiles}
+  const job=await queueMail(supabase,{dedupe_key:'support-mail/outbound/'+user.id+'/'+input.requestId+'/'+digest,user_id:user.id,to_address:to,from_address:sender.address,subject,html:'',snapshot,documents:'none'})
   const result=await deliverMail(supabase,job)
   if(result.error)return result
   const email=archivedEmail({...job,status:'sent',email_id:result.emailId||job.email_id})

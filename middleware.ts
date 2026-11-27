@@ -56,7 +56,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (pathname.startsWith("/admin")) {
-    const isAdmin = user?.email === "artpas01@gmail.com"
+    const isAdmin = user?.id === "2f0a1860-cb7a-4104-967d-86ccc9166cdc"
 
     if (!isAdmin) {
       const url = request.nextUrl.clone()

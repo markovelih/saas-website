@@ -1,4 +1,5 @@
 'use client'
+import {mailAccounts,type MailAccount} from '@/lib/inbox/accounts'
 import {useEffect,useMemo,useRef,useState,useSyncExternalStore} from 'react'
 import {Mail,RefreshCw,Paperclip,ArrowLeft,Loader2,Reply,SquarePen,ArrowUpRight,Pin,PinOff,Archive,ArchiveRestore,MailOpen,Bell} from 'lucide-react'
 import {loadInboxPage,loadInboxEmail,saveInboxContact,saveInboxThread,loadMailBody} from '@/app/dashboard/inbox/actions'
@@ -12,7 +13,7 @@ import m from './inbox.module.css'
 
 function EmailContent({email}:{email:InboxEmail}){
  const {t}=useFounderLanguage(),[external,setExternal]=useState(false),[body,setBody]=useState({html:email.body_html||'',inlineIds:email.inline_ids||[]}),[busy,setBusy]=useState(false),[error,setError]=useState('')
- async function toggleImages(){setBusy(true);setError('');try{setBody(await loadMailBody(email.id,email.direction||'inbound',!external));setExternal(!external)}catch{setError('Images could not be loaded. Please retry.')}finally{setBusy(false)}}
+ async function toggleImages(){setBusy(true);setError('');try{setBody(await loadMailBody(email.id,email.direction||'inbound',!external,email.mail_account));setExternal(!external)}catch{setError('Images could not be loaded. Please retry.')}finally{setBusy(false)}}
  return <>
   {body.html?<div className={m.body} dangerouslySetInnerHTML={{__html:body.html}}/>:<p className={m.body+' whitespace-pre-wrap'}>{email.text||t('This email has no text content.')}</p>}
   {Boolean(email.external_images?.length)&&<div className="mt-4"><button type="button" className={s.secondary} disabled={busy} onClick={toggleImages}>{t(external?'Hide external images':'Show external images')}</button>{!external&&<p className={s.notice+' mt-2'}>{t('External images are blocked until you choose to load them.')}</p>}</div>}
@@ -25,7 +26,7 @@ function EmailContent({email}:{email:InboxEmail}){
 type Draft={kind:'new';to?:string}|{kind:'reply';email:InboxEmail}
 const subscribe=()=>()=>{}
 const tabs:[MailTab,string][]=[['inbox','Inbox'],['new','Awaiting reply'],['unread','Unread'],['pinned','Pinned'],['sent','Sent'],['archive','Archive'],['all','All mail']]
-export function SupportInbox({initial,initialEmail}:{initial:InboxPage;initialEmail?:InboxEmail}){
+export function SupportInbox({initial,initialEmail,account='support'}:{initial:InboxPage;initialEmail?:InboxEmail;account?:MailAccount}){
  const {t,language}=useFounderLanguage()
  const browserTime=useSyncExternalStore(subscribe,()=>true,()=>false)
  const [page,setPage]=useState<InboxPage>(()=>({...initial,emails:mergeEmails(initial.emails,initialEmail?[initialEmail]:[])}))
@@ -50,29 +51,29 @@ export function SupportInbox({initial,initialEmail}:{initial:InboxPage;initialEm
   const timer=setInterval(async()=>{
    if(document.hidden||inFlight)return
    inFlight=true
-   try{const next=await loadInboxPage();if(!cancelled){setPage(current=>({...next,emails:mergeEmails(current.emails,next.emails,Object.values(cache.current))}));if(next.threads)setStates(next.threads);if(next.contacts)setContacts(next.contacts)}}catch{/* Manual refresh exposes connection errors. */}finally{inFlight=false}
+   try{const next=await loadInboxPage(undefined,account);if(!cancelled){setPage(current=>({...next,emails:mergeEmails(current.emails,next.emails,Object.values(cache.current))}));if(next.threads)setStates(next.threads);if(next.contacts)setContacts(next.contacts)}}catch{/* Manual refresh exposes connection errors. */}finally{inFlight=false}
   },45000)
   return ()=>{cancelled=true;clearInterval(timer)}
- },[compose])
+ },[compose,account])
  function remember(email:InboxEmail){
   cache.current={...cache.current,[messageKey(email)]:{...email,loaded:true}};setDetails(cache.current)
   setPage(current=>({...current,emails:mergeEmails(current.emails,[email])}))
  }
  async function preference(email:InboxEmail,input:unknown){
   setSaving(true);setError('')
-  try{const result=await saveInboxThread(email.id,email.direction||'inbound',input);if(result.error||!result.state){setError(result.error||'Mailbox preference could not be saved.');return false}setStates(values=>[...values.filter(state=>state.thread_key!==result.state!.thread_key),result.state!]);return true}
+  try{const result=await saveInboxThread(email.id,email.direction||'inbound',input,account);if(result.error||!result.state){setError(result.error||'Mailbox preference could not be saved.');return false}setStates(values=>[...values.filter(state=>state.thread_key!==result.state!.thread_key),result.state!]);return true}
   catch{setError('Mailbox preference could not be saved.');return false}finally{setSaving(false)}
  }
  async function notify(contact:string,value:boolean){
   setSaving(true);setError('')
-  try{const result=await saveInboxContact(contact,{action:'notify',value});if(result.error||!result.state){setError(result.error||'Mailbox preference could not be saved.');return}setContacts(values=>[...values.filter(state=>state.contact!==contact),result.state!])}
+  try{const result=await saveInboxContact(contact,{action:'notify',value},account);if(result.error||!result.state){setError(result.error||'Mailbox preference could not be saved.');return}setContacts(values=>[...values.filter(state=>state.contact!==contact),result.state!])}
   catch{setError('Mailbox preference could not be saved.')}finally{setSaving(false)}
  }
  async function loadMessage(meta:InboxEmail,request=sequence.current){
   const key=messageKey(meta),old=cache.current[key]
   if(old?.loaded&&!old.archive_error&&!old.attachment_error)return true
   try{
-   const result=await loadInboxEmail(meta.id,meta.direction||'inbound')
+   const result=await loadInboxEmail(meta.id,meta.direction||'inbound',account)
    if(request!==sequence.current)return false
    if(!result.email){setMessageErrors(values=>({...values,[key]:result.error||'This email could not be opened. Please retry.'}));return false}
    remember(result.email);setMessageErrors(values=>({...values,[key]:''}));return true
@@ -93,20 +94,20 @@ export function SupportInbox({initial,initialEmail}:{initial:InboxPage;initialEm
  async function reload(more=false){
   setBusy(true);setError('')
   try{
-   const next=await loadInboxPage(more?page.next:undefined),emails=mergeEmails(page.emails,next.emails,Object.values(cache.current))
+   const next=await loadInboxPage(more?page.next:undefined,account),emails=mergeEmails(page.emails,next.emails,Object.values(cache.current))
    setPage({...next,emails});if(next.threads)setStates(next.threads);if(next.contacts)setContacts(next.contacts);if(next.error)setError(next.error)
    if(selected)await open(selected,emails)
   }catch{setError('Incoming mail could not be loaded. Please retry.')}finally{setBusy(false)}
  }
- function sent(email:InboxEmail){remember(email);setCompose(null);setQuickDirty(false);setQuickVersion(value=>value+1);setSelected(email.thread_id||'mail:'+messageKey(email));setNotice('Email sent from support@koryx.ca.');requestAnimationFrame(()=>log.current?.scrollTo({top:log.current.scrollHeight,behavior:'smooth'}))}
+ function sent(email:InboxEmail){remember(email);setCompose(null);setQuickDirty(false);setQuickVersion(value=>value+1);setSelected(email.thread_id||'mail:'+messageKey(email));setNotice('Email sent from '+mailAccounts[account].address+'.');requestAnimationFrame(()=>log.current?.scrollTo({top:log.current.scrollHeight,behavior:'smooth'}))}
  async function draftFor(kind:'reply',meta:InboxEmail){
   if(!await loadMessage(meta))return
   setNotice('');setCompose({kind,email:cache.current[messageKey(meta)]||meta})
  }
- const composer=compose&&<InboxComposer key={compose.kind+(compose.kind==='new'?compose.to||'':messageKey(compose.email))} reply={compose.kind==='reply'?compose.email:undefined} defaultTo={compose.kind==='new'?compose.to:undefined} onClose={()=>setCompose(null)} onSent={sent}/>
+ const composer=compose&&<InboxComposer account={account} key={compose.kind+(compose.kind==='new'?compose.to||'':messageKey(compose.email))} reply={compose.kind==='reply'?compose.email:undefined} defaultTo={compose.kind==='new'?compose.to:undefined} onClose={()=>setCompose(null)} onSent={sent}/>
  return <div className={`${s.shell} ${m.mailbox}`}>
   <header className={s.header}>
-   <div><p className={s.eyebrow}>Koryx / support@koryx.ca</p><h1 className={s.title}>{t('Support inbox')}</h1><p className={s.muted}>{t('New emails start separate conversations. Replies stay with their original email.')}</p></div>
+   <div><p className={s.eyebrow}>Koryx / {mailAccounts[account].address}</p><h1 className={s.title}>{t(mailAccounts[account].title)}</h1><p className={s.muted}>{t('New emails start separate conversations. Replies stay with their original email.')}</p></div>
    <div className="flex gap-3 flex-wrap">
     <button type="button" className={s.primary} disabled={!page.canSend||Boolean(compose)||quickDirty} onClick={()=>{setNotice('');setCompose({kind:'new'})}}><SquarePen size={15}/>{t('New email')}</button>
     <button type="button" className={s.secondary} disabled={busy||loading||quickDirty} onClick={()=>reload()}>{busy?<Loader2 size={15} className={s.spin}/>:<RefreshCw size={15}/>} {t('Refresh inbox')}</button>
@@ -149,7 +150,7 @@ export function SupportInbox({initial,initialEmail}:{initial:InboxPage;initialEm
       {active.messages.filter(meta=>!messageSearch||(meta.subject+' '+(details[messageKey(meta)]?.text||'')).toLowerCase().includes(messageSearch.toLowerCase())).map(meta=>{
        const key=messageKey(meta),email=details[key]||meta,outbound=email.direction==='outbound'
        return <article key={key} data-message-id={email.id} data-mail-direction={outbound?'outbound':'inbound'} className={m.message}>
-        <div className="flex items-center justify-between gap-3 flex-wrap"><p className="text-xs [overflow-wrap:anywhere]"><span className="text-white/40 mr-2">{t('From')}:</span><span className="text-white/80">{outbound?'Koryx <support@koryx.ca>':email.from}</span></p><time dateTime={email.created_at} className="text-[10px] text-white/40">{date(email.created_at)}</time></div>
+        <div className="flex items-center justify-between gap-3 flex-wrap"><p className="text-xs [overflow-wrap:anywhere]"><span className="text-white/40 mr-2">{t('From')}:</span><span className="text-white/80">{email.from}</span></p><time dateTime={email.created_at} className="text-[10px] text-white/40">{date(email.created_at)}</time></div>
         <div className={m.messageSubject}><span>{t('Subject')}</span><h3>{email.subject}</h3></div><div className={m.messageDivider}/>
         {email.loaded?<><EmailContent key={key+(email.body_html||email.text||'')} email={email}/>{email.archive_error&&<p role="alert" className={s.notice+' mt-3'}>{t(email.archive_error)}</p>}{email.attachment_error&&<p role="alert" className={s.notice+' mt-3'}>{t(email.attachment_error)}</p>}{(email.archive_error||email.attachment_error)&&<button type="button" className={s.secondary+' mt-3'} onClick={()=>loadMessage(meta)}>{t('Retry loading')}</button>}</>:<button type="button" className={s.secondary+' mt-4'} onClick={()=>loadMessage(meta)}>{t('Open message and files')}</button>}
         {messageErrors[key]&&<p role="alert" className={s.notice+' mt-3'}>{t(messageErrors[key])}</p>}
@@ -158,9 +159,9 @@ export function SupportInbox({initial,initialEmail}:{initial:InboxPage;initialEm
       })}
      </div>
      {compose&&compose.kind!=='new'&&composer}
-     {!compose&&replyTarget&&page.canSend&&!loading&&<div ref={quickBox}><InboxComposer key={'conversation/'+active.id+'/'+quickVersion} compact reply={replyTarget} onDraftChange={setQuickDirty} onClose={()=>{setQuickDirty(false);setQuickVersion(value=>value+1)}} onSent={sent}/></div>}
+     {!compose&&replyTarget&&page.canSend&&!loading&&<div ref={quickBox}><InboxComposer account={account} key={'conversation/'+active.id+'/'+quickVersion} compact reply={replyTarget} onDraftChange={setQuickDirty} onClose={()=>{setQuickDirty(false);setQuickVersion(value=>value+1)}} onSent={sent}/></div>}
      {quickDirty&&<p className={s.notice+' mt-3'}>{t('Send or clear this message before changing conversations.')}</p>}
-    </>:<div className={m.empty}><Mail size={30} className="mx-auto mb-5"/><h2>{t('Select a message to read it.')}</h2><p className={s.notice+' mt-4'}>{t('Only your Founder account can access this inbox.')}</p></div>}
+    </>:<div className={m.empty}><Mail size={30} className="mx-auto mb-5"/><h2>{t('Select a message to read it.')}</h2><p className={s.notice+' mt-4'}>{t('Only your CEO account can access this inbox.')}</p></div>}
    </section>
   </div>
   <p className={m.footer}><span className={m.live}>{t('Inbox refreshes while this page is open.')}</span> · {t('Notifications are off unless you enable them for a person.')}</p>

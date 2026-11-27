@@ -1,10 +1,11 @@
 import 'server-only'
+import {isSupportSnapshot} from '@/lib/inbox/types'
 import type {SupabaseClient} from '@supabase/supabase-js'
 import type {Database} from '@/lib/supabase/types'
 import type {MailJob} from './mail'
 import {sendMail} from './mail'
 export async function queueMail(db:SupabaseClient<Database>,input:Omit<MailJob,'id'|'created_at'|'status'|'email_id'|'error'|'attempted_at'>){
- const {data,error}=await db.from('billing_mail').insert({...input,status:'pending',email_id:null,error:null,attempted_at:null}).select('*').single()
+ const {data,error}=await db.from('billing_mail').insert({...input,mail_account:isSupportSnapshot(input.snapshot)?input.snapshot.email.mail_account||'support':'support',status:'pending',email_id:null,error:null,attempted_at:null}).select('*').single()
  if(error?.code==='23505'){const {data:old}=await db.from('billing_mail').select('*').eq('dedupe_key',input.dedupe_key).single();if(old)return old}
  if(error||!data)throw new Error('Email could not be queued.');return data
 }

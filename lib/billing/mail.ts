@@ -5,7 +5,7 @@ import type {BillingSnapshot,DocumentSelection} from './types'
 import {isSupportSnapshot,type SupportMailSnapshot} from '@/lib/inbox/types'
 import type {SupabaseClient} from '@supabase/supabase-js'
 import type {Database} from '@/lib/supabase/types'
-export type MailJob={id:string;dedupe_key:string;user_id:string;to_address:string;from_address:string;subject:string;html:string;snapshot:BillingSnapshot|SupportMailSnapshot|null;documents:DocumentSelection|'none';status:string;email_id:string|null;error:string|null;attempted_at:string|null;created_at:string}
+export type MailJob={mail_account?:import('@/lib/inbox/accounts').MailAccount;id:string;dedupe_key:string;user_id:string;to_address:string;from_address:string;subject:string;html:string;snapshot:BillingSnapshot|SupportMailSnapshot|null;documents:DocumentSelection|'none';status:string;email_id:string|null;error:string|null;attempted_at:string|null;created_at:string}
 export async function sendMail(job:Pick<MailJob,'to_address'|'from_address'|'subject'|'html'|'snapshot'|'documents'>,key:string,db?:SupabaseClient<Database>):Promise<{id?:string;error?:string;uncertain?:boolean}>{
  if(!process.env.RESEND_API_KEY)return {error:'Email is not configured.',uncertain:false}
  if(isSupportSnapshot(job.snapshot)){const {sendArchivedSupportEmail}=await import('../inbox/archive');return sendArchivedSupportEmail(db,job.snapshot)}

@@ -1,4 +1,5 @@
 'use client'
+import {mailAccounts,type MailAccount} from '@/lib/inbox/accounts'
 import {useEffect,useRef,useState,type FormEvent} from 'react'
 import {Bold,Italic,Underline,Strikethrough,List,ListOrdered,Link as LinkIcon,ImagePlus,Undo2,Redo2,Type,FileText,Loader2,Paperclip,Send,X} from 'lucide-react'
 import {MAX_MAIL_BYTES,MAX_MAIL_FILES,isPreviewImage,type InboxEmail} from '@/lib/inbox/types'
@@ -7,7 +8,7 @@ import s from '@/components/workspace/workspace.module.css'
 import m from './inbox.module.css'
 
 type Upload={id:string;file:File;inline:boolean;url:string}
-export function InboxComposer({reply:targetReply,defaultTo='',compact=false,onDraftChange,onClose,onSent}:{reply?:InboxEmail;defaultTo?:string;compact?:boolean;onDraftChange?:(dirty:boolean)=>void;onClose:()=>void;onSent:(email:InboxEmail)=>void}){
+export function InboxComposer({account='support',reply:targetReply,defaultTo='',compact=false,onDraftChange,onClose,onSent}:{account?:MailAccount;reply?:InboxEmail;defaultTo?:string;compact?:boolean;onDraftChange?:(dirty:boolean)=>void;onClose:()=>void;onSent:(email:InboxEmail)=>void}){
  const {t}=useFounderLanguage()
  const [initialReply]=useState(targetReply),reply=compact?initialReply:targetReply
  const target=reply?.direction==='outbound'?reply.to[0]||'':reply?.reply_to?.[0]||reply?.from||defaultTo
@@ -48,7 +49,7 @@ export function InboxComposer({reply:targetReply,defaultTo='',compact=false,onDr
   for(const img of copy.querySelectorAll('img')){const id=img.dataset.inlineId;if(id&&uploads.some(upload=>upload.id===id))img.setAttribute('src','cid:'+id);else img.remove()}
   inFlight.current=true;setSending(true);setError('')
   const form=new FormData()
-  for(const [key,value] of Object.entries({to,subject,text:plain,html:copy.innerHTML,inlineIds:JSON.stringify(uploads.map(upload=>upload.inline?upload.id:'')),requestId:draft.id,startedAt:String(draft.startedAt),replyId:reply?.id||'',replyDirection:reply?.direction||'inbound'}))form.set(key,value)
+  for(const [key,value] of Object.entries({account,to,subject,text:plain,html:copy.innerHTML,inlineIds:JSON.stringify(uploads.map(upload=>upload.inline?upload.id:'')),requestId:draft.id,startedAt:String(draft.startedAt),replyId:reply?.id||'',replyDirection:reply?.direction||'inbound'}))form.set(key,value)
   for(const upload of uploads)form.append('files',upload.file)
   try{
    const response=await fetch('/api/inbox/send',{method:'POST',body:form})
@@ -61,7 +62,7 @@ export function InboxComposer({reply:targetReply,defaultTo='',compact=false,onDr
  const tools=[['bold','Bold',Bold],['italic','Italic',Italic],['underline','Underline',Underline],['strikeThrough','Strikethrough',Strikethrough],['insertUnorderedList','Bulleted list',List],['insertOrderedList','Numbered list',ListOrdered],['undo','Undo',Undo2],['redo','Redo',Redo2]] as const
  return <section className={`${s.panel} ${m.composer} ${compact?m.quickComposer:''}`} aria-label={t(title)}>
   <div className="flex justify-between items-center gap-3 mb-4"><h2>{t(title)}</h2>{compact&&<button type="button" className={s.secondary} aria-expanded={formatting} onClick={()=>setFormatting(value=>!value)}><Type size={15}/>{t('Formatting')}</button>}<button type="button" disabled={sending||uncertain||compact&&!text.trim()&&!uploads.length} onClick={onClose} className={s.secondary}><X size={15}/>{t(compact?'Clear message':'Close draft')}</button></div>
-  <p className={`${s.notice} mb-5`}>{compact?<>{t('To')}: {to}</>:<>{t('From')}: Koryx &lt;support@koryx.ca&gt;</>}</p>
+  <p className={`${s.notice} mb-5`}>{compact?<>{t('To')}: {to}</>:<>{t('From')}: {mailAccounts[account].name} &lt;{mailAccounts[account].address}&gt;</>}</p>
   <form onSubmit={send}>
    {!compact&&<div className="grid gap-4 sm:grid-cols-2"><label className={s.field}>{t('Recipient email')}<input ref={first} type="email" autoComplete="email" required maxLength={254} readOnly={Boolean(reply)||locked} value={to} onChange={event=>setTo(event.target.value)} placeholder="name@example.com"/></label>
     <label className={s.field}>{t('Subject')}<input required maxLength={200} readOnly={Boolean(reply)||locked} value={subject} onChange={event=>setSubject(event.target.value)}/></label></div>}
