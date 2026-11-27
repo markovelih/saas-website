@@ -1,4 +1,5 @@
 import 'server-only'
+import {mailAccounts,type MailAccount} from './accounts'
 import {z} from 'zod'
 import {paymentDb} from '@/lib/payments/server'
 import {queueMail,deliverMail} from '@/lib/billing/outbox'
@@ -22,9 +23,10 @@ export async function deliverInboxNotifications(){
  const {data:account,error:accountError}=await db.auth.admin.getUserById(owner)
  const recipient=z.string().email().safeParse(account.user?.email)
  if(accountError||!recipient.success||!account.user?.email_confirmed_at||mailbox(recipient.data)==='support@koryx.ca')throw Error('Notification address unavailable.')
- const [index,threadStates]=await Promise.all([readHeaderRows(db,owner),readThreadStates(db,owner)])
- const readStates=new Map(mailConversations(index.map(row=>row.email),threadStates).flatMap(thread=>thread.messages.map(email=>[messageKey(email),thread.state] as const)))
- const since=Math.min(...preferences.map(p=>Date.parse(p.notify_since!))),contacts=new Map(preferences.map(p=>[p.contact,p]))
+ const accountIds=Object.keys(mailAccounts) as MailAccount[]
+ const all=await Promise.all(accountIds.map(async account=>({account,index:await readHeaderRows(db,owner,account),states:await readThreadStates(db,owner,account)})))
+ const readStates=new Map(all.flatMap(({account,index,states})=>mailConversations(index.map(row=>row.email),states).flatMap(thread=>thread.messages.map(email=>[account+'/'+messageKey(email),thread.state] as const))))
+ const since=Math.min(...preferences.map(p=>Date.parse(p.notify_since!))),contacts=new Map(preferences.map(p=>[(p.mail_account||'support')+'/'+p.contact,p]))
  let after:string|undefined,sent=0,checked=0,complete=false
  for(let page=0;page<10;page++){
   const response=await fetch('https://api.resend.com/emails/receiving?limit=100'+(after?'&after='+encodeURIComponent(after):''),{headers:{Authorization:'Bearer '+process.env.RESEND_INBOUND_API_KEY},cache:'no-store',signal:AbortSignal.timeout(15000)})
@@ -32,18 +34,21 @@ export async function deliverInboxNotifications(){
   const result=await response.json()
   if(!Array.isArray(result.data))throw Error('Invalid incoming mail response.')
   for(const item of result.data){
-   if(!z.string().uuid().safeParse(item.id).success||!supportRecipient(item))continue
-   const email={...item,direction:'inbound'} as InboxEmail,state=contacts.get(contactForEmail(email))
-   const thread=readStates.get(messageKey(email))
+   if(!z.string().uuid().safeParse(item.id).success)continue
+   for(const account of accountIds){
+   if(!supportRecipient(item,account))continue
+   const email={...item,mail_account:account,direction:'inbound'} as InboxEmail,state=contacts.get(account+'/'+contactForEmail(email))
+   const thread=readStates.get(account+'/'+messageKey(email))
    if(!state||!shouldNotify(state,email,thread))continue
    // Re-read consent immediately before queueing/delivery. Opting out takes effect on the next check.
-   const current=await db.from('support_inbox_contacts').select('*').eq('user_id',owner).eq('contact',state.contact).single()
+   const current=await db.from('support_inbox_contacts').select('*').eq('user_id',owner).eq('contact',state.contact).eq('mail_account',account).single()
    if(!current.data||!shouldNotify(current.data,email,thread))continue
-   const job=await queueMail(db,{dedupe_key:`inbox-notification/${owner}/${email.id}`,user_id:owner,to_address:recipient.data,from_address:'support@koryx.ca',subject:'Koryx — у вас є нове повідомлення',html:brandedEmail('<h1>У вас є нове повідомлення в Koryx</h1><p>Ви ввімкнули сповіщення для цього контакту. Відкрийте пошту компанії, щоб прочитати лист і переглянути вкладення.</p><p><a href="https://koryx.ca/dashboard/inbox?email='+email.id+'">Відкрити пошту Koryx</a></p><p>Вимкнути сповіщення можна в розмові з цим контактом.</p>'),snapshot:null,documents:'none'})
+   const job=await queueMail(db,{dedupe_key:`inbox-notification/${owner}/${account==='ceo'?'ceo/':''}${email.id}`,user_id:owner,to_address:recipient.data,from_address:'support@koryx.ca',subject:'Koryx — у вас є нове повідомлення',html:brandedEmail('<h1>У вас є нове повідомлення в Koryx</h1><p>Ви ввімкнули сповіщення для цього контакту. Відкрийте пошту компанії, щоб прочитати лист і переглянути вкладення.</p><p><a href="https://koryx.ca'+mailAccounts[account].href+'?email='+email.id+'">Відкрити пошту Koryx</a></p><p>Вимкнути сповіщення можна в розмові з цим контактом.</p>'),snapshot:null,documents:'none'})
    checked++
    const alreadySent=job.status==='sent',delivered=await deliverMail(db,job)
    if(delivered.error)throw Error('Mailbox notification delivery needs a retry.')
    if(!alreadySent)sent++
+   }
   }
   if(!result.has_more||result.data.some((email:InboxEmail)=>Date.parse(email.created_at)<=since)){complete=true;break}
   after=result.data.at(-1)?.id

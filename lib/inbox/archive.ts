@@ -1,4 +1,5 @@
 import 'server-only'
+import {mailAccounts,type MailAccount} from './accounts'
 import {createHash} from 'node:crypto'
 import type {SupabaseClient} from '@supabase/supabase-js'
 import type {Database} from '@/lib/supabase/types'
@@ -42,23 +43,23 @@ export function archivedEmail(job:MailJob,detail=true):InboxEmail|null{
   attachments:snapshot.files.map(({id,filename,content_type,size,content_id})=>({id,filename,content_type,size,content_id})),
  }
 }
-export async function findArchivedMail(db:Db,userId:string,id:string,direction:MailDirection){
+export async function findArchivedMail(db:Db,userId:string,id:string,direction:MailDirection,account:MailAccount='support'){
  for(const column of ['email_id','id'] as const){
-  const result=await db.from('billing_mail').select('*').eq('user_id',userId).like('dedupe_key','support-mail/%').eq(column,id).limit(1).maybeSingle()
+  const result=await db.from('billing_mail').select('*').eq('user_id',userId).eq('mail_account',account).like('dedupe_key','support-mail/%').eq(column,id).limit(1).maybeSingle()
   if(result.error)throw Error('Saved mail could not be loaded. Please retry.')
-  if(result.data&&isSupportSnapshot(result.data.snapshot)&&result.data.snapshot.direction===direction)return result.data
+  if(result.data&&isSupportSnapshot(result.data.snapshot)&&result.data.snapshot.direction===direction&&(result.data.snapshot.email.mail_account||'support')===account)return result.data
  }
  return null
 }
-export async function readArchivedPage(db:Db,userId:string,offset=0){
- const {data,error}=await db.from('support_mail_index').select('*').eq('user_id',userId).order('created_at',{ascending:false}).order('id',{ascending:false}).range(offset,offset+39)
+export async function readArchivedPage(db:Db,userId:string,offset=0,account:MailAccount='support'){
+ const {data,error}=await db.from('support_mail_index').select('*').eq('user_id',userId).eq('mail_account',account).order('created_at',{ascending:false}).order('id',{ascending:false}).range(offset,offset+39)
  if(error)throw Error('Saved mail could not be loaded. Please retry.')
  return {emails:(data||[]).map(job=>archivedEmail(job,false)).filter((email):email is InboxEmail=>Boolean(email)),hasMore:data?.length===40}
 }
 export async function saveImportedMail(db:Db,userId:string,email:InboxEmail,files:ArchivedMailFile[]){
  const direction=email.direction||'inbound'
  const snapshot:SupportMailSnapshot={kind:'support_email',version:1,direction,email:{...email,attachments:[],archive_error:undefined,attachment_error:undefined},files}
- const result=await db.from('billing_mail').upsert({dedupe_key:`support-mail/${direction}/${email.id}`,user_id:userId,
+ const result=await db.from('billing_mail').upsert({dedupe_key:`support-mail/${email.mail_account==='ceo'?'ceo/':''}${direction}/${email.id}`,user_id:userId,mail_account:email.mail_account||'support',
   to_address:email.to[0]||'support@koryx.ca',from_address:email.from,subject:email.subject,
   html:'',snapshot,documents:'none',status:'sent',email_id:email.id,error:null,attempted_at:email.created_at,created_at:email.created_at,
  },{onConflict:'dedupe_key'})
@@ -76,7 +77,8 @@ export async function sendArchivedSupportEmail(db:Db|undefined,snapshot:SupportM
  const attachments=[]
  try{for(const file of snapshot.files)attachments.push({filename:file.filename,content:Buffer.from(await archivedFileBytes(db,file)).toString('base64'),content_type:file.content_type,...(file.content_id?{content_id:file.content_id}:{})})}
  catch{return {error:'Saved attachments could not be loaded. Please retry.',uncertain:false}}
- const payload={from:'Koryx <support@koryx.ca>',to:snapshot.email.to,reply_to:'support@koryx.ca',subject:snapshot.email.subject,
+ const account=mailAccounts[snapshot.email.mail_account||'support']
+ const payload={from:`${account.name} <${account.address}>`,to:snapshot.email.to,reply_to:account.address,subject:snapshot.email.subject,
   text:snapshot.email.text||'',...(snapshot.email.html?{html:snapshot.email.html}:{}),attachments,...(Object.keys(snapshot.headers||{}).length?{headers:snapshot.headers}:{}),
  }
  try{

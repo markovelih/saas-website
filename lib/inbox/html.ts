@@ -33,7 +33,7 @@ export function mailBody(email:InboxEmail,external=false){
    return {tagName,attribs:a}
   },img:(_tag,a):sanitizeHtml.Tag=>{
    const file=/^cid:/i.test(a.src||'')?email.attachments.find(file=>file.content_id&&contentId(file.content_id)===contentId(a.src)&&isPreviewImage(file.content_type)):undefined
-   if(file){used.add(file.id);return {tagName:'img',attribs:{src:`/api/inbox/${email.id}/attachments/${file.id}?preview=1&direction=${email.direction||'inbound'}`,alt:a.alt||file.filename,loading:'lazy'}}}
+   if(file){used.add(file.id);return {tagName:'img',attribs:{src:`/api/inbox/${email.id}/attachments/${file.id}?preview=1&direction=${email.direction||'inbound'}&account=${email.mail_account||'support'}`,alt:a.alt||file.filename,loading:'lazy'}}}
    if(external&&/^https:\/\//i.test(a.src||''))return {tagName:'img',attribs:{src:a.src,alt:a.alt||'Email image',referrerpolicy:'no-referrer',loading:'lazy'}}
    return {tagName:'span',attribs:{},text:a.alt?'['+a.alt+']':''}
   }},

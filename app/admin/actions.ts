@@ -1,5 +1,6 @@
 'use server'
 
+import {isFounder} from '@/lib/workspace'
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
@@ -16,7 +17,7 @@ async function requireAdmin() {
     redirect('/login')
   }
 
-  const isAdmin = user.email === 'artpas01@gmail.com'
+  const isAdmin = isFounder(user.id)
 
   if (!isAdmin) {
     redirect('/dashboard')

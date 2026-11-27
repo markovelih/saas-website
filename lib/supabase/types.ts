@@ -56,7 +56,7 @@ export interface Database {
       support_inbox_threads:{Relationships:[];Row:InboxThreadState;Insert:Pick<InboxThreadState,'user_id'|'thread_key'>&Partial<InboxThreadState>;Update:Partial<InboxThreadState>}
       support_mail_headers:{Relationships:[];Row:InboxHeaderRow;Insert:InboxHeaderRow;Update:Partial<InboxHeaderRow>}
       support_inbox_contacts:{Relationships:[];Row:InboxContactState;Insert:Pick<InboxContactState,'user_id'|'contact'>&Partial<InboxContactState>;Update:Partial<InboxContactState>}
-      support_mail_index:{Relationships:[];Row:MailJob;Insert:never;Update:never}
+      support_mail_index:{Relationships:[];Row:MailJob&{mail_account:import('@/lib/inbox/accounts').MailAccount};Insert:never;Update:never}
       project_source_webhook_events:{Relationships:[];Row:{id:string;created_at:string};Insert:{id:string};Update:never}
       project_source_links:{Relationships:[];Row:SourceLink;Insert:Omit<SourceLink,'created_at'>;Update:Partial<SourceLink>}
       project_source_relays:{Relationships:[];Row:SourceRelay;Insert:never;Update:Partial<SourceRelay>}
