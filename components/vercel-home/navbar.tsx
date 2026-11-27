@@ -1,5 +1,6 @@
 'use client'
 
+import {useAssistant} from '@/components/ai/assistant-provider'
 import {ThemeSwitch} from '@/components/manager/theme'
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
@@ -17,9 +18,10 @@ const serviceLinks = [
   { slug: 'seo-speed', label: 'Performance & SEO', desc: 'Faster pages and technical foundations', icon: Search },
   { slug: 'security', label: 'Security & launch', desc: 'HTTPS, hosting, and access controls', icon: ShieldCheck },
 ]
-const links = [['Catalog', '/catalog'], ['Process', '/process'], ['Pricing', '/pricing'], ['FAQ', '/faq'], ['Ask AI','/ai']]
+const links = [['Catalog', '/catalog'], ['Process', '/process'], ['Pricing', '/pricing'], ['FAQ', '/faq']]
 
 export function Navbar() {
+  const {open:aiOpen,openAssistant}=useAssistant()
   const [servicesOpen, setServicesOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const reduce = useReducedMotion()
@@ -67,9 +69,9 @@ export function Navbar() {
         </div>
         {links.map(([label,href])=><Link key={href} href={href} onMouseEnter={scheduleClose} className="px-3 py-2 text-[13px] text-white/65 hover:text-white">{label}</Link>)}
       </nav>
-      <div className="ml-auto flex items-center gap-3"><ThemeSwitch/><div className="hidden lg:flex gap-3 items-center"><Link href="/login" className="text-[13px] text-white/60 hover:text-white px-3">Client login</Link><Link href="/dashboard/new-order" className="bg-white rounded-lg px-4 py-2 text-[13px] font-medium text-black flex items-center gap-2 hover:bg-white/90">Start a project <ArrowRight size={13}/></Link></div>
-      <button ref={mobileButton} aria-label={mobileOpen?'Close navigation':'Open navigation'} aria-expanded={mobileOpen} aria-controls="mobile-navigation" onClick={()=>setMobileOpen(!mobileOpen)} className="lg:hidden rounded-lg p-2 border border-white/15">{mobileOpen?<X size={20}/>:<Menu size={20}/>}</button></div>
+      <div className="ml-auto flex items-center gap-3"><div className="hidden sm:block"><ThemeSwitch/></div><div className="hidden lg:flex gap-3 items-center"><button type="button" aria-haspopup="dialog" aria-expanded={aiOpen} aria-controls="koryx-ai-panel" onClick={()=>{close();openAssistant()}} className="rounded-lg border border-white/15 px-3 py-2 text-[13px] text-white/75 transition-colors hover:bg-white/[.06] hover:text-white">Ask AI</button><Link href="/dashboard/new-order" className="bg-white rounded-lg px-4 py-2 text-[13px] font-medium text-black flex items-center gap-2 hover:bg-white/90">Start a project <ArrowRight size={13}/></Link></div>
+      <button type="button" aria-haspopup="dialog" aria-expanded={aiOpen} aria-controls="koryx-ai-panel" onClick={()=>{close();openAssistant()}} className="lg:hidden rounded-lg px-3 py-2 text-[13px] border border-white/15 text-white/75">Ask AI</button><button ref={mobileButton} aria-label={mobileOpen?'Close navigation':'Open navigation'} aria-expanded={mobileOpen} aria-controls="mobile-navigation" onClick={()=>setMobileOpen(!mobileOpen)} className="lg:hidden rounded-lg p-2 border border-white/15">{mobileOpen?<X size={20}/>:<Menu size={20}/>}</button></div>
     </div>
-    <AnimatePresence>{mobileOpen&&<motion.nav id="mobile-navigation" aria-label="Mobile navigation" initial={reduce?false:{opacity:0,y:-8}} animate={{opacity:1,y:0}} exit={{opacity:0}} className="lg:hidden fixed top-16 inset-x-0 h-[calc(100dvh-64px)] overflow-y-auto bg-black border-t border-white/10 p-6"><Link href="/services" onClick={close} className="text-2xl block mb-5">Services</Link><div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-7">{serviceLinks.map(item=><Link href={`/services/${item.slug}`} key={item.slug} onClick={close} className="flex gap-3 py-2 text-sm text-white/60"><item.icon size={17}/>{item.label}</Link>)}</div>{links.map(([label,href])=><Link href={href} key={href} onClick={close} className="block border-t border-white/10 py-4 text-lg">{label}</Link>)}<div className="grid gap-3 mt-7"><Link onClick={close} href="/dashboard/new-order" className="rounded-lg bg-white text-black py-3 text-center font-medium">Start a project</Link><Link onClick={close} href="/login" className="rounded-lg border border-white/20 py-3 text-center text-white/60">Client login</Link></div></motion.nav>}</AnimatePresence>
+    <AnimatePresence>{mobileOpen&&<motion.nav id="mobile-navigation" aria-label="Mobile navigation" initial={reduce?false:{opacity:0,y:-8}} animate={{opacity:1,y:0}} exit={{opacity:0}} className="lg:hidden fixed top-16 inset-x-0 h-[calc(100dvh-64px)] overflow-y-auto bg-black border-t border-white/10 p-6"><div className="sm:hidden flex items-center justify-between mb-6"><span className="text-xs text-white/50">Appearance</span><ThemeSwitch/></div><Link href="/services" onClick={close} className="text-2xl block mb-5">Services</Link><div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-7">{serviceLinks.map(item=><Link href={`/services/${item.slug}`} key={item.slug} onClick={close} className="flex gap-3 py-2 text-sm text-white/60"><item.icon size={17}/>{item.label}</Link>)}</div>{links.map(([label,href])=><Link href={href} key={href} onClick={close} className="block border-t border-white/10 py-4 text-lg">{label}</Link>)}<div className="grid gap-3 mt-7"><Link onClick={close} href="/dashboard/new-order" className="rounded-lg bg-white text-black py-3 text-center font-medium">Start a project</Link><Link onClick={close} href="/login" className="rounded-lg border border-white/20 py-3 text-center text-white/60">Client login</Link></div></motion.nav>}</AnimatePresence>
   </header>
 }
